@@ -3520,6 +3520,73 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         RELAY_STATE_FAILURE = 3,
     }
 
+    /** Statistics of the local video stream.
+	 */
+    public struct LocalVideoStats
+    {
+        /** Bitrate (Kbps) sent in the reported interval, which does not include
+		 * the bitrate of the retransmission video after packet loss.
+		 */
+        public int sentBitrate { set; get; }
+
+        /** Frame rate (fps) sent in the reported interval, which does not include
+		 * the frame rate of the retransmission video after packet loss.
+		 */
+        public int sentFrameRate { set; get; }
+
+        /** The encoder output frame rate (fps) of the local video.
+		 */
+        public int encoderOutputFrameRate { set; get; }
+
+        /** The render output frame rate (fps) of the local video.
+		 */
+        public int rendererOutputFrameRate { set; get; }
+
+        /** The target bitrate (Kbps) of the current encoder. This value is estimated by the SDK based on the current network conditions.
+		 */
+        public int targetBitrate { set; get; }
+
+        /** The target frame rate (fps) of the current encoder.
+		 */
+        public int targetFrameRate { set; get; }
+
+        /** Quality change of the local video in terms of target frame rate and
+		 * target bit rate in this reported interval. See #QUALITY_ADAPT_INDICATION.
+		 */
+        public QUALITY_ADAPT_INDICATION qualityAdaptIndication { set; get; }
+
+        /** The encoding bitrate (Kbps), which does not include the bitrate of the
+		 * re-transmission video after packet loss.
+		 */
+        public int encodedBitrate { set; get; }
+
+        /** The width of the encoding frame (px).
+		 */
+        public int encodedFrameWidth { set; get; }
+
+        /** The height of the encoding frame (px).
+		 */
+        public int encodedFrameHeight { set; get; }
+
+        /** The value of the sent frames, represented by an aggregate value.
+		 */
+        public int encodedFrameCount { set; get; }
+
+        /** The codec type of the local video:
+		 * - VIDEO_CODEC_VP8 = 1: VP8.
+		 * - VIDEO_CODEC_H264 = 2: (Default) H.264.
+		 */
+        public VIDEO_CODEC_TYPE codecType { set; get; }
+
+        /** The video packet loss rate (%) from the local client to the Agora edge server before applying the anti-packet loss strategies.
+		 */
+        public ushort txPacketLossRate { set; get; }
+
+        /** The capture frame rate (fps) of the local video.
+		 */
+        public int captureFrameRate { set; get; }
+    }
+
     /** Statistics of the remote video stream.
 	 */
     public struct RemoteVideoStats
@@ -5159,6 +5226,50 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         LOG_LEVEL level { set; get; }
     };
 
+    /** Configurations for the `IRtcEngine` instance.
+     */
+    [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
+    public struct RtcEngineConfig
+    {
+        /** The App ID issued to you by Agora. See [How to get the App ID](https://docs.agora.io/en/Agora%20Platform/token#getappid).
+         * Only users in apps with the same App ID can join the same channel and communicate with each other. Use an 
+         * App ID to initialize only one `IRtcEngine` instance. To change your App ID, call 
+         * {@link agora_gaming_rtc.IRtcEngine.Destroy Destroy} to destroy the current `IRtcEngine` instance and then 
+         * call this method to initialize an `IRtcEngine` instance with the new App ID.
+         */
+        public string appId { get; set; }
+
+        /** The region for connection. This advanced feature applies to scenarios that have regional restrictions.
+         *
+         * For the regions that Agora supports, see #AREA_CODE. After specifying the region, the SDK connects to the 
+         * Agora servers within that region.
+         */
+        public AREA_CODE areaCode { get; set; }
+
+        /** The configuration of the log files that the SDK outputs. See {@link agora_gaming_rtc.LogConfig LogConfig}.
+         * 
+         * @since v3.3.1
+         * 
+         * By default, the SDK outputs five log files, `agorasdk.log`, `agorasdk_1.log`, 
+         * `agorasdk_2.log`, `agorasdk_3.log`, `agorasdk_4.log`, each with a default 
+         * size of 1024 KB. These log files are encoded in UTF-8. The SDK writes the 
+         * latest logs in `agorasdk.log`. When `agorasdk.log` is full, the SDK deletes 
+         * the log file with the earliest modification time among the other four, 
+         * renames `agorasdk.log` to the name of the deleted log file, and creates a 
+         * new `agorasdk.log` to record latest logs.
+         */
+        public LogConfig logConfig { get; set; }
+
+        /** Configurations for the `IRtcEngine` instance.
+         */
+        public RtcEngineConfig(string mAppId, LogConfig config, AREA_CODE mAreaCode = AREA_CODE.AREA_CODE_GLOB)
+        {
+            appId = mAppId;
+            areaCode = mAreaCode;
+            logConfig = config;
+        }
+    }
+
     /** Definition of RtcEngineContext.
 	 */
     public struct RtcEngineContext
@@ -5196,4 +5307,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             set { _areaCode = (uint) areaCode; }
         }
     };
+
+    internal static partial class ObsoleteMethodWarning
+    {
+    }
 }

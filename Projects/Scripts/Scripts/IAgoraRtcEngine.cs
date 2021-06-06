@@ -283,7 +283,7 @@ namespace agora_gaming_rtc
         public abstract int SendMetadata(Metadata metadata);
         public abstract int PushAudioFrame(MEDIA_SOURCE_TYPE type, AudioFrame frame, bool wrap);
         public abstract int PushAudioFrame(AudioFrame frame);
-        public abstract int PullAudioFrame(ref AudioFrame frame);
+        public abstract int PullAudioFrame(AudioFrame frame);
         public abstract int SetExternalVideoSource(bool enable, bool useTexture = false);
         public abstract int PushVideoFrame(ExternalVideoFrame frame);
     }

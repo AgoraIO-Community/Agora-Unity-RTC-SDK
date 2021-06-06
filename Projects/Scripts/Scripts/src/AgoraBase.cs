@@ -1,7 +1,7 @@
 //  AgoraEnums.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on May 25, 2021.
+//  Modified by Yiqing Huang on June 6, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -849,7 +849,7 @@ namespace agora_gaming_rtc
 
     /** Maximum length of user account.
  */
-    public enum MAX_USER_ACCOUNT_LENGTH_TYPE
+    public enum MAX_USER_ACCOUNT_LENGTH_T
     {
         /** The maximum length of user account is 255 bytes.
    */
@@ -3035,8 +3035,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** The uplink or downlink last-mile network probe test result. */
-    public struct LastmileProbeOneWayResult
+    public class LastmileProbeOneWayResult
     {
+        public LastmileProbeOneWayResult()
+        {
+        }
+
         public LastmileProbeOneWayResult(uint packetLossRate, uint jitter, uint availableBandwidth)
         {
             this.packetLossRate = packetLossRate;
@@ -3055,8 +3059,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** The uplink and downlink last-mile network probe test result. */
-    public struct LastmileProbeResult
+    public class LastmileProbeResult
     {
+        public LastmileProbeResult()
+        {
+        }
+
         public LastmileProbeResult(LASTMILE_PROBE_RESULT_STATE state, LastmileProbeOneWayResult uplinkReport,
             LastmileProbeOneWayResult downlinkReport, uint rtt)
         {
@@ -3080,8 +3088,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** Configurations of the last-mile network probe test. */
-    public struct LastmileProbeConfig
+    public class LastmileProbeConfig
     {
+        public LastmileProbeConfig()
+        {
+        }
+
         public LastmileProbeConfig(bool probeUplink, bool probeDownlink, uint expectedUplinkBitrate,
             uint expectedDownlinkBitrate)
         {
@@ -3111,8 +3123,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     /** Properties of the audio volume information.
 	 An array containing the user ID and volume information for each speaker.
 	 */
-    public struct AudioVolumeInfo
+    public class AudioVolumeInfo
     {
+        public AudioVolumeInfo()
+        {
+        }
+
         public AudioVolumeInfo(uint uid, uint volume, uint vad, string channelId)
         {
             this.uid = uid;
@@ -3150,11 +3166,14 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The detailed options of a user.
  */
-    public struct ClientRoleOptions
+    public class ClientRoleOptions
     {
-        public ClientRoleOptions(
-            AUDIENCE_LATENCY_LEVEL_TYPE audienceLatencyLevel =
-                AUDIENCE_LATENCY_LEVEL_TYPE.AUDIENCE_LATENCY_LEVEL_ULTRA_LOW_LATENCY)
+        public ClientRoleOptions()
+        {
+            audienceLatencyLevel = AUDIENCE_LATENCY_LEVEL_TYPE.AUDIENCE_LATENCY_LEVEL_LOW_LATENCY;
+        }
+
+        public ClientRoleOptions(AUDIENCE_LATENCY_LEVEL_TYPE audienceLatencyLevel)
         {
             this.audienceLatencyLevel = audienceLatencyLevel;
         }
@@ -3166,16 +3185,17 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Statistics of the channel.
 	 */
-    public struct RtcStats
+    public class RtcStats
     {
-        public RtcStats(uint duration = 0, uint txBytes = 0, uint rxBytes = 0, uint txAudioBytes = 0,
-            uint txVideoBytes = 0, uint rxAudioBytes = 0, uint rxVideoBytes = 0, ushort txKBitRate = 0,
-            ushort rxKBitRate = 0, ushort rxAudioKBitRate = 0, ushort txAudioKBitRate = 0,
-            ushort rxVideoKBitRate = 0, ushort txVideoKBitRate = 0, ushort lastmileDelay = 0,
-            ushort txPacketLossRate = 0, ushort rxPacketLossRate = 0, uint userCount = 0,
-            double cpuAppUsage = 0, double cpuTotalUsage = 0, int gatewayRtt = 0,
-            double memoryAppUsageRatio = 0, double memoryTotalUsageRatio = 0,
-            int memoryAppUsageInKbytes = 0)
+        public RtcStats()
+        {
+        }
+
+        public RtcStats(uint duration, uint txBytes, uint rxBytes, uint txAudioBytes, uint txVideoBytes,
+            uint rxAudioBytes, uint rxVideoBytes, ushort txKBitRate, ushort rxKBitRate, ushort rxAudioKBitRate,
+            ushort txAudioKBitRate, ushort rxVideoKBitRate, ushort txVideoKBitRate, ushort lastmileDelay,
+            ushort txPacketLossRate, ushort rxPacketLossRate, uint userCount, double cpuAppUsage, double cpuTotalUsage,
+            int gatewayRtt, double memoryAppUsageRatio, double memoryTotalUsageRatio, int memoryAppUsageInKbytes)
         {
             this.duration = duration;
             this.txBytes = txBytes;
@@ -3522,8 +3542,34 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Statistics of the local video stream.
 	 */
-    public struct LocalVideoStats
+    public class LocalVideoStats
     {
+        public LocalVideoStats()
+        {
+        }
+
+        public LocalVideoStats(int sentBitrate, int sentFrameRate, int encoderOutputFrameRate,
+            int rendererOutputFrameRate, int targetBitrate, int targetFrameRate,
+            QUALITY_ADAPT_INDICATION qualityAdaptIndication, int encodedBitrate, int encodedFrameWidth,
+            int encodedFrameHeight, int encodedFrameCount, VIDEO_CODEC_TYPE codecType, ushort txPacketLossRate,
+            int captureFrameRate)
+        {
+            this.sentBitrate = sentBitrate;
+            this.sentFrameRate = sentFrameRate;
+            this.encoderOutputFrameRate = encoderOutputFrameRate;
+            this.rendererOutputFrameRate = rendererOutputFrameRate;
+            this.targetBitrate = targetBitrate;
+            this.targetFrameRate = targetFrameRate;
+            this.qualityAdaptIndication = qualityAdaptIndication;
+            this.encodedBitrate = encodedBitrate;
+            this.encodedFrameWidth = encodedFrameWidth;
+            this.encodedFrameHeight = encodedFrameHeight;
+            this.encodedFrameCount = encodedFrameCount;
+            this.codecType = codecType;
+            this.txPacketLossRate = txPacketLossRate;
+            this.captureFrameRate = captureFrameRate;
+        }
+
         /** Bitrate (Kbps) sent in the reported interval, which does not include
 		 * the bitrate of the retransmission video after packet loss.
 		 */
@@ -3589,8 +3635,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Statistics of the remote video stream.
 	 */
-    public struct RemoteVideoStats
+    public class RemoteVideoStats
     {
+        public RemoteVideoStats()
+        {
+        }
+
         public RemoteVideoStats(uint uid, int delay, int width, int height, int receivedBitrate,
             int decoderOutputFrameRate, int rendererOutputFrameRate, int packetLossRate,
             REMOTE_VIDEO_STREAM_TYPE rxStreamType, int totalFrozenTime, int frozenRate, int totalActiveTime,
@@ -3680,8 +3730,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** Audio statistics of the local user */
-    public struct LocalAudioStats
+    public class LocalAudioStats
     {
+        public LocalAudioStats()
+        {
+        }
+
         public LocalAudioStats(int numChannels, int sentSampleRate, int sentBitrate, ushort txPacketLossRate)
         {
             this.numChannels = numChannels;
@@ -3708,8 +3762,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** Audio statistics of a remote user */
-    public struct RemoteAudioStats
+    public class RemoteAudioStats
     {
+        public RemoteAudioStats()
+        {
+        }
+
         public RemoteAudioStats(uint uid, int quality, int networkTransportDelay, int jitterBufferDelay,
             int audioLossRate, int numChannels, int receivedSampleRate, int receivedBitrate, int totalFrozenTime,
             int frozenRate, int totalActiveTime, int publishDuration, int qoeQuality, int qualityChangedReason,
@@ -3806,9 +3864,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     /**
 	 * Video dimensions.
 	 */
-    public struct VideoDimensions
+    public class VideoDimensions
     {
-        public VideoDimensions(int width = 640, int height = 480)
+        public VideoDimensions()
+        {
+            width = 640;
+            height = 480;
+        }
+
+        public VideoDimensions(int width, int height)
         {
             this.width = width;
             this.height = height;
@@ -3848,16 +3912,28 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Video encoder configurations.
 	 */
-    public struct VideoEncoderConfiguration
+    public class VideoEncoderConfiguration
     {
-        public VideoEncoderConfiguration(VideoDimensions dimensions = new VideoDimensions(),
+        public VideoEncoderConfiguration()
+        {
+            dimensions = null;
+            frameRate = FRAME_RATE.FRAME_RATE_FPS_15;
+            minBitrate = -1;
+            bitrate = (int) BITRATE.STANDARD_BITRATE;
+            minBitrate = (int) BITRATE.DEFAULT_MIN_BITRATE;
+            orientationMode = ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE;
+            degradationPreference = DEGRADATION_PREFERENCE.MAINTAIN_QUALITY;
+            mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO;
+        }
+
+        public VideoEncoderConfiguration(VideoDimensions dimensions,
             FRAME_RATE frameRate = FRAME_RATE.FRAME_RATE_FPS_15, int minFrameRate = -1,
             BITRATE bitrate = BITRATE.STANDARD_BITRATE, BITRATE minBitrate = BITRATE.DEFAULT_MIN_BITRATE,
             ORIENTATION_MODE orientationMode = ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE,
             DEGRADATION_PREFERENCE degradationPreference = DEGRADATION_PREFERENCE.MAINTAIN_QUALITY,
             VIDEO_MIRROR_MODE_TYPE mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO)
         {
-            this.dimensions = dimensions;
+            this.dimensions = dimensions ?? new VideoDimensions();
             this.frameRate = frameRate;
             this.minFrameRate = minFrameRate;
             this.bitrate = (int) bitrate;
@@ -3966,10 +4042,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The video and audio properties of the user displaying the video in the CDN live. Agora supports a maximum of 17 transcoding users in a CDN streaming channel.
 	 */
-    public struct TranscodingUser
+    public class TranscodingUser
     {
-        public TranscodingUser(uint uid = 0, int x = 0, int y = 0, int width = 0, int height = 0,
-            int zOrder = 0, double alpha = 1.0, int audioChannel = 0)
+        public TranscodingUser()
+        {
+            alpha = 1.0;
+        }
+
+        public TranscodingUser(uint uid, int x, int y, int width, int height, int zOrder, double alpha,
+            int audioChannel)
         {
             this.uid = uid;
             this.x = x;
@@ -4033,8 +4114,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     /** Image properties.
 	 The properties of the watermark and background images.
 	 */
-    public struct RtcImage
+    public class RtcImage
     {
+        public RtcImage()
+        {
+        }
+
         public RtcImage(string url, int x, int y, int width, int height)
         {
             this.url = url;
@@ -4063,9 +4148,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The configuration for advanced features of the RTMP streaming with transcoding.
 	 */
-    public struct LiveStreamAdvancedFeature
+    public class LiveStreamAdvancedFeature
     {
-        public LiveStreamAdvancedFeature(string featureName = "", bool opened = false)
+        public LiveStreamAdvancedFeature()
+        {
+            LBHQ = "lbhq";
+            VEO = "veo";
+        }
+
+        public LiveStreamAdvancedFeature(string featureName, bool opened = false)
         {
             LBHQ = "lbhq";
             VEO = "veo";
@@ -4091,21 +4182,42 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
 
-    /** A struct for managing CDN live audio/video transcoding settings.
+    /** A class for managing CDN live audio/video transcoding settings.
 	 */
-    public struct LiveTranscoding
+    public class LiveTranscoding
     {
-        public LiveTranscoding(int width = 360, int height = 640, int videoBitrate = 400, int videoFramerate = 15,
-            bool lowLatency = false, int videoGop = 30,
-            VIDEO_CODEC_PROFILE_TYPE videoCodecProfile = VIDEO_CODEC_PROFILE_TYPE.VIDEO_CODEC_PROFILE_HIGH,
-            uint backgroundColor = 0x000000,
-            VIDEO_CODEC_TYPE_FOR_STREAM videoCodecType = VIDEO_CODEC_TYPE_FOR_STREAM.VIDEO_CODEC_H264_FOR_STREAM,
-            uint userCount = 0, TranscodingUser[] transcodingUsers = null, string transcodingExtraInfo = "",
-            string metadata = "", RtcImage? watermark = null, RtcImage? backgroundImage = null,
-            AUDIO_SAMPLE_RATE_TYPE audioSampleRate = AUDIO_SAMPLE_RATE_TYPE.AUDIO_SAMPLE_RATE_48000,
-            int audioBitrate = 48, int audioChannels = 1,
-            AUDIO_CODEC_PROFILE_TYPE audioCodecProfile = AUDIO_CODEC_PROFILE_TYPE.AUDIO_CODEC_PROFILE_LC_AAC,
-            LiveStreamAdvancedFeature[] advancedFeatures = null, uint advancedFeatureCount = 0)
+        public LiveTranscoding()
+        {
+            width = 360;
+            height = 640;
+            videoBitrate = 400;
+            videoFramerate = 15;
+            lowLatency = false;
+            videoGop = 30;
+            videoCodecProfile = VIDEO_CODEC_PROFILE_TYPE.VIDEO_CODEC_PROFILE_HIGH;
+            backgroundColor = 0x000000;
+            videoCodecType = VIDEO_CODEC_TYPE_FOR_STREAM.VIDEO_CODEC_H264_FOR_STREAM;
+            userCount = 0;
+            transcodingUsers = new TranscodingUser[0];
+            transcodingExtraInfo = null;
+            metadata = null;
+            watermark = null;
+            backgroundImage = null;
+            audioSampleRate = AUDIO_SAMPLE_RATE_TYPE.AUDIO_SAMPLE_RATE_48000;
+            audioBitrate = 48;
+            audioChannels = 1;
+            audioCodecProfile = AUDIO_CODEC_PROFILE_TYPE.AUDIO_CODEC_PROFILE_LC_AAC;
+            advancedFeatures = new LiveStreamAdvancedFeature[0];
+            advancedFeatureCount = 0;
+        }
+
+        public LiveTranscoding(int width, int height, int videoBitrate, int videoFramerate, bool lowLatency,
+            int videoGop, VIDEO_CODEC_PROFILE_TYPE videoCodecProfile, uint backgroundColor,
+            VIDEO_CODEC_TYPE_FOR_STREAM videoCodecType, uint userCount, TranscodingUser[] transcodingUsers,
+            string transcodingExtraInfo, string metadata, RtcImage watermark, RtcImage backgroundImage,
+            AUDIO_SAMPLE_RATE_TYPE audioSampleRate, int audioBitrate, int audioChannels,
+            AUDIO_CODEC_PROFILE_TYPE audioCodecProfile, LiveStreamAdvancedFeature[] advancedFeatures,
+            uint advancedFeatureCount)
         {
             this.width = width;
             this.height = height;
@@ -4194,12 +4306,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         /** The watermark image added to the CDN live publishing stream.
 		 Ensure that the format of the image is PNG. Once a watermark image is added, the audience of the CDN live publishing stream can see the watermark image. See RtcImage.
 		 */
-        public RtcImage? watermark { set; get; }
+        public RtcImage watermark { set; get; }
 
         /** The background image added to the CDN live publishing stream.
 		 Once a background image is added, the audience of the CDN live publishing stream can see the background image. See RtcImage.
 		 */
-        public RtcImage? backgroundImage { set; get; }
+        public RtcImage backgroundImage { set; get; }
 
         /** Self-defined audio-sample rate: #AUDIO_SAMPLE_RATE_TYPE.
 		 */
@@ -4234,14 +4346,14 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Camera capturer configuration.
 	 */
-    public struct CameraCapturerConfiguration
+    public class CameraCapturerConfiguration
     {
-        public CameraCapturerConfiguration(CAMERA_DIRECTION? cameraDirection = null)
+        public CameraCapturerConfiguration()
         {
             preference = CAPTURER_OUTPUT_PREFERENCE.CAPTURER_OUTPUT_PREFERENCE_AUTO;
             captureWidth = 640;
             captureHeight = 480;
-            this.cameraDirection = cameraDirection;
+            cameraDirection = null;
         }
 
         public CameraCapturerConfiguration(int captureWidth, int captureHeight,
@@ -4296,8 +4408,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
  * | false  |  true | <p>If the delay of a data packet is within five seconds, the SDK corrects the order of the data packet.</p><p>If the delay of a data packet exceeds five seconds, the SDK discards the data packet.</p>     |
  * |  true  |  true   | <p>If the delay of a data packet is within the audio delay, the SDK corrects the order of the data packet.</p><p>If the delay of a data packet exceeds the audio delay, the SDK discards this data packet.</p>     |
  */
-    public struct DataStreamConfig
+    public class DataStreamConfig
     {
+        public DataStreamConfig()
+        {
+        }
+
         public DataStreamConfig(bool syncWithAudio, bool ordered)
         {
             this.syncWithAudio = syncWithAudio;
@@ -4330,12 +4446,22 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Configuration of the injected media stream.
 	 */
-    public struct InjectStreamConfig
+    public class InjectStreamConfig
     {
-        public InjectStreamConfig(int width = 0, int height = 0, int videoGop = 30, int videoFramerate = 15,
-            int videoBitrate = 400,
-            AUDIO_SAMPLE_RATE_TYPE audioSampleRate = AUDIO_SAMPLE_RATE_TYPE.AUDIO_SAMPLE_RATE_48000,
-            int audioBitrate = 48, int audioChannels = 1)
+        public InjectStreamConfig()
+        {
+            width = 0;
+            height = 0;
+            videoGop = 30;
+            videoFramerate = 15;
+            videoBitrate = 400;
+            audioSampleRate = AUDIO_SAMPLE_RATE_TYPE.AUDIO_SAMPLE_RATE_48000;
+            audioBitrate = 48;
+            audioChannels = 1;
+        }
+
+        public InjectStreamConfig(int width, int height, int videoGop, int videoFramerate, int videoBitrate,
+            AUDIO_SAMPLE_RATE_TYPE audioSampleRate, int audioBitrate, int audioChannels)
         {
             this.width = width;
             this.height = height;
@@ -4388,8 +4514,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The definition of ChannelMediaInfo.
 	 */
-    public struct ChannelMediaInfo
+    public class ChannelMediaInfo
     {
+        public ChannelMediaInfo()
+        {
+        }
+
         public ChannelMediaInfo(string channelName, string token, uint uid)
         {
             this.channelName = channelName;
@@ -4412,10 +4542,16 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The definition of ChannelMediaRelayConfiguration.
 	 */
-    public struct ChannelMediaRelayConfiguration
+    public class ChannelMediaRelayConfiguration
     {
-        public ChannelMediaRelayConfiguration(ChannelMediaInfo? srcInfo = null, ChannelMediaInfo[] destInfos = null,
-            int destCount = 0)
+        public ChannelMediaRelayConfiguration()
+        {
+            srcInfo = null;
+            destInfos = new ChannelMediaInfo[0];
+            destCount = 0;
+        }
+
+        public ChannelMediaRelayConfiguration(ChannelMediaInfo srcInfo, ChannelMediaInfo[] destInfos, int destCount)
         {
             this.srcInfo = srcInfo;
             this.destInfos = destInfos ?? new ChannelMediaInfo[0];
@@ -4429,7 +4565,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 *   - If you have not enabled the App Certificate, set this parameter as the default value `NULL`, which means the SDK applies the App ID.
 		 *   - If you have enabled the App Certificate, you must use the `token` generated with the `channelName` and `uid`, and the `uid` must be set as 0.
 		 */
-        public ChannelMediaInfo? srcInfo { set; get; }
+        public ChannelMediaInfo srcInfo { set; get; }
 
         /** Pointer to the information of the destination channel: ChannelMediaInfo. It contains the following members:
 		 * - `channelName`: The name of the destination channel.
@@ -4442,7 +4578,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
         /** The number of destination channels. The default value is 0, and the
 		 * value range is [0,4). Ensure that the value of this parameter
-		 * corresponds to the number of ChannelMediaInfo structs you define in
+		 * corresponds to the number of ChannelMediaInfo classs you define in
 		 * `destInfos`.
 		 */
         public int destCount { set; get; }
@@ -4480,9 +4616,13 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The relative location of the region to the screen or window.
 	 */
-    public struct Rectangle
+    public class Rectangle
     {
-        public Rectangle(int x = 0, int y = 0, int width = 0, int height = 0)
+        public Rectangle()
+        {
+        }
+
+        public Rectangle(int x, int y, int width, int height)
         {
             this.x = x;
             this.y = y;
@@ -4508,9 +4648,14 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /**  **DEPRECATED** Definition of the rectangular region. */
-    public struct Rect
+    [Obsolete(ObsoleteMethodWarning.GeneralStructureWarning, false)]
+    public class Rect
     {
-        public Rect(int top = 0, int left = 0, int bottom = 0, int right = 0)
+        public Rect()
+        {
+        }
+
+        public Rect(int top, int left, int bottom, int right)
         {
             this.top = top;
             this.left = left;
@@ -4536,14 +4681,21 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** The options of the watermark image to be added. */
-    public struct WatermarkOptions
+    public class WatermarkOptions
     {
-        public WatermarkOptions(bool visibleInPreview = true, Rectangle positionInLandscapeMode = new Rectangle(),
-            Rectangle positionInPortraitMode = new Rectangle())
+        public WatermarkOptions()
+        {
+            visibleInPreview = true;
+            positionInLandscapeMode = new Rectangle();
+            positionInPortraitMode = new Rectangle();
+        }
+
+        public WatermarkOptions(bool visibleInPreview, Rectangle positionInLandscapeMode,
+            Rectangle positionInPortraitMode)
         {
             this.visibleInPreview = visibleInPreview;
-            this.positionInLandscapeMode = positionInLandscapeMode;
-            this.positionInPortraitMode = positionInPortraitMode;
+            this.positionInLandscapeMode = positionInLandscapeMode ?? new Rectangle();
+            this.positionInPortraitMode = positionInPortraitMode ?? new Rectangle();
         }
 
         /** Sets whether or not the watermark image is visible in the local video preview:
@@ -4567,11 +4719,21 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Screen sharing encoding parameters.
 	 */
-    public struct ScreenCaptureParameters
+    public class ScreenCaptureParameters
     {
-        public ScreenCaptureParameters(int width = 1920, int height = 1080, int frameRate = 5,
-            BITRATE bitrate = BITRATE.STANDARD_BITRATE, bool captureMouseCursor = true, bool windowFocus = false,
-            view_t[] excludeWindowList = null, int excludeWindowCount = 0)
+        public ScreenCaptureParameters()
+        {
+            dimensions = new VideoDimensions(1020, 1080);
+            frameRate = 5;
+            bitrate = (int) BITRATE.STANDARD_BITRATE;
+            captureMouseCursor = true;
+            windowFocus = false;
+            excludeWindowList = new view_t[0];
+            excludeWindowCount = 0;
+        }
+
+        public ScreenCaptureParameters(int width, int height, int frameRate, BITRATE bitrate, bool captureMouseCursor,
+            bool windowFocus, view_t[] excludeWindowList = null, int excludeWindowCount = 0)
         {
             dimensions = new VideoDimensions(width, height);
             this.frameRate = frameRate;
@@ -4582,9 +4744,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             this.excludeWindowCount = excludeWindowCount;
         }
 
-        public ScreenCaptureParameters(VideoDimensions dimensions, int frameRate = 5,
-            BITRATE bitrate = BITRATE.STANDARD_BITRATE, bool captureMouseCursor = true, bool windowFocus = false,
-            view_t[] excludeWindowList = null, int excludeWindowCount = 0)
+        public ScreenCaptureParameters(VideoDimensions dimensions, int frameRate, BITRATE bitrate,
+            bool captureMouseCursor, bool windowFocus, view_t[] excludeWindowList = null, int excludeWindowCount = 0)
         {
             this.dimensions = dimensions;
             this.frameRate = frameRate;
@@ -4639,10 +4800,18 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Video display settings of the VideoCanvas class.
 	 */
-    public struct VideoCanvas
+    public class VideoCanvas
     {
-        public VideoCanvas(view_t? view = null, RENDER_MODE_TYPE renderMode = RENDER_MODE_TYPE.RENDER_MODE_HIDDEN,
-            string channelId = "", uint uid = 0,
+        public VideoCanvas()
+        {
+            view = 0;
+            renderMode = (int) RENDER_MODE_TYPE.RENDER_MODE_HIDDEN;
+            channelId = "";
+            uid = 0;
+            mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO;
+        }
+
+        public VideoCanvas(view_t? view, RENDER_MODE_TYPE renderMode, string channelId = "", uint uid = 0,
             VIDEO_MIRROR_MODE_TYPE mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO)
         {
             this.view = view ?? 0;
@@ -4667,8 +4836,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 - The space character.
 		 - Punctuation characters and other symbols, including: "!", "#", "$", "%", "&", "(", ")", "+", "-", ":", ";", "<", "=", ".", ">", "?", "@", "[", "]", "^", "_", " {", "}", "|", "~", ",".
 		 @note
-		 - The default value is the empty string "". Use the default value if the user joins the channel using the \ref IRtcEngine::joinChannel "joinChannel" method in the IRtcEngine class. The `VideoCanvas` struct defines the video canvas of the user in the channel.
-		 - If the user joins the channel using the \ref IRtcEngine::joinChannel "joinChannel" method in the IChannel class, set this parameter as the `channelId` of the `IChannel` object. The `VideoCanvas` struct defines the video canvas of the user in the channel with the specified channel ID.
+		 - The default value is the empty string "". Use the default value if the user joins the channel using the \ref IRtcEngine::joinChannel "joinChannel" method in the IRtcEngine class. The `VideoCanvas` class defines the video canvas of the user in the channel.
+		 - If the user joins the channel using the \ref IRtcEngine::joinChannel "joinChannel" method in the IChannel class, set this parameter as the `channelId` of the `IChannel` object. The `VideoCanvas` class defines the video canvas of the user in the channel with the specified channel ID.
 		 */
         // TODO: Check if `VideoCanvas.channdlId` works when defined as a string type.
         public string channelId { set; get; }
@@ -4700,11 +4869,16 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Image enhancement options.
 	 */
-    public struct BeautyOptions
+    public class BeautyOptions
     {
+        public BeautyOptions()
+        {
+            lighteningContrastLevel = LIGHTENING_CONTRAST_LEVEL.LIGHTENING_CONTRAST_NORMAL;
+        }
+
         public BeautyOptions(
-            LIGHTENING_CONTRAST_LEVEL lighteningContrastLevel = LIGHTENING_CONTRAST_LEVEL.LIGHTENING_CONTRAST_NORMAL,
-            float lighteningLevel = 0.0F, float smoothnessLevel = 0.0F, float rednessLevel = 0.0F)
+            LIGHTENING_CONTRAST_LEVEL lighteningContrastLevel, float lighteningLevel, float smoothnessLevel,
+            float rednessLevel)
         {
             this.lighteningContrastLevel = lighteningContrastLevel;
             this.lighteningLevel = lighteningLevel;
@@ -4729,10 +4903,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /**
-	 * The UserInfo struct.
+	 * The UserInfo class.
 	 */
-    public struct UserInfo
+    public class UserInfo
     {
+        public UserInfo()
+        {
+            userAccount = "";
+        }
+
         public UserInfo(uint uid = 0, string userAccount = "")
         {
             this.uid = uid;
@@ -4929,8 +5108,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     };
 
     /** Definition of AudioFrame */
-    public struct AudioFrame
+    public class AudioFrame
     {
+        public AudioFrame()
+        {
+        }
+
         public AudioFrame(AUDIO_FRAME_TYPE type, int samples, int bytesPerSample, int channels, int samplesPerSec,
             byte[] buffer, long renderTimeMs, int avsync_type)
         {
@@ -4982,8 +5165,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public int avsync_type { set; get; }
     }
 
-    internal struct AudioFrameWithoutBuffer
+    internal class AudioFrameWithoutBuffer
     {
+        public AudioFrameWithoutBuffer()
+        {
+        }
+
         public AudioFrameWithoutBuffer(AUDIO_FRAME_TYPE type, int samples, int bytesPerSample, int channels,
             int samplesPerSec, long renderTimeMs, int avsync_type)
         {
@@ -5031,8 +5218,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The external video frame.
 	 */
-    public struct ExternalVideoFrame
+    public class ExternalVideoFrame
     {
+        public ExternalVideoFrame()
+        {
+        }
+
         public ExternalVideoFrame(VIDEO_BUFFER_TYPE type, VIDEO_PIXEL_FORMAT format, byte[] buffer, int stride,
             int height, long timestamp, int cropLeft = 0, int cropTop = 0, int cropRight = 0, int cropBottom = 0,
             int rotation = 0)
@@ -5095,9 +5286,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public long timestamp { set; get; }
     }
 
-    public struct ChannelMediaOptions
+    public class ChannelMediaOptions
     {
-        public ChannelMediaOptions(bool autoSubscribeAudio = true, bool autoSubscribeVideo = true)
+        public ChannelMediaOptions()
+        {
+            autoSubscribeAudio = true;
+            autoSubscribeVideo = true;
+        }
+        
+        public ChannelMediaOptions(bool autoSubscribeAudio, bool autoSubscribeVideo)
         {
             this.autoSubscribeAudio = autoSubscribeAudio;
             this.autoSubscribeVideo = autoSubscribeVideo;
@@ -5122,9 +5319,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
 
     /** Configurations of built-in encryption schemas. */
-    public struct EncryptionConfig
+    public class EncryptionConfig
     {
-        public EncryptionConfig(ENCRYPTION_MODE encryptionMode = ENCRYPTION_MODE.AES_128_XTS, string encryptionKey = "")
+        public EncryptionConfig()
+        {
+            encryptionMode = ENCRYPTION_MODE.AES_128_XTS;
+            encryptionKey = "";
+        }
+        
+        public EncryptionConfig(ENCRYPTION_MODE encryptionMode, string encryptionKey)
         {
             this.encryptionMode = encryptionMode;
             this.encryptionKey = encryptionKey;
@@ -5143,8 +5346,13 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public string encryptionKey { set; get; }
     }
 
-    public struct Metadata
+    public class Metadata
     {
+        public Metadata()
+        {
+            buffer = new byte[0];
+        }
+        
         public Metadata(uint uid, uint size, byte[] buffer, long timeStampMs)
         {
             this.uid = uid;
@@ -5174,8 +5382,19 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Definition of Packet.
      */
-    public struct Packet
+    public class Packet
     {
+        public Packet()
+        {
+            buffer = new byte[0];
+        }
+
+        public Packet(byte[] buffer, uint size)
+        {
+            this.buffer = buffer;
+            this.size = size;
+        }
+        
         /** Buffer address of the sent or received data.
          * @note Agora recommends that the value of buffer is more than 2048 bytes, otherwise, you may meet
          * undefined behaviors such as a crash.
@@ -5191,9 +5410,16 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
      *
      * @since v3.3.0
      */
-    public struct LogConfig
+    public class LogConfig
     {
-        public LogConfig(string filePath = null, int fileSize = -1, LOG_LEVEL level = LOG_LEVEL.LOG_LEVEL_INFO)
+        public LogConfig()
+        {
+            filePath = null;
+            fileSize = -1;
+            level = LOG_LEVEL.LOG_LEVEL_INFO;
+        }
+        
+        public LogConfig(string filePath, int fileSize, LOG_LEVEL level)
         {
             this.filePath = filePath;
             this.fileSize = fileSize;
@@ -5228,8 +5454,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Configurations for the `IRtcEngine` instance.
      */
-    [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
-    public struct RtcEngineConfig
+    [Obsolete(ObsoleteMethodWarning.GeneralStructureWarning, false)]
+    public class RtcEngineConfig
     {
         /** The App ID issued to you by Agora. See [How to get the App ID](https://docs.agora.io/en/Agora%20Platform/token#getappid).
          * Only users in apps with the same App ID can join the same channel and communicate with each other. Use an 
@@ -5272,14 +5498,14 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** Definition of RtcEngineContext.
 	 */
-    public struct RtcEngineContext
+    public class RtcEngineContext
     {
         public RtcEngineContext(string appId, AREA_CODE areaCode = AREA_CODE.AREA_CODE_GLOB,
-            LogConfig logConfig = new LogConfig())
+            LogConfig logConfig = null)
         {
             this.appId = appId;
             _areaCode = (uint) areaCode;
-            this.logConfig = logConfig;
+            this.logConfig = logConfig ?? new LogConfig();
         }
 
         /**

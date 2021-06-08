@@ -11,7 +11,7 @@ using System;
 namespace agora_gaming_rtc
 {
     using uid_t = UInt32;
-    using view_t = UInt64;
+    using view_t = IntPtr;
 
     /** Warning code. */
     public enum WARN_CODE_TYPE
@@ -2486,18 +2486,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
        */
         REMOTE_AUDIO_REASON_REMOTE_OFFLINE = 7,
     }
-
-    /** Remote video states. */
-// enum REMOTE_VIDEO_STATE
-// {
-//     // REMOTE_VIDEO_STATE_STOPPED is not used at this version. Ignore this value.
-//     // REMOTE_VIDEO_STATE_STOPPED = 0,  // Default state, video is started or remote user disabled/muted video stream
-//       /** 1: The remote video is playing. */
-//       REMOTE_VIDEO_STATE_RUNNING = 1,  // Running state, remote video can be displayed normally
-//       /** 2: The remote video is frozen. */
-//       REMOTE_VIDEO_STATE_FROZEN = 2,    // Remote video is frozen, probably due to network issue.
-// }
-
+    
     /** The state of the remote video. */
     public enum REMOTE_VIDEO_STATE
     {
@@ -4804,7 +4793,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     {
         public VideoCanvas()
         {
-            view = 0;
+            view = IntPtr.Zero;
             renderMode = (int) RENDER_MODE_TYPE.RENDER_MODE_HIDDEN;
             channelId = "";
             uid = 0;
@@ -4814,7 +4803,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public VideoCanvas(view_t? view, RENDER_MODE_TYPE renderMode, string channelId = "", uint uid = 0,
             VIDEO_MIRROR_MODE_TYPE mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO)
         {
-            this.view = view ?? 0;
+            this.view = view ?? IntPtr.Zero;
             this.renderMode = (int) renderMode;
             this.channelId = channelId;
             this.uid = uid;
@@ -5216,6 +5205,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public int avsync_type { set; get; }
     }
 
+    public struct DeviceInfo
+    {
+        internal string deviceName { set; get; }
+        internal string deviceId { set; get; }
+    }
+
     /** The external video frame.
 	 */
     public class ExternalVideoFrame
@@ -5293,7 +5288,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             autoSubscribeAudio = true;
             autoSubscribeVideo = true;
         }
-        
+
         public ChannelMediaOptions(bool autoSubscribeAudio, bool autoSubscribeVideo)
         {
             this.autoSubscribeAudio = autoSubscribeAudio;
@@ -5326,7 +5321,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             encryptionMode = ENCRYPTION_MODE.AES_128_XTS;
             encryptionKey = "";
         }
-        
+
         public EncryptionConfig(ENCRYPTION_MODE encryptionMode, string encryptionKey)
         {
             this.encryptionMode = encryptionMode;
@@ -5352,7 +5347,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         {
             buffer = new byte[0];
         }
-        
+
         public Metadata(uint uid, uint size, byte[] buffer, long timeStampMs)
         {
             this.uid = uid;
@@ -5394,7 +5389,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             this.buffer = buffer;
             this.size = size;
         }
-        
+
         /** Buffer address of the sent or received data.
          * @note Agora recommends that the value of buffer is more than 2048 bytes, otherwise, you may meet
          * undefined behaviors such as a crash.
@@ -5418,7 +5413,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             fileSize = -1;
             level = LOG_LEVEL.LOG_LEVEL_INFO;
         }
-        
+
         public LogConfig(string filePath, int fileSize, LOG_LEVEL level)
         {
             this.filePath = filePath;

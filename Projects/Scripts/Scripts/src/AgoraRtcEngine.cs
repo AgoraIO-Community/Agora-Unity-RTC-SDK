@@ -1,21 +1,23 @@
 //  AgoraRtcEngine.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 6, 2021.
+//  Modified by Yiqing Huang on June 8 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using LitJson;
 
 namespace agora_gaming_rtc
 {
-    using view_t = UInt64;
+    using view_t = IntPtr;
     using IrisRtcEnginePtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
+    using IrisRtcDeviceManagerPtr = IntPtr;
 
     internal sealed class NativeRtcEngineEventHandler
     {
@@ -672,7 +674,7 @@ namespace agora_gaming_rtc
     {
         private bool _disposed;
 
-        private static AgoraRtcEngine[] _engineInstance = {null, null};
+        private static readonly AgoraRtcEngine[] engineInstance = {null, null};
         private IrisRtcEnginePtr _irisRtcEngine;
 
         private NativeRtcEngineEventHandler _nativeRtcEngineEventHandler;
@@ -680,15 +682,43 @@ namespace agora_gaming_rtc
         private IrisCEventHandler _irisCEngineEventHandler;
         private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
 
+        private readonly Dictionary<string, AgoraRtcChannel> _channelInstance;
+
+        private IrisRtcDeviceManagerPtr _irisRtcDeviceManager;
+        private AgoraRtcVideoDeviceManager _videoDeviceManagerInstance;
+        private VideoDeviceManager _deprecatedVideoDeviceManagerInstance;
+        private AgoraRtcAudioPlaybackDeviceManager _audioPlaybackDeviceManagerInstance;
+        private AudioPlaybackDeviceManager _deprecatedAudioPlaybackDeviceManagerInstance;
+        private AgoraRtcAudioRecordingDeviceManager _audioRecordingDeviceManagerInstance;
+        private AudioRecordingDeviceManager _deprecatedAudioRecordingDeviceManagerInstance;
+        private AudioEffectManager _deprecatedAudioEffectManagerInstance;
+
         private CharArrayAssistant _result;
 
         private AgoraRtcEngine(EngineType type = EngineType.kEngineTypeNormal)
         {
             _result = new CharArrayAssistant();
+            _channelInstance = new Dictionary<string, AgoraRtcChannel>();
             _irisRtcEngine = type == EngineType.kEngineTypeNormal
                 ? AgoraRtcNative.CreateIrisRtcEngine()
                 : AgoraRtcNative.CreateIrisRtcEngine(EngineType.kEngineTypeSubProcess);
             SetIrisEngineEventHandler();
+
+            _irisRtcDeviceManager = AgoraRtcNative.GetIrisRtcDeviceManager(_irisRtcEngine);
+
+            _videoDeviceManagerInstance = new AgoraRtcVideoDeviceManager(_irisRtcDeviceManager);
+            _deprecatedVideoDeviceManagerInstance = new VideoDeviceManager(_videoDeviceManagerInstance);
+
+            _audioPlaybackDeviceManagerInstance = new AgoraRtcAudioPlaybackDeviceManager(_irisRtcDeviceManager);
+            _deprecatedAudioPlaybackDeviceManagerInstance =
+                new AudioPlaybackDeviceManager(_audioPlaybackDeviceManagerInstance);
+
+            _audioRecordingDeviceManagerInstance = new AgoraRtcAudioRecordingDeviceManager(_irisRtcDeviceManager);
+            _deprecatedAudioRecordingDeviceManagerInstance =
+                new AudioRecordingDeviceManager(_audioRecordingDeviceManagerInstance);
+
+            _deprecatedAudioEffectManagerInstance =
+                new AudioEffectManager(type == EngineType.kEngineTypeNormal ? engineInstance[0] : engineInstance[1]);
         }
 
         private void Dispose(bool disposing)
@@ -699,6 +729,30 @@ namespace agora_gaming_rtc
             {
                 // TODO: Unmanaged resources.
                 UnsetIrisRtcEngineEventHandler();
+                foreach (var channelInstance in _channelInstance.Values)
+                {
+                    channelInstance.Dispose();
+                }
+
+                _deprecatedVideoDeviceManagerInstance.Dispose();
+                _deprecatedVideoDeviceManagerInstance = null;
+                _videoDeviceManagerInstance.Dispose();
+                _videoDeviceManagerInstance = null;
+
+                _deprecatedAudioPlaybackDeviceManagerInstance.Dispose();
+                _deprecatedAudioPlaybackDeviceManagerInstance = null;
+                _audioPlaybackDeviceManagerInstance.Dispose();
+                _audioPlaybackDeviceManagerInstance = null;
+
+                _deprecatedAudioRecordingDeviceManagerInstance.Dispose();
+                _deprecatedAudioRecordingDeviceManagerInstance = null;
+                _audioRecordingDeviceManagerInstance.Dispose();
+                _audioRecordingDeviceManagerInstance = null;
+                
+                _deprecatedAudioEffectManagerInstance.Dispose();
+                _deprecatedAudioEffectManagerInstance = null;
+
+                _irisRtcDeviceManager = IntPtr.Zero;
             }
 
             Release();
@@ -717,9 +771,9 @@ namespace agora_gaming_rtc
             AgoraRtcNative.DestroyIrisRtcEngine(_irisRtcEngine);
             _irisRtcEngine = IntPtr.Zero;
             _result = new CharArrayAssistant();
-            for (var i = 0; i < _engineInstance.Length; i++)
+            for (var i = 0; i < engineInstance.Length; i++)
             {
-                if (_engineInstance[i] == this) _engineInstance[i] = null;
+                if (engineInstance[i] == this) engineInstance[i] = null;
             }
         }
 
@@ -730,7 +784,7 @@ namespace agora_gaming_rtc
 
         public static IAgoraRtcEngine CreateAgoraRtcEngine()
         {
-            return _engineInstance[0] ?? (_engineInstance[0] = new AgoraRtcEngine());
+            return engineInstance[0] ?? (engineInstance[0] = new AgoraRtcEngine());
         }
 
         [Obsolete(
@@ -757,12 +811,12 @@ namespace agora_gaming_rtc
         [Obsolete("This method is deprecated. Please call CreateAgoraRtcEngine instead.", false)]
         public static IRtcEngine QueryEngine()
         {
-            return _engineInstance[0];
+            return engineInstance[0];
         }
 
         public static IAgoraRtcEngine CreateAgoraSubRtcEngine()
         {
-            return _engineInstance[1] ?? (_engineInstance[1] = new AgoraRtcEngine(EngineType.kEngineTypeSubProcess));
+            return engineInstance[1] ?? (engineInstance[1] = new AgoraRtcEngine(EngineType.kEngineTypeSubProcess));
         }
 
         private int SetAppType(AppType appType)
@@ -834,7 +888,7 @@ namespace agora_gaming_rtc
         {
             if (rtcEngine == null)
             {
-                _engineInstance[0]?.Dispose();
+                engineInstance[0]?.Dispose();
             }
             else
             {
@@ -842,24 +896,45 @@ namespace agora_gaming_rtc
             }
         }
 
+        [Obsolete(
+            "This method is deprecated. IAudioEffectManagerWarning is deprecated. All the methods can be called directly in AgoraRtcEngine.",
+            false)]
         public override IAudioEffectManager GetAudioEffectManager()
         {
-            throw new NotImplementedException();
+            return _deprecatedAudioEffectManagerInstance;
         }
 
+        [Obsolete("This method is deprecated. Please call GetAgoraRtcAudioRecordingDeviceManager instead.", false)]
         public override IAudioRecordingDeviceManager GetAudioRecordingDeviceManager()
         {
-            throw new NotImplementedException();
+            return _deprecatedAudioRecordingDeviceManagerInstance;
         }
 
+        public override IAgoraRtcAudioRecordingDeviceManager GetAgoraRtcAudioRecordingDeviceManager()
+        {
+            return _audioRecordingDeviceManagerInstance;
+        }
+
+        [Obsolete("This method is deprecated. Please call GetAgoraRtcAudioPlaybackDeviceManager instead.", false)]
         public override IAudioPlaybackDeviceManager GetAudioPlaybackDeviceManager()
         {
-            throw new NotImplementedException();
+            return _deprecatedAudioPlaybackDeviceManagerInstance;
         }
 
+        public override IAgoraRtcAudioPlaybackDeviceManager GetAgoraRtcAudioPlaybackDeviceManager()
+        {
+            return _audioPlaybackDeviceManagerInstance;
+        }
+
+        [Obsolete("This method is deprecated. Please call GetAgoraRtcVideoDeviceManager instead.", false)]
         public override IVideoDeviceManager GetVideoDeviceManager()
         {
-            throw new NotImplementedException();
+            return _deprecatedVideoDeviceManagerInstance;
+        }
+
+        public override IAgoraRtcVideoDeviceManager GetAgoraRtcVideoDeviceManager()
+        {
+            return _videoDeviceManagerInstance;
         }
 
         public override IAudioRawDataManager GetAudioRawDataManager()
@@ -879,12 +954,19 @@ namespace agora_gaming_rtc
 
         public override IAgoraRtcChannel CreateChannel(string channelId)
         {
-            throw new NotImplementedException();
+            if (_channelInstance.ContainsKey(channelId))
+            {
+                return _channelInstance[channelId];
+            }
+
+            var ret = new AgoraRtcChannel(this, channelId);
+            _channelInstance.Add(channelId, ret);
+            return ret;
         }
 
         internal void ReleaseChannel(string channelId)
         {
-            throw new NotImplementedException();
+            _channelInstance.Remove(channelId);
         }
 
         public override int SetChannelProfile(CHANNEL_PROFILE_TYPE profile)
@@ -1187,7 +1269,14 @@ namespace agora_gaming_rtc
         {
             var param = new
             {
-                canvas
+                canvas = new
+                {
+                    view = (ulong) canvas.view,
+                    canvas.renderMode,
+                    canvas.channelId,
+                    canvas.uid,
+                    canvas.mirrorMode
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineSetupLocalVideo,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
@@ -1197,7 +1286,14 @@ namespace agora_gaming_rtc
         {
             var param = new
             {
-                canvas
+                canvas = new
+                {
+                    view = (ulong) canvas.view,
+                    canvas.renderMode,
+                    canvas.channelId,
+                    canvas.uid,
+                    canvas.mirrorMode
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineSetupRemoteVideo,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
@@ -1624,8 +1720,8 @@ namespace agora_gaming_rtc
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
         }
 
-        public override int PlayEffect(int soundId, string filePath, int loopCount, double pitch, double pan, int gain,
-            bool publish)
+        public override int PlayEffect(int soundId, string filePath, int loopCount, double pitch = 1.0,
+            double pan = 0.0, int gain = 100, bool publish = false)
         {
             var param = new
             {
@@ -1904,7 +2000,7 @@ namespace agora_gaming_rtc
             var param = new { };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineUploadLogFile,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
-                ? ""
+                ? null
                 : _result.Result;
         }
 
@@ -2206,11 +2302,25 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByDisplayId(uint displayId, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
+            var ewl = new ulong[captureParams.excludeWindowCount];
+            for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            {
+                ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            }
+
             var param = new
             {
                 displayId,
                 regionRect,
-                captureParams
+                captureParams = new
+                {
+                    captureParams.dimensions,
+                    captureParams.frameRate,
+                    captureParams.bitrate,
+                    captureParams.windowFocus,
+                    excludeWindowList = ewl,
+                    captureParams.excludeWindowCount
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByDisplayId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2220,11 +2330,25 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByScreenRect(Rectangle screenRect, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
+            var ewl = new ulong[captureParams.excludeWindowCount];
+            for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            {
+                ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            }
+
             var param = new
             {
                 screenRect,
                 regionRect,
-                captureParams
+                captureParams = new
+                {
+                    captureParams.dimensions,
+                    captureParams.frameRate,
+                    captureParams.bitrate,
+                    captureParams.windowFocus,
+                    excludeWindowList = ewl,
+                    captureParams.excludeWindowCount
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByScreenRect, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2234,11 +2358,25 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByWindowId(view_t windowId, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
+            var ewl = new ulong[captureParams.excludeWindowCount];
+            for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            {
+                ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            }
+
             var param = new
             {
-                windowId,
+                windowId = (ulong) windowId,
                 regionRect,
-                captureParams
+                captureParams = new
+                {
+                    captureParams.dimensions,
+                    captureParams.frameRate,
+                    captureParams.bitrate,
+                    captureParams.windowFocus,
+                    excludeWindowList = ewl,
+                    captureParams.excludeWindowCount
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByWindowId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2258,9 +2396,23 @@ namespace agora_gaming_rtc
 
         public override int UpdateScreenCaptureParameters(ScreenCaptureParameters captureParams)
         {
+            var ewl = new ulong[captureParams.excludeWindowCount];
+            for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            {
+                ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            }
+
             var param = new
             {
-                captureParams
+                captureParams = new
+                {
+                    captureParams.dimensions,
+                    captureParams.frameRate,
+                    captureParams.bitrate,
+                    captureParams.windowFocus,
+                    excludeWindowList = ewl,
+                    captureParams.excludeWindowCount
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineUpdateScreenCaptureParameters, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2291,7 +2443,7 @@ namespace agora_gaming_rtc
             var param = new { };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineGetCallId,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
-                ? ""
+                ? null
                 : _result.Result;
         }
 
@@ -2323,7 +2475,7 @@ namespace agora_gaming_rtc
             var param = new { };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineGetVersion,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
-                ? ""
+                ? null
                 : _result.Result;
         }
 
@@ -2379,7 +2531,7 @@ namespace agora_gaming_rtc
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineGetErrorDescription,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
-                ? ""
+                ? null
                 : _result.Result;
         }
 

@@ -13,7 +13,6 @@ using LitJson;
 
 namespace agora_gaming_rtc
 {
-    using view_t = UInt64;
     using IrisRtcChannelPtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
 
@@ -540,7 +539,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelGetCallId,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
-                ? ""
+                ? null
                 : _result.Result;
         }
 

@@ -10,7 +10,7 @@ using System;
 
 namespace agora_gaming_rtc
 {
-    using view_t = UInt64;
+    using view_t = IntPtr;
 
     public abstract class IAgoraRtcEngine : IRtcEngine
     {
@@ -21,10 +21,24 @@ namespace agora_gaming_rtc
         public abstract int Initialize(RtcEngineContext context);
         public abstract void InitEventHandler(IRtcEngineEventHandler engineEventHandler);
         public abstract void Dispose();
+
+        [Obsolete(ObsoleteMethodWarning.GetAudioEffectManagerWarning, false)]
         public abstract IAudioEffectManager GetAudioEffectManager();
+
+        [Obsolete(ObsoleteMethodWarning.GetAudioRecordingDeviceManagerWarning, false)]
         public abstract IAudioRecordingDeviceManager GetAudioRecordingDeviceManager();
+
+        public abstract IAgoraRtcAudioRecordingDeviceManager GetAgoraRtcAudioRecordingDeviceManager();
+
+        [Obsolete(ObsoleteMethodWarning.GetAudioPlaybackDeviceManagerWarning, false)]
         public abstract IAudioPlaybackDeviceManager GetAudioPlaybackDeviceManager();
+
+        public abstract IAgoraRtcAudioPlaybackDeviceManager GetAgoraRtcAudioPlaybackDeviceManager();
+
+        [Obsolete(ObsoleteMethodWarning.GetVideoDeviceManagerWarning, false)]
         public abstract IVideoDeviceManager GetVideoDeviceManager();
+
+        public abstract IAgoraRtcVideoDeviceManager GetAgoraRtcVideoDeviceManager();
         public abstract IAudioRawDataManager GetAudioRawDataManager();
         public abstract IVideoRawDataManager GetVideoRawDataManager();
         public abstract IVideoRender GetVideoRender();
@@ -135,8 +149,8 @@ namespace agora_gaming_rtc
         public abstract int SetVolumeOfEffect(int soundId, int volume);
         public abstract int EnableFaceDetection(bool enable);
 
-        public abstract int PlayEffect(int soundId, string filePath, int loopCount, double pitch, double pan, int gain,
-            bool publish);
+        public abstract int PlayEffect(int soundId, string filePath, int loopCount, double pitch = 1.0,
+            double pan = 0.0, int gain = 100, bool publish = false);
 
         public abstract int StopEffect(int soundId);
         public abstract int StopAllEffects();

@@ -1,14 +1,13 @@
-﻿//  AgoraCallback.cs
+//  AgoraCallback.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 4, 2021.
+//  Modified by Yiqing Huang on June 7, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
 using System;
 using System.Runtime.InteropServices;
-using NUnit.Framework.Interfaces;
 
 namespace agora_gaming_rtc
 {

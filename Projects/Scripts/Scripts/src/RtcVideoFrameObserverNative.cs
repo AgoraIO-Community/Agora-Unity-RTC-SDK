@@ -193,7 +193,7 @@ namespace agora_gaming_rtc
 
             AgoraRtcNative.ClearVideoFrame(ref videoFrameConverted);
 
-            return _videoFrameObserver.OnPreEncodeVideoFrame(_videoFrameChannelUidDict[channelId][uid]);
+            return _videoFrameObserver.OnRenderVideoFrameEx(channelId, uid, _videoFrameChannelUidDict[channelId][uid]);
         }
 
         internal void Dispose()

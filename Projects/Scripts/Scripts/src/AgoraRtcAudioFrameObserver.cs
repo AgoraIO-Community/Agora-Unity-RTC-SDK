@@ -1,7 +1,7 @@
 //  AgoraRtcAudioFrameObserver.cs
 //
 //  Created by Yiqing Huang on June 9, 2021.
-//  Modified by Yiqing Huang on June 9, 2021.
+//  Modified by Yiqing Huang on June 24, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -15,115 +15,95 @@ namespace agora_gaming_rtc
     internal sealed class RtcAudioFrameObserverNative
     {
         private IAgoraRtcAudioFrameObserver _audioFrameObserver;
+        private LocalAudioFrames _localAudioFrames = new LocalAudioFrames();
 
-        private Dictionary<string, Dictionary<uint, AudioFrame>> _audioFrameChannelUidDict =
-            new Dictionary<string, Dictionary<uint, AudioFrame>>();
+        private class LocalAudioFrames
+        {
+            internal readonly AudioFrame RecordAudioFrame = new AudioFrame();
+            internal readonly AudioFrame PlaybackAudioFrame = new AudioFrame();
+            internal readonly AudioFrame MixedAudioFrame = new AudioFrame();
+
+            internal readonly Dictionary<string, Dictionary<uint, AudioFrame>> AudioFrameBeforeMixingEx =
+                new Dictionary<string, Dictionary<uint, AudioFrame>>();
+        }
 
         internal void SetAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver)
         {
             _audioFrameObserver = audioFrameObserver;
         }
 
-        internal bool OnRecordAudioFrame(ref IrisRtcAudioFrame audioFrame)
+        private AudioFrame ProcessAudioFrameReceived(ref IrisRtcAudioFrame audioFrame, string channelId, uint uid)
         {
-            if (_audioFrameObserver == null) return true;
+            var localAudioFrame = new AudioFrame();
 
-            if (_audioFrameChannelUidDict[""] == null)
+            if (channelId == "")
             {
-                _audioFrameChannelUidDict[""] = new Dictionary<uint, AudioFrame> {[0] = new AudioFrame()};
+                // Local Audio Frame
+                switch (uid)
+                {
+                    case 0:
+                        localAudioFrame = _localAudioFrames.RecordAudioFrame;
+                        break;
+                    case 1:
+                        localAudioFrame = _localAudioFrames.PlaybackAudioFrame;
+                        break;
+                    case 2:
+                        localAudioFrame = _localAudioFrames.MixedAudioFrame;
+                        break;
+                }
             }
-            else if (_audioFrameChannelUidDict[""][0] == null)
+            else
             {
-                _audioFrameChannelUidDict[""][0] = new AudioFrame();
+                // Remote Audio Frame
+                if (_localAudioFrames.AudioFrameBeforeMixingEx[channelId] == null)
+                {
+                    _localAudioFrames.AudioFrameBeforeMixingEx[channelId] = new Dictionary<uint, AudioFrame>
+                        {[uid] = new AudioFrame()};
+                }
+                else if (_localAudioFrames.AudioFrameBeforeMixingEx[channelId][uid] == null)
+                {
+                    _localAudioFrames.AudioFrameBeforeMixingEx[channelId][uid] = new AudioFrame();
+                }
+
+                localAudioFrame = _localAudioFrames.AudioFrameBeforeMixingEx[channelId][uid];
             }
 
-            if (_audioFrameChannelUidDict[""][0].channels != audioFrame.channels ||
-                _audioFrameChannelUidDict[""][0].samples != audioFrame.samples ||
-                _audioFrameChannelUidDict[""][0].bytesPerSample != audioFrame.bytes_per_sample)
+            if (localAudioFrame.channels != audioFrame.channels ||
+                localAudioFrame.samples != audioFrame.samples ||
+                localAudioFrame.bytesPerSample != audioFrame.bytes_per_sample)
             {
-                _audioFrameChannelUidDict[""][0].buffer = new byte[audioFrame.buffer_length];
+                localAudioFrame.buffer = new byte[audioFrame.buffer_length];
             }
 
             if (audioFrame.buffer != IntPtr.Zero)
-                Marshal.Copy(audioFrame.buffer, _audioFrameChannelUidDict[""][0].buffer, 0,
-                    (int) audioFrame.buffer_length);
-            _audioFrameChannelUidDict[""][0].type = audioFrame.type;
-            _audioFrameChannelUidDict[""][0].samples = audioFrame.samples;
-            _audioFrameChannelUidDict[""][0].bytesPerSample = audioFrame.bytes_per_sample;
-            _audioFrameChannelUidDict[""][0].channels = audioFrame.channels;
-            _audioFrameChannelUidDict[""][0].samplesPerSec = audioFrame.samples_per_sec;
-            _audioFrameChannelUidDict[""][0].renderTimeMs = audioFrame.render_time_ms;
-            _audioFrameChannelUidDict[""][0].avsync_type = audioFrame.av_sync_type;
+                Marshal.Copy(audioFrame.buffer, localAudioFrame.buffer, 0, (int) audioFrame.buffer_length);
+            localAudioFrame.type = audioFrame.type;
+            localAudioFrame.samples = audioFrame.samples;
+            localAudioFrame.bytesPerSample = audioFrame.bytes_per_sample;
+            localAudioFrame.channels = audioFrame.channels;
+            localAudioFrame.samplesPerSec = audioFrame.samples_per_sec;
+            localAudioFrame.renderTimeMs = audioFrame.render_time_ms;
+            localAudioFrame.avsync_type = audioFrame.av_sync_type;
 
-            return _audioFrameObserver.OnRecordAudioFrame(_audioFrameChannelUidDict[""][0]);
+            return localAudioFrame;
+        }
+
+        internal bool OnRecordAudioFrame(ref IrisRtcAudioFrame audioFrame)
+        {
+            return _audioFrameObserver == null ||
+                   _audioFrameObserver.OnRecordAudioFrame(ProcessAudioFrameReceived(ref audioFrame, "", 0));
         }
 
         internal bool OnPlaybackAudioFrame(ref IrisRtcAudioFrame audioFrame)
         {
-            if (_audioFrameObserver == null) return true;
-
-            if (_audioFrameChannelUidDict[""] == null)
-            {
-                _audioFrameChannelUidDict[""] = new Dictionary<uint, AudioFrame> {[1] = new AudioFrame()};
-            }
-            else if (_audioFrameChannelUidDict[""][1] == null)
-            {
-                _audioFrameChannelUidDict[""][1] = new AudioFrame();
-            }
-
-            if (_audioFrameChannelUidDict[""][1].channels != audioFrame.channels ||
-                _audioFrameChannelUidDict[""][1].samples != audioFrame.samples ||
-                _audioFrameChannelUidDict[""][1].bytesPerSample != audioFrame.bytes_per_sample)
-            {
-                _audioFrameChannelUidDict[""][1].buffer = new byte[audioFrame.buffer_length];
-            }
-
-            if (audioFrame.buffer != IntPtr.Zero)
-                Marshal.Copy(audioFrame.buffer, _audioFrameChannelUidDict[""][1].buffer, 0,
-                    (int) audioFrame.buffer_length);
-            _audioFrameChannelUidDict[""][1].type = audioFrame.type;
-            _audioFrameChannelUidDict[""][1].samples = audioFrame.samples;
-            _audioFrameChannelUidDict[""][1].bytesPerSample = audioFrame.bytes_per_sample;
-            _audioFrameChannelUidDict[""][1].channels = audioFrame.channels;
-            _audioFrameChannelUidDict[""][1].samplesPerSec = audioFrame.samples_per_sec;
-            _audioFrameChannelUidDict[""][1].renderTimeMs = audioFrame.render_time_ms;
-            _audioFrameChannelUidDict[""][1].avsync_type = audioFrame.av_sync_type;
-
-            return _audioFrameObserver.OnPlaybackAudioFrame(_audioFrameChannelUidDict[""][1]);
+            return _audioFrameObserver == null ||
+                   _audioFrameObserver.OnPlaybackAudioFrame(ProcessAudioFrameReceived(ref audioFrame, "", 1));
         }
 
         internal bool OnMixedAudioFrame(ref IrisRtcAudioFrame audioFrame)
         {
-            if (_audioFrameObserver == null) return true;
-
-            if (_audioFrameChannelUidDict[""] == null)
-            {
-                _audioFrameChannelUidDict[""] = new Dictionary<uint, AudioFrame> {[2] = new AudioFrame()};
-            }
-            else if (_audioFrameChannelUidDict[""][2] == null)
-            {
-                _audioFrameChannelUidDict[""][2] = new AudioFrame();
-            }
-
-            if (_audioFrameChannelUidDict[""][2].channels != audioFrame.channels ||
-                _audioFrameChannelUidDict[""][2].samples != audioFrame.samples ||
-                _audioFrameChannelUidDict[""][2].bytesPerSample != audioFrame.bytes_per_sample)
-            {
-                _audioFrameChannelUidDict[""][2].buffer = new byte[audioFrame.buffer_length];
-            }
-
-            if (audioFrame.buffer != IntPtr.Zero)
-                Marshal.Copy(audioFrame.buffer, _audioFrameChannelUidDict[""][2].buffer, 0,
-                    (int) audioFrame.buffer_length);
-            _audioFrameChannelUidDict[""][2].type = audioFrame.type;
-            _audioFrameChannelUidDict[""][2].samples = audioFrame.samples;
-            _audioFrameChannelUidDict[""][2].bytesPerSample = audioFrame.bytes_per_sample;
-            _audioFrameChannelUidDict[""][2].channels = audioFrame.channels;
-            _audioFrameChannelUidDict[""][2].samplesPerSec = audioFrame.samples_per_sec;
-            _audioFrameChannelUidDict[""][2].renderTimeMs = audioFrame.render_time_ms;
-            _audioFrameChannelUidDict[""][2].avsync_type = audioFrame.av_sync_type;
-
-            return _audioFrameObserver.OnMixedAudioFrame(_audioFrameChannelUidDict[""][2]);
+            return _audioFrameObserver == null ||
+                   _audioFrameObserver.OnMixedAudioFrame(ProcessAudioFrameReceived(ref audioFrame, "", 2));
         }
 
         internal bool OnPlaybackAudioFrameBeforeMixing(uint uid, ref IrisRtcAudioFrame audioFrame)
@@ -138,43 +118,14 @@ namespace agora_gaming_rtc
 
         internal bool OnPlaybackAudioFrameBeforeMixingEx(string channelId, uint uid, ref IrisRtcAudioFrame audioFrame)
         {
-            if (_audioFrameObserver == null) return true;
-
-            if (_audioFrameChannelUidDict[channelId] == null)
-            {
-                _audioFrameChannelUidDict[channelId] = new Dictionary<uint, AudioFrame> {[uid] = new AudioFrame()};
-            }
-            else if (_audioFrameChannelUidDict[channelId][uid] == null)
-            {
-                _audioFrameChannelUidDict[channelId][uid] = new AudioFrame();
-            }
-
-            if (_audioFrameChannelUidDict[channelId][uid].channels != audioFrame.channels ||
-                _audioFrameChannelUidDict[channelId][uid].samples != audioFrame.samples ||
-                _audioFrameChannelUidDict[channelId][uid].bytesPerSample != audioFrame.bytes_per_sample)
-            {
-                _audioFrameChannelUidDict[channelId][uid].buffer = new byte[audioFrame.buffer_length];
-            }
-
-            if (audioFrame.buffer != IntPtr.Zero)
-                Marshal.Copy(audioFrame.buffer, _audioFrameChannelUidDict[channelId][uid].buffer, 0,
-                    (int) audioFrame.buffer_length);
-            _audioFrameChannelUidDict[channelId][uid].type = audioFrame.type;
-            _audioFrameChannelUidDict[channelId][uid].samples = audioFrame.samples;
-            _audioFrameChannelUidDict[channelId][uid].bytesPerSample = audioFrame.bytes_per_sample;
-            _audioFrameChannelUidDict[channelId][uid].channels = audioFrame.channels;
-            _audioFrameChannelUidDict[channelId][uid].samplesPerSec = audioFrame.samples_per_sec;
-            _audioFrameChannelUidDict[channelId][uid].renderTimeMs = audioFrame.render_time_ms;
-            _audioFrameChannelUidDict[channelId][uid].avsync_type = audioFrame.av_sync_type;
-
-            return _audioFrameObserver.OnPlaybackAudioFrameBeforeMixingEx(channelId, uid,
-                _audioFrameChannelUidDict[channelId][uid]);
+            return _audioFrameObserver == null || _audioFrameObserver.OnPlaybackAudioFrameBeforeMixingEx(channelId, uid,
+                ProcessAudioFrameReceived(ref audioFrame, channelId, uid));
         }
 
         internal void Dispose()
         {
             _audioFrameObserver = null;
-            _audioFrameChannelUidDict = null;
+            _localAudioFrames = null;
         }
     }
 }

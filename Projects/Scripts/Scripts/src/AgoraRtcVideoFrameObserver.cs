@@ -1,12 +1,13 @@
 //  AgoraRtcVideoFrameObserver.cs
 //
 //  Created by Yiqing Huang on June 9, 2021.
-//  Modified by Yiqing Huang on June 10, 2021.
+//  Modified by Yiqing Huang on June 24, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -15,115 +16,101 @@ namespace agora_gaming_rtc
     internal sealed class RtcVideoFrameObserverNative
     {
         private IAgoraRtcVideoFrameObserver _videoFrameObserver;
+        private LocalVideoFrames _localVideoFrames = new LocalVideoFrames();
 
-        private Dictionary<string, Dictionary<uint, VideoFrame>> _videoFrameChannelUidDict =
-            new Dictionary<string, Dictionary<uint, VideoFrame>>();
+        private class LocalVideoFrames
+        {
+            internal readonly VideoFrame CaptureVideoFrame = new VideoFrame();
+            internal readonly VideoFrame PreEncodeVideoFrame = new VideoFrame();
+
+            internal readonly Dictionary<string, Dictionary<uint, VideoFrame>> RenderVideoFrameEx =
+                new Dictionary<string, Dictionary<uint, VideoFrame>>();
+        }
 
         internal void SetVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver)
         {
             _videoFrameObserver = videoFrameObserver;
         }
 
-        internal bool OnCaptureVideoFrame(ref IrisRtcVideoFrame videoFrame)
+        private VideoFrame ProcessVideoFrameReceived(ref IrisRtcVideoFrame videoFrame, string channelId, uint uid)
         {
-            if (_videoFrameObserver == null) return true;
+            var localVideoFrame = new VideoFrame();
 
-            var videoFrameConverted =
-                _videoFrameObserver.GetVideoFormatPreference() == VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420
-                    ? videoFrame
-                    : AgoraRtcNative.ConvertVideoFrame(ref videoFrame, _videoFrameObserver.GetVideoFormatPreference());
+            var ifConverted = _videoFrameObserver.GetVideoFormatPreference() != VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420;
+            var videoFrameConverted = ifConverted
+                ? AgoraRtcNative.ConvertVideoFrame(ref videoFrame, _videoFrameObserver.GetVideoFormatPreference())
+                : videoFrame;
 
-            if (_videoFrameChannelUidDict[""] == null)
+            if (channelId == "")
             {
-                _videoFrameChannelUidDict[""] = new Dictionary<uint, VideoFrame> {[0] = new VideoFrame()};
+                switch (uid)
+                {
+                    case 0:
+                        localVideoFrame = _localVideoFrames.CaptureVideoFrame;
+                        break;
+                    case 1:
+                        localVideoFrame = _localVideoFrames.PreEncodeVideoFrame;
+                        break;
+                }
             }
-            else if (_videoFrameChannelUidDict[""][0] == null)
+            else
             {
-                _videoFrameChannelUidDict[""][0] = new VideoFrame();
+                if (_localVideoFrames.RenderVideoFrameEx[channelId] == null)
+                {
+                    _localVideoFrames.RenderVideoFrameEx[channelId] = new Dictionary<uint, VideoFrame>
+                        {[uid] = new VideoFrame()};
+                }
+                else if (_localVideoFrames.RenderVideoFrameEx[channelId][uid] == null)
+                {
+                    _localVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
+                }
+
+                localVideoFrame = _localVideoFrames.RenderVideoFrameEx[channelId][uid];
             }
 
-            if (_videoFrameChannelUidDict[""][0].height != videoFrameConverted.height ||
-                _videoFrameChannelUidDict[""][0].yStride != videoFrameConverted.y_stride ||
-                _videoFrameChannelUidDict[""][0].uStride != videoFrameConverted.u_stride ||
-                _videoFrameChannelUidDict[""][0].vStride != videoFrameConverted.v_stride)
+            if (localVideoFrame.height != videoFrameConverted.height ||
+                localVideoFrame.yStride != videoFrameConverted.y_stride ||
+                localVideoFrame.uStride != videoFrameConverted.u_stride ||
+                localVideoFrame.vStride != videoFrameConverted.v_stride)
             {
-                _videoFrameChannelUidDict[""][0].yBuffer = new byte[videoFrameConverted.y_buffer_length];
-                _videoFrameChannelUidDict[""][0].uBuffer = new byte[videoFrameConverted.u_buffer_length];
-                _videoFrameChannelUidDict[""][0].vBuffer = new byte[videoFrameConverted.v_buffer_length];
+                localVideoFrame.yBuffer = new byte[videoFrameConverted.y_buffer_length];
+                localVideoFrame.uBuffer = new byte[videoFrameConverted.u_buffer_length];
+                localVideoFrame.vBuffer = new byte[videoFrameConverted.v_buffer_length];
             }
 
             if (videoFrameConverted.y_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.y_buffer, _videoFrameChannelUidDict[""][0].yBuffer, 0,
+                Marshal.Copy(videoFrameConverted.y_buffer, localVideoFrame.yBuffer, 0,
                     (int) videoFrameConverted.y_buffer_length);
             if (videoFrameConverted.u_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.u_buffer, _videoFrameChannelUidDict[""][0].uBuffer, 0,
+                Marshal.Copy(videoFrameConverted.u_buffer, localVideoFrame.uBuffer, 0,
                     (int) videoFrameConverted.u_buffer_length);
             if (videoFrameConverted.v_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.v_buffer, _videoFrameChannelUidDict[""][0].vBuffer, 0,
+                Marshal.Copy(videoFrameConverted.v_buffer, localVideoFrame.vBuffer, 0,
                     (int) videoFrameConverted.v_buffer_length);
-            _videoFrameChannelUidDict[""][0].width = videoFrameConverted.width;
-            _videoFrameChannelUidDict[""][0].height = videoFrameConverted.height;
-            _videoFrameChannelUidDict[""][0].yStride = videoFrameConverted.y_stride;
-            _videoFrameChannelUidDict[""][0].uStride = videoFrameConverted.u_stride;
-            _videoFrameChannelUidDict[""][0].vStride = videoFrameConverted.v_stride;
-            _videoFrameChannelUidDict[""][0].rotation = videoFrameConverted.rotation;
-            _videoFrameChannelUidDict[""][0].renderTimeMs = videoFrameConverted.render_time_ms;
-            _videoFrameChannelUidDict[""][0].avsync_type = videoFrameConverted.av_sync_type;
+            localVideoFrame.width = videoFrameConverted.width;
+            localVideoFrame.height = videoFrameConverted.height;
+            localVideoFrame.yStride = videoFrameConverted.y_stride;
+            localVideoFrame.uStride = videoFrameConverted.u_stride;
+            localVideoFrame.vStride = videoFrameConverted.v_stride;
+            localVideoFrame.rotation = videoFrameConverted.rotation;
+            localVideoFrame.renderTimeMs = videoFrameConverted.render_time_ms;
+            localVideoFrame.avsync_type = videoFrameConverted.av_sync_type;
 
-            AgoraRtcNative.ClearVideoFrame(ref videoFrameConverted);
+            if (ifConverted) AgoraRtcNative.ClearVideoFrame(ref videoFrameConverted);
 
-            return _videoFrameObserver.OnCaptureVideoFrame(_videoFrameChannelUidDict[""][0]);
+            return localVideoFrame;
+        }
+
+        internal bool OnCaptureVideoFrame(ref IrisRtcVideoFrame videoFrame)
+        {
+            return _videoFrameObserver == null ||
+                   _videoFrameObserver.OnCaptureVideoFrame(ProcessVideoFrameReceived(ref videoFrame, "", 0));
         }
 
         internal bool OnPreEncodeVideoFrame(ref IrisRtcVideoFrame videoFrame)
         {
-            if (_videoFrameObserver == null) return true;
-
-            var videoFrameConverted =
-                _videoFrameObserver.GetVideoFormatPreference() == VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420
-                    ? videoFrame
-                    : AgoraRtcNative.ConvertVideoFrame(ref videoFrame, _videoFrameObserver.GetVideoFormatPreference());
-
-            if (_videoFrameChannelUidDict[""] == null)
-            {
-                _videoFrameChannelUidDict[""] = new Dictionary<uint, VideoFrame> {[1] = new VideoFrame()};
-            }
-            else if (_videoFrameChannelUidDict[""][1] == null)
-            {
-                _videoFrameChannelUidDict[""][1] = new VideoFrame();
-            }
-
-            if (_videoFrameChannelUidDict[""][1].height != videoFrameConverted.height ||
-                _videoFrameChannelUidDict[""][1].yStride != videoFrameConverted.y_stride ||
-                _videoFrameChannelUidDict[""][1].uStride != videoFrameConverted.u_stride ||
-                _videoFrameChannelUidDict[""][1].vStride != videoFrameConverted.v_stride)
-            {
-                _videoFrameChannelUidDict[""][1].yBuffer = new byte[videoFrameConverted.y_buffer_length];
-                _videoFrameChannelUidDict[""][1].uBuffer = new byte[videoFrameConverted.u_buffer_length];
-                _videoFrameChannelUidDict[""][1].vBuffer = new byte[videoFrameConverted.v_buffer_length];
-            }
-
-            if (videoFrameConverted.y_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.y_buffer, _videoFrameChannelUidDict[""][1].yBuffer, 0,
-                    (int) videoFrameConverted.y_buffer_length);
-            if (videoFrameConverted.u_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.u_buffer, _videoFrameChannelUidDict[""][1].uBuffer, 0,
-                    (int) videoFrameConverted.u_buffer_length);
-            if (videoFrameConverted.v_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.v_buffer, _videoFrameChannelUidDict[""][1].vBuffer, 0,
-                    (int) videoFrameConverted.v_buffer_length);
-            _videoFrameChannelUidDict[""][1].width = videoFrameConverted.width;
-            _videoFrameChannelUidDict[""][1].height = videoFrameConverted.height;
-            _videoFrameChannelUidDict[""][1].yStride = videoFrameConverted.y_stride;
-            _videoFrameChannelUidDict[""][1].uStride = videoFrameConverted.u_stride;
-            _videoFrameChannelUidDict[""][1].vStride = videoFrameConverted.v_stride;
-            _videoFrameChannelUidDict[""][1].rotation = videoFrameConverted.rotation;
-            _videoFrameChannelUidDict[""][1].renderTimeMs = videoFrameConverted.render_time_ms;
-            _videoFrameChannelUidDict[""][1].avsync_type = videoFrameConverted.av_sync_type;
-
-            AgoraRtcNative.ClearVideoFrame(ref videoFrameConverted);
-
-            return _videoFrameObserver.OnPreEncodeVideoFrame(_videoFrameChannelUidDict[""][1]);
+            return _videoFrameObserver == null ||
+                   _videoFrameObserver.OnPreEncodeVideoFrame(ProcessVideoFrameReceived(ref videoFrame, "", 1));
         }
 
         internal bool OnRenderVideoFrame(uint uid, ref IrisRtcVideoFrame videoFrame)
@@ -149,57 +136,14 @@ namespace agora_gaming_rtc
         {
             if (_videoFrameObserver == null) return true;
 
-            var videoFrameConverted =
-                _videoFrameObserver.GetVideoFormatPreference() == VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420
-                    ? videoFrame
-                    : AgoraRtcNative.ConvertVideoFrame(ref videoFrame, _videoFrameObserver.GetVideoFormatPreference());
-
-            if (_videoFrameChannelUidDict[channelId] == null)
-            {
-                _videoFrameChannelUidDict[channelId] = new Dictionary<uint, VideoFrame> {[uid] = new VideoFrame()};
-            }
-            else if (_videoFrameChannelUidDict[channelId][uid] == null)
-            {
-                _videoFrameChannelUidDict[channelId][uid] = new VideoFrame();
-            }
-
-            if (_videoFrameChannelUidDict[channelId][uid].height != videoFrameConverted.height ||
-                _videoFrameChannelUidDict[channelId][uid].yStride != videoFrameConverted.y_stride ||
-                _videoFrameChannelUidDict[channelId][uid].uStride != videoFrameConverted.u_stride ||
-                _videoFrameChannelUidDict[channelId][uid].vStride != videoFrameConverted.v_stride)
-            {
-                _videoFrameChannelUidDict[channelId][uid].yBuffer = new byte[videoFrameConverted.y_buffer_length];
-                _videoFrameChannelUidDict[channelId][uid].uBuffer = new byte[videoFrameConverted.u_buffer_length];
-                _videoFrameChannelUidDict[channelId][uid].vBuffer = new byte[videoFrameConverted.v_buffer_length];
-            }
-
-            if (videoFrameConverted.y_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.y_buffer, _videoFrameChannelUidDict[channelId][uid].yBuffer, 0,
-                    (int) videoFrameConverted.y_buffer_length);
-            if (videoFrameConverted.u_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.u_buffer, _videoFrameChannelUidDict[channelId][uid].uBuffer, 0,
-                    (int) videoFrameConverted.u_buffer_length);
-            if (videoFrameConverted.v_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.v_buffer, _videoFrameChannelUidDict[channelId][uid].vBuffer, 0,
-                    (int) videoFrameConverted.v_buffer_length);
-            _videoFrameChannelUidDict[channelId][uid].width = videoFrameConverted.width;
-            _videoFrameChannelUidDict[channelId][uid].height = videoFrameConverted.height;
-            _videoFrameChannelUidDict[channelId][uid].yStride = videoFrameConverted.y_stride;
-            _videoFrameChannelUidDict[channelId][uid].uStride = videoFrameConverted.u_stride;
-            _videoFrameChannelUidDict[channelId][uid].vStride = videoFrameConverted.v_stride;
-            _videoFrameChannelUidDict[channelId][uid].rotation = videoFrameConverted.rotation;
-            _videoFrameChannelUidDict[channelId][uid].renderTimeMs = videoFrameConverted.render_time_ms;
-            _videoFrameChannelUidDict[channelId][uid].avsync_type = videoFrameConverted.av_sync_type;
-
-            AgoraRtcNative.ClearVideoFrame(ref videoFrameConverted);
-
-            return _videoFrameObserver.OnRenderVideoFrameEx(channelId, uid, _videoFrameChannelUidDict[channelId][uid]);
+            return _videoFrameObserver.OnRenderVideoFrameEx(channelId, uid,
+                ProcessVideoFrameReceived(ref videoFrame, channelId, uid));
         }
 
         internal void Dispose()
         {
             _videoFrameObserver = null;
-            _videoFrameChannelUidDict = null;
+            _localVideoFrames = null;
         }
     }
 }

@@ -8,7 +8,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 
 namespace agora_gaming_rtc
 {
@@ -46,7 +45,7 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisEventHandlerHandle SetIrisRtcEngineEventHandler(IrisRtcEnginePtr engine_ptr,
-            ref IrisCEventHandlerNative event_handler);
+            IntPtr event_handler);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void UnsetIrisRtcEngineEventHandler(IrisRtcEnginePtr engine_ptr,
@@ -103,7 +102,7 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcAudioFrameObserverHandle RegisterAudioFrameObserver(
-            IrisRtcRawDataPtr raw_data_ptr, ref IrisRtcCAudioFrameObserverNative observerNative, int order, string identifier);
+            IrisRtcRawDataPtr raw_data_ptr, IntPtr observerNative, int order, string identifier);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void UnRegisterAudioFrameObserver(IrisRtcRawDataPtr raw_data_ptr,
@@ -111,7 +110,7 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcVideoFrameObserverHandle RegisterVideoFrameObserver(
-            IrisRtcRawDataPtr raw_data_ptr, ref IrisRtcCVideoFrameObserverNative observerNative, int order, string identifier);
+            IrisRtcRawDataPtr raw_data_ptr, IntPtr observerNative, int order, string identifier);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void UnRegisterVideoFrameObserver(IrisRtcRawDataPtr raw_data_ptr,

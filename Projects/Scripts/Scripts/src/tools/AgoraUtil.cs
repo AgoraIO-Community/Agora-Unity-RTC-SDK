@@ -18,6 +18,7 @@ namespace agora_gaming_rtc
         internal static object GetData<T>(string data, string key)
         {
             var jData = JsonMapper.ToObject(data);
+            if (jData[key] == null) return null;
             var jValue = jData[key].ToString();
 
             switch (typeof(T).Name)
@@ -56,6 +57,7 @@ namespace agora_gaming_rtc
         internal static object GetData<T>(char[] data, string key)
         {
             var jData = JsonMapper.ToObject(new string(data, 0, Array.IndexOf(data, '\0')));
+            if (jData[key] == null) return null;
             var jValue = jData[key].ToString();
 
             switch (typeof(T).Name)

@@ -38,7 +38,7 @@ namespace agora_gaming_rtc
 
         public virtual bool IsMultipleChannelFrameWanted()
         {
-            return false;
+            return true;
         }
 
         public virtual bool OnRenderVideoFrameEx(string channelId, uint uid, VideoFrame videoFrame)

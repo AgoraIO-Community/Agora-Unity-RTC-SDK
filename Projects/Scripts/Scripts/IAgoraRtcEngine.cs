@@ -19,7 +19,9 @@ namespace agora_gaming_rtc
     public abstract class IRtcEngine
     {
         public abstract int Initialize(RtcEngineContext context);
-        public abstract void InitEventHandler(IRtcEngineEventHandler engineEventHandler);
+        public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
+        public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver);
+        public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver);
         public abstract void Dispose();
 
         [Obsolete(ObsoleteMethodWarning.GetAudioEffectManagerWarning, false)]
@@ -302,7 +304,7 @@ namespace agora_gaming_rtc
         public abstract int PushVideoFrame(ExternalVideoFrame frame);
     }
 
-    public abstract class IRtcEngineEventHandler
+    public abstract class IAgoraRtcEngineEventHandler
     {
         public virtual void OnWarning(int warn, string msg)
         {
@@ -643,6 +645,15 @@ namespace agora_gaming_rtc
         }
 
         public virtual void OnUploadLogResult(string requestId, bool success, UPLOAD_ERROR_REASON reason)
+        {
+        }
+
+        public virtual bool OnReadyToSendMetadata(Metadata metadata)
+        {
+            return true;
+        }
+
+        public virtual void OnMetadataReceived(Metadata metadata)
         {
         }
     }

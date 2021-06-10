@@ -1,11 +1,12 @@
 //  IrisRtcBase.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 2, 2021.
+//  Modified by Yiqing Huang on June 10, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace agora_gaming_rtc
@@ -283,57 +284,37 @@ namespace agora_gaming_rtc
         kRDPMRelease
     }
 
-    internal enum AudioFrameType
-    {
-        kAudioFrameTypePCM16,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     internal struct IrisRtcAudioFrame
     {
-        internal AudioFrameType type;
+        internal AUDIO_FRAME_TYPE type;
         internal int samples;
         internal int bytes_per_sample;
         internal int channels;
         internal int samples_per_sec;
-        internal byte[] buffer;
+        internal IntPtr buffer;
         internal uint buffer_length;
         internal long render_time_ms;
         internal int av_sync_type;
     }
 
-    internal enum VideoFrameType
-    {
-        kVideoFrameTypeYUV420,
-        kVideoFrameTypeYUV422,
-        kVideoFrameTypeRGBA,
-        kVideoFrameTypeBGRA,
-    }
-
-    internal enum VideoObserverPosition
-    {
-        kPositionPostCapturer = 1 << 0,
-        kPositionPreRenderer = 1 << 1,
-        kPositionPreEncoder = 1 << 2,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     internal struct IrisRtcVideoFrame
     {
-        VideoFrameType type;
-        int width;
-        int height;
-        int y_stride;
-        int u_stride;
-        int v_stride;
-        byte[] y_buffer;
-        byte[] u_buffer;
-        byte[] v_buffer;
-        uint y_buffer_length;
-        uint u_buffer_length;
-        uint v_buffer_length;
-        int rotation;
-        long render_time_ms;
-        int av_sync_type;
+        internal VIDEO_FRAME_TYPE type;
+        internal int width;
+        internal int height;
+        internal int y_stride;
+        internal int u_stride;
+        internal int v_stride;
+        internal IntPtr y_buffer;
+        internal IntPtr u_buffer;
+        internal IntPtr v_buffer;
+        internal uint y_buffer_length;
+        internal uint u_buffer_length;
+        internal uint v_buffer_length;
+        internal int rotation;
+        internal long render_time_ms;
+        internal int av_sync_type;
     }
 }

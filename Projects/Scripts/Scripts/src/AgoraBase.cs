@@ -785,6 +785,7 @@ namespace agora_gaming_rtc
     }
 
     /** Output log filter level. */
+    [Flags]
     public enum LOG_FILTER_TYPE
     {
         /** 0: Do not output any log information. */
@@ -818,6 +819,7 @@ namespace agora_gaming_rtc
      *
      * @since v3.3.0
      */
+    [Flags]
     public enum LOG_LEVEL
     {
         /** 0: Do not output any log. */
@@ -1957,6 +1959,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
  *
  * Local voice changer options.
  */
+    [Flags]
     public enum VOICE_CHANGER_PRESET
     {
         /**
@@ -2059,6 +2062,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
  *
  *  Local voice reverberation presets.
  */
+    [Flags]
     public enum AUDIO_REVERB_PRESET
     {
         /**
@@ -2158,6 +2162,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The options for SDK preset voice beautifier effects.
  */
+    [Flags]
     public enum VOICE_BEAUTIFIER_PRESET
     {
         /** Turn off voice beautifier effects and use the original voice.
@@ -2229,6 +2234,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     /** The options for SDK preset audio effects.
  */
+    [Flags]
     public enum AUDIO_EFFECT_PRESET
     {
         /** Turn off audio effects and use the original voice.
@@ -2394,6 +2400,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         PITCH_CORRECTION = 0x02040100
     }
 
+    [Flags]
     public enum VOICE_CONVERSION_PRESET
     {
         VOICE_CONVERSION_OFF = 0x00000000,
@@ -2486,7 +2493,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
        */
         REMOTE_AUDIO_REASON_REMOTE_OFFLINE = 7,
     }
-    
+
     /** The state of the remote video. */
     public enum REMOTE_VIDEO_STATE
     {
@@ -2996,6 +3003,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /** Audio session restriction. */
+    [Flags]
     public enum AUDIO_SESSION_OPERATION_RESTRICTION
     {
         /** No restriction, the SDK has full control of the audio session operations. */
@@ -4921,6 +4929,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     /**
  *  Regions for connetion.
  */
+    [Flags]
     public enum AREA_CODE : uint
     {
         /**
@@ -4959,6 +4968,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         AREA_CODE_GLOB = 0xFFFFFFFF
     }
 
+    [Flags]
     public enum ENCRYPTION_CONFIG
     {
         /**
@@ -5007,6 +5017,47 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 */
         VIDEO_BUFFER_RAW_DATA = 1,
     }
+
+    /** The video frame type. */
+    public enum VIDEO_FRAME_TYPE
+    {
+        /**
+     * 0: YUV420
+     */
+        FRAME_TYPE_YUV420 = 0, // YUV 420 format
+
+        /**
+     * 1: YUV422
+     */
+        FRAME_TYPE_YUV422 = 1, // YUV 422 format
+
+        /**
+     * 2: RGBA
+     */
+        FRAME_TYPE_RGBA = 2, // RGBA format
+    };
+
+    /**
+   * The frame position of the video observer.
+   */
+    [Flags]
+    public enum VIDEO_OBSERVER_POSITION
+    {
+        /**
+     * 1: The post-capturer position, which corresponds to the video data in the onCaptureVideoFrame callback.
+     */
+        POSITION_POST_CAPTURER = 1 << 0,
+
+        /**
+     * 2: The pre-renderer position, which corresponds to the video data in the onRenderVideoFrame callback.
+     */
+        POSITION_PRE_RENDERER = 1 << 1,
+
+        /**
+     * 4: The pre-encoder position, which corresponds to the video data in the onPreEncodeVideoFrame callback.
+     */
+        POSITION_PRE_ENCODER = 1 << 2,
+    };
 
     /** The video pixel format.
 	 */
@@ -5280,6 +5331,59 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 */
         public long timestamp { set; get; }
     }
+
+    /** Video frame containing the Agora RTC SDK's encoded video data. */
+    public class VideoFrame
+    {
+        /** The video frame type: #VIDEO_FRAME_TYPE. */
+        public VIDEO_FRAME_TYPE type;
+
+        /** Width (pixel) of the video frame.*/
+        public int width;
+
+        /** Height (pixel) of the video frame. */
+        public int height;
+
+        /** Line span of the Y buffer within the YUV data.
+     */
+        public int yStride; //stride of Y data buffer
+
+        /** Line span of the U buffer within the YUV data.
+     */
+        public int uStride; //stride of U data buffer
+
+        /** Line span of the V buffer within the YUV data.
+     */
+        public int vStride; //stride of V data buffer
+
+        /** Pointer to the Y buffer pointer within the YUV data.
+     */
+        public byte[] yBuffer; //Y data buffer
+
+        /** Pointer to the U buffer pointer within the YUV data.
+     */
+        public byte[] uBuffer; //U data buffer
+
+        /** Pointer to the V buffer pointer within the YUV data.
+     */
+        public byte[] vBuffer; //V data buffer
+
+        /** Set the rotation of this frame before rendering the video. Supports 0, 90, 180, 270 degrees clockwise.
+     */
+        /** Set the rotation of this frame before rendering the video. Supports 0, 90, 180, 270 degrees clockwise.
+         */
+        public int rotation; // rotation of this frame (0, 90, 180, 270)
+
+        /** The timestamp of the external audio frame. It is mandatory. You can use this parameter for the following purposes:
+         * - Restore the order of the captured audio frame.
+         * - Synchronize audio and video frames in video-related scenarios, including scenarios where external video sources are used.
+         * @note This timestamp is for rendering the video stream, and not for capturing the video stream.
+         */
+        public long renderTimeMs;
+
+        /** Reserved for future use. */
+        public int avsync_type;
+    };
 
     public class ChannelMediaOptions
     {

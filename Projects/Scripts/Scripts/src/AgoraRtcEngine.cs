@@ -1,7 +1,7 @@
 //  AgoraRtcEngine.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 8 2021.
+//  Modified by Yiqing Huang on June 10, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -18,18 +18,20 @@ namespace agora_gaming_rtc
     using IrisRtcEnginePtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
     using IrisRtcDeviceManagerPtr = IntPtr;
+    using IrisRtcVideoFrameObserverHandleNative = IntPtr;
+    using IrisRtcAudioFrameObserverHandleNative = IntPtr;
 
-    internal sealed class NativeRtcEngineEventHandler
+    internal sealed class RtcEngineEventHandlerNative
     {
-        private IRtcEngineEventHandler _engineEventHandler;
+        private IAgoraRtcEngineEventHandler _engineEventHandler;
         private AgoraCallbackObject _callbackObject;
 
-        internal NativeRtcEngineEventHandler()
+        internal RtcEngineEventHandlerNative()
         {
             _callbackObject = new AgoraCallbackObject(GetHashCode().ToString());
         }
 
-        internal void SetEventHandler(IRtcEngineEventHandler engineEventHandler)
+        internal void SetEventHandler(IAgoraRtcEngineEventHandler engineEventHandler)
         {
             _engineEventHandler = engineEventHandler;
         }
@@ -648,15 +650,33 @@ namespace agora_gaming_rtc
 
         internal void OnEventWithBuffer(string @event, string data, IntPtr buffer, uint length)
         {
+            var byteData = new byte[length];
+            if (buffer != IntPtr.Zero) Marshal.Copy(buffer, byteData, 0, (int) length);
             switch (@event)
             {
                 case "onStreamMessage":
-                    var streamData = new byte[length];
-                    if (buffer != IntPtr.Zero) Marshal.Copy(buffer, streamData, 0, (int) length);
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
                         _engineEventHandler?.OnStreamMessage((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "streamId"), streamData, length);
+                            (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                    });
+                    break;
+                case "onReadyToSendMetadata":
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
+                            (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
+                            (long) AgoraJson.GetData<long>(data, "timeStampMs"));
+                        _engineEventHandler?.OnReadyToSendMetadata(metadata);
+                    });
+                    break;
+                case "onMetadataReceived":
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
+                            (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
+                            (long) AgoraJson.GetData<long>(data, "timeStampMs"));
+                        _engineEventHandler?.OnMetadataReceived(metadata);
                     });
                     break;
             }
@@ -677,7 +697,7 @@ namespace agora_gaming_rtc
         private static readonly AgoraRtcEngine[] engineInstance = {null, null};
         private IrisRtcEnginePtr _irisRtcEngine;
 
-        private NativeRtcEngineEventHandler _nativeRtcEngineEventHandler;
+        private RtcEngineEventHandlerNative _rtcEngineEventHandlerNative;
         private IrisCEventHandlerNative _irisCEngineEventHandlerNative;
         private IrisCEventHandler _irisCEngineEventHandler;
         private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
@@ -693,6 +713,16 @@ namespace agora_gaming_rtc
         private AudioRecordingDeviceManager _deprecatedAudioRecordingDeviceManagerInstance;
         private AudioEffectManager _deprecatedAudioEffectManagerInstance;
 
+        private RtcAudioFrameObserverNative _rtcAudioFrameObserverNative;
+        private IrisRtcCAudioFrameObserverNative _irisRtcCAudioFrameObserverNative;
+        private IrisRtcCAudioFrameObserver _irisRtcCAudioFrameObserver;
+        private IrisRtcAudioFrameObserverHandleNative _irisRtcAudioFrameObserverHandleNative;
+
+        private RtcVideoFrameObserverNative _rtcVideoFrameObserverNative;
+        private IrisRtcCVideoFrameObserverNative _irisRtcCVideoFrameObserverNative;
+        private IrisRtcCVideoFrameObserver _irisRtcCVideoFrameObserver;
+        private IrisRtcVideoFrameObserverHandleNative _irisRtcVideoFrameObserverHandleNative;
+
         private CharArrayAssistant _result;
 
         private AgoraRtcEngine(EngineType type = EngineType.kEngineTypeNormal)
@@ -702,7 +732,10 @@ namespace agora_gaming_rtc
             _irisRtcEngine = type == EngineType.kEngineTypeNormal
                 ? AgoraRtcNative.CreateIrisRtcEngine()
                 : AgoraRtcNative.CreateIrisRtcEngine(EngineType.kEngineTypeSubProcess);
+
             SetIrisEngineEventHandler();
+            SetIrisAudioFrameObserver();
+            SetIrisVideoFrameObserver();
 
             _irisRtcDeviceManager = AgoraRtcNative.GetIrisRtcDeviceManager(_irisRtcEngine);
 
@@ -725,10 +758,15 @@ namespace agora_gaming_rtc
         {
             if (_disposed) return;
 
+            // TODO: Release
+
             if (disposing)
             {
                 // TODO: Unmanaged resources.
                 UnsetIrisRtcEngineEventHandler();
+                UnSetIrisAudioFrameObserver();
+                UnSetIrisVideoFrameObserver();
+                
                 foreach (var channelInstance in _channelInstance.Values)
                 {
                     channelInstance.Dispose();
@@ -748,7 +786,7 @@ namespace agora_gaming_rtc
                 _deprecatedAudioRecordingDeviceManagerInstance = null;
                 _audioRecordingDeviceManagerInstance.Dispose();
                 _audioRecordingDeviceManagerInstance = null;
-                
+
                 _deprecatedAudioEffectManagerInstance.Dispose();
                 _deprecatedAudioEffectManagerInstance = null;
 
@@ -770,7 +808,7 @@ namespace agora_gaming_rtc
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
             AgoraRtcNative.DestroyIrisRtcEngine(_irisRtcEngine);
             _irisRtcEngine = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = null;
             for (var i = 0; i < engineInstance.Length; i++)
             {
                 if (engineInstance[i] == this) engineInstance[i] = null;
@@ -842,19 +880,19 @@ namespace agora_gaming_rtc
             return ret;
         }
 
-        public override void InitEventHandler(IRtcEngineEventHandler engineEventHandler)
+        public override void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler)
         {
-            _nativeRtcEngineEventHandler.SetEventHandler(engineEventHandler);
+            _rtcEngineEventHandlerNative.SetEventHandler(engineEventHandler);
         }
 
         private void SetIrisEngineEventHandler()
         {
-            _nativeRtcEngineEventHandler = new NativeRtcEngineEventHandler();
+            _rtcEngineEventHandlerNative = new RtcEngineEventHandlerNative();
 
             _irisCEngineEventHandler = new IrisCEventHandler
             {
-                OnEvent = _nativeRtcEngineEventHandler.OnEvent,
-                OnEventWithBuffer = _nativeRtcEngineEventHandler.OnEventWithBuffer
+                OnEvent = _rtcEngineEventHandlerNative.OnEvent,
+                OnEventWithBuffer = _rtcEngineEventHandlerNative.OnEventWithBuffer
             };
 
             _irisCEngineEventHandlerNative = new IrisCEventHandlerNative
@@ -871,10 +909,116 @@ namespace agora_gaming_rtc
         {
             AgoraRtcNative.UnsetIrisRtcEngineEventHandler(_irisRtcEngine, ref _irisEngineEventHandlerHandleNative);
             _irisEngineEventHandlerHandleNative = IntPtr.Zero;
-            _nativeRtcEngineEventHandler?.Dispose();
-            _nativeRtcEngineEventHandler = null;
+            _rtcEngineEventHandlerNative?.Dispose();
+            _rtcEngineEventHandlerNative = null;
             _irisCEngineEventHandler = new IrisCEventHandler();
             _irisCEngineEventHandlerNative = new IrisCEventHandlerNative();
+        }
+
+        public override void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver)
+        {
+            _rtcAudioFrameObserverNative.SetAudioFrameObserver(audioFrameObserver);
+        }
+
+        private void SetIrisAudioFrameObserver()
+        {
+            _rtcAudioFrameObserverNative = new RtcAudioFrameObserverNative();
+
+            _irisRtcCAudioFrameObserver = new IrisRtcCAudioFrameObserver
+            {
+                OnRecordAudioFrame = _rtcAudioFrameObserverNative.OnRecordAudioFrame,
+                OnPlaybackAudioFrame = _rtcAudioFrameObserverNative.OnPlaybackAudioFrame,
+                OnMixedAudioFrame = _rtcAudioFrameObserverNative.OnMixedAudioFrame,
+                OnPlaybackAudioFrameBeforeMixing = _rtcAudioFrameObserverNative.OnPlaybackAudioFrameBeforeMixing,
+                IsMultipleChannelFrameWanted = _rtcAudioFrameObserverNative.IsMultipleChannelFrameWanted,
+                OnPlaybackAudioFrameBeforeMixingEx = _rtcAudioFrameObserverNative.OnPlaybackAudioFrameBeforeMixingEx
+            };
+
+            _irisRtcCAudioFrameObserverNative = new IrisRtcCAudioFrameObserverNative
+            {
+                OnRecordAudioFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnRecordAudioFrame),
+                OnPlaybackAudioFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnPlaybackAudioFrame),
+                OnMixedAudioFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnMixedAudioFrame),
+                OnPlaybackAudioFrameBeforeMixing =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnPlaybackAudioFrameBeforeMixing),
+                IsMultipleChannelFrameWanted =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.IsMultipleChannelFrameWanted),
+                OnPlaybackAudioFrameBeforeMixingEx =
+                    Marshal.GetFunctionPointerForDelegate(
+                        _irisRtcCAudioFrameObserver.OnPlaybackAudioFrameBeforeMixingEx)
+            };
+
+            var identifier = this == engineInstance[0] ? "UnityRtcMainProcess" : "UnityRtcSubProcess";
+            _irisRtcAudioFrameObserverHandleNative = AgoraRtcNative.RegisterAudioFrameObserver(
+                AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine), ref _irisRtcCAudioFrameObserverNative, 0, identifier);
+        }
+
+        private void UnSetIrisAudioFrameObserver()
+        {
+            var identifier = this == engineInstance[0] ? "UnityRtcMainProcess" : "UnityRtcSubProcess";
+            AgoraRtcNative.UnRegisterAudioFrameObserver(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine),
+                _irisRtcAudioFrameObserverHandleNative, identifier);
+            _irisRtcAudioFrameObserverHandleNative = IntPtr.Zero;
+            _rtcAudioFrameObserverNative?.Dispose();
+            _rtcAudioFrameObserverNative = null;
+            _irisRtcCAudioFrameObserver = new IrisRtcCAudioFrameObserver();
+            _irisRtcCAudioFrameObserverNative = new IrisRtcCAudioFrameObserverNative();
+        }
+
+        public override void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver)
+        {
+            _rtcVideoFrameObserverNative.SetVideoFrameObserver(videoFrameObserver);
+        }
+        
+        private void SetIrisVideoFrameObserver()
+        {
+            _rtcVideoFrameObserverNative = new RtcVideoFrameObserverNative();
+
+            _irisRtcCVideoFrameObserver = new IrisRtcCVideoFrameObserver
+            {
+                OnCaptureVideoFrame = _rtcVideoFrameObserverNative.OnCaptureVideoFrame,
+                OnPreEncodeVideoFrame = _rtcVideoFrameObserverNative.OnPreEncodeVideoFrame,
+                OnRenderVideoFrame = _rtcVideoFrameObserverNative.OnRenderVideoFrame,
+                GetObservedFramePosition = _rtcVideoFrameObserverNative.GetObservedFramePosition,
+                IsMultipleChannelFrameWanted = _rtcVideoFrameObserverNative.IsMultipleChannelFrameWanted,
+                OnRenderVideoFrameEx = _rtcVideoFrameObserverNative.OnRenderVideoFrameEx
+            };
+
+            _irisRtcCVideoFrameObserverNative = new IrisRtcCVideoFrameObserverNative
+            {
+                OnCaptureVideoFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnCaptureVideoFrame),
+                OnPreEncodeVideoFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnPreEncodeVideoFrame),
+                OnRenderVideoFrame =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnRenderVideoFrame),
+                GetObservedFramePosition =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.GetObservedFramePosition),
+                IsMultipleChannelFrameWanted =
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.IsMultipleChannelFrameWanted),
+                OnRenderVideoFrameEx =
+                    Marshal.GetFunctionPointerForDelegate(
+                        _irisRtcCVideoFrameObserver.OnRenderVideoFrameEx)
+            };
+
+            var identifier = this == engineInstance[0] ? "UnityRtcMainProcess" : "UnityRtcSubProcess";
+            _irisRtcVideoFrameObserverHandleNative = AgoraRtcNative.RegisterVideoFrameObserver(
+                AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine), ref _irisRtcCVideoFrameObserverNative, 0, identifier);
+        }
+
+        private void UnSetIrisVideoFrameObserver()
+        {
+            var identifier = this == engineInstance[0] ? "UnityRtcMainProcess" : "UnityRtcSubProcess";
+            AgoraRtcNative.UnRegisterVideoFrameObserver(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine),
+                _irisRtcVideoFrameObserverHandleNative, identifier);
+            _irisRtcVideoFrameObserverHandleNative = IntPtr.Zero;
+            _rtcVideoFrameObserverNative?.Dispose();
+            _rtcVideoFrameObserverNative = null;
+            _irisRtcCVideoFrameObserver = new IrisRtcCVideoFrameObserver();
+            _irisRtcCVideoFrameObserverNative = new IrisRtcCVideoFrameObserverNative();
         }
 
         public override void Dispose()

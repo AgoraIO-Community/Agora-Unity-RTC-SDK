@@ -1,7 +1,7 @@
 //  AgoraCallback.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 7, 2021.
+//  Modified by Yiqing Huang on June 10, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -43,7 +43,7 @@ namespace agora_gaming_rtc
     internal delegate bool Func_VideoFrameEx_Native(string channel_id, uint uid, ref IrisRtcVideoFrame video_frame);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    internal delegate VideoFrameType Func_VideoFrameType_Native();
+    internal delegate VIDEO_FRAME_TYPE Func_VideoFrameType_Native();
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     internal delegate void Func_VideoFrame_Native(ref IrisRtcVideoFrame video_frame, bool resize);
@@ -79,7 +79,7 @@ namespace agora_gaming_rtc
         internal Func_AudioFrameLocal_Native OnMixedAudioFrame;
         internal Func_AudioFrameRemote_Native OnPlaybackAudioFrameBeforeMixing;
         internal Func_Bool_Natvie IsMultipleChannelFrameWanted;
-        internal Func_AudioFrameEx_Native OnPlaybackAudioFrameBeforeMixingExNative;
+        internal Func_AudioFrameEx_Native OnPlaybackAudioFrameBeforeMixingEx;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -88,7 +88,6 @@ namespace agora_gaming_rtc
         internal IntPtr OnCaptureVideoFrame;
         internal IntPtr OnPreEncodeVideoFrame;
         internal IntPtr OnRenderVideoFrame;
-        internal IntPtr GetVideoFormatPreference;
         internal IntPtr GetObservedFramePosition;
         internal IntPtr IsMultipleChannelFrameWanted;
         internal IntPtr OnRenderVideoFrameEx;
@@ -99,10 +98,9 @@ namespace agora_gaming_rtc
         internal Func_VideoFrameLocal_Native OnCaptureVideoFrame;
         internal Func_VideoFrameLocal_Native OnPreEncodeVideoFrame;
         internal Func_VideoFrameRemote_Native OnRenderVideoFrame;
-        internal Func_VideoFrameType_Native GetVideoFormatPreference;
         internal Func_Uint32_t_Native GetObservedFramePosition;
         internal Func_Bool_Natvie IsMultipleChannelFrameWanted;
-        internal Func_VideoFrameEx_Native OnRenderVideoFrameExNative;
+        internal Func_VideoFrameEx_Native OnRenderVideoFrameEx;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -116,7 +114,7 @@ namespace agora_gaming_rtc
     
     internal struct IrisRtcCRendererCacheConfig
     {
-        internal VideoFrameType type;
+        internal VIDEO_FRAME_TYPE type;
         internal Func_VideoFrame_Native OnVideoFrameNativeReceived;
         internal int resize_width;
         internal int resize_height;

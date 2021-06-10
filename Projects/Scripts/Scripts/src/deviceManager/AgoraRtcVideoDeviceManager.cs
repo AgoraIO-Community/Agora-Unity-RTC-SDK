@@ -42,7 +42,7 @@ namespace agora_gaming_rtc
             }
 
             _irisRtcDeviceManager = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = null;
             _disposed = true;
         }
 

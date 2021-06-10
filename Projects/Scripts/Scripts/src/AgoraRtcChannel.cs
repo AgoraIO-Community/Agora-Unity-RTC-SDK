@@ -16,17 +16,17 @@ namespace agora_gaming_rtc
     using IrisRtcChannelPtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
 
-    internal sealed class NativeRtcChannelEventHandler
+    internal sealed class RtcChannelEventHandlerNative
     {
-        private IRtcChannelEventHandler _channelEventHandler;
+        private IAgoraRtcChannelEventHandler _channelEventHandler;
         private AgoraCallbackObject _callbackObject;
 
-        internal NativeRtcChannelEventHandler()
+        internal RtcChannelEventHandlerNative()
         {
             _callbackObject = new AgoraCallbackObject(GetHashCode().ToString());
         }
 
-        internal void SetEventHandler(IRtcChannelEventHandler channelEventHandler)
+        internal void SetEventHandler(IAgoraRtcChannelEventHandler channelEventHandler)
         {
             _channelEventHandler = channelEventHandler;
         }
@@ -331,16 +331,34 @@ namespace agora_gaming_rtc
 
         internal void OnEventWithBuffer(string @event, string data, IntPtr buffer, uint length)
         {
+            var byteData = new byte[length];
+            if (buffer != IntPtr.Zero) Marshal.Copy(buffer, byteData, 0, (int) length);
             switch (@event)
             {
                 case "onStreamMessage":
-                    var streamData = new byte[length];
-                    if (buffer != IntPtr.Zero) Marshal.Copy(buffer, streamData, 0, (int) length);
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
                         _channelEventHandler?.OnStreamMessage((string) AgoraJson.GetData<string>(data, "channelId"),
                             (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "streamId"), streamData, length);
+                            (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                    });
+                    break;
+                case "onReadyToSendMetadata":
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
+                            (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
+                            (long) AgoraJson.GetData<long>(data, "timeStampMs"));
+                        _channelEventHandler?.OnReadyToSendMetadata(metadata);
+                    });
+                    break;
+                case "onMetadataReceived":
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
+                            (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
+                            (long) AgoraJson.GetData<long>(data, "timeStampMs"));
+                        _channelEventHandler?.OnMetadataReceived(metadata);
                     });
                     break;
             }
@@ -363,7 +381,7 @@ namespace agora_gaming_rtc
 
         private AgoraRtcEngine _rtcEngine;
 
-        private NativeRtcChannelEventHandler _nativeRtcChannelEventHandler;
+        private RtcChannelEventHandlerNative _rtcChannelEventHandlerNative;
         private IrisCEventHandlerNative _irisCChannelEventHandlerNative;
         private IrisCEventHandler _irisCChannelEventHandler;
         private IrisEventHandlerHandleNative _irisChannelEventHandlerHandleNative;
@@ -391,19 +409,19 @@ namespace agora_gaming_rtc
             return rtcEngine.CreateChannel(channelId);
         }
 
-        public override void InitEventHandler(IRtcChannelEventHandler channelEventHandler)
+        public override void InitEventHandler(IAgoraRtcChannelEventHandler channelEventHandler)
         {
-            _nativeRtcChannelEventHandler.SetEventHandler(channelEventHandler);
+            _rtcChannelEventHandlerNative.SetEventHandler(channelEventHandler);
         }
 
         private void SetIrisChannelEventHandler()
         {
-            _nativeRtcChannelEventHandler = new NativeRtcChannelEventHandler();
+            _rtcChannelEventHandlerNative = new RtcChannelEventHandlerNative();
 
             _irisCChannelEventHandler = new IrisCEventHandler
             {
-                OnEvent = _nativeRtcChannelEventHandler.OnEvent,
-                OnEventWithBuffer = _nativeRtcChannelEventHandler.OnEventWithBuffer
+                OnEvent = _rtcChannelEventHandlerNative.OnEvent,
+                OnEventWithBuffer = _rtcChannelEventHandlerNative.OnEventWithBuffer
             };
 
             _irisCChannelEventHandlerNative = new IrisCEventHandlerNative
@@ -422,8 +440,8 @@ namespace agora_gaming_rtc
             AgoraRtcNative.UnRegisterIrisRtcChannelEventHandler(_irisRtcChannel,
                 _irisChannelEventHandlerHandleNative, _channelId);
             _irisChannelEventHandlerHandleNative = IntPtr.Zero;
-            _nativeRtcChannelEventHandler?.Dispose();
-            _nativeRtcChannelEventHandler = null;
+            _rtcChannelEventHandlerNative?.Dispose();
+            _rtcChannelEventHandlerNative = null;
             _irisCChannelEventHandler = new IrisCEventHandler();
             _irisCChannelEventHandlerNative = new IrisCEventHandlerNative();
         }
@@ -458,7 +476,7 @@ namespace agora_gaming_rtc
             _rtcEngine.ReleaseChannel(_channelId);
             _rtcEngine = null;
             _irisRtcChannel = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = null;
         }
 
         [Obsolete(ObsoleteMethodWarning.ReleaseChannelWarning, false)]

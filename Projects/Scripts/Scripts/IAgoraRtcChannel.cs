@@ -1,7 +1,7 @@
 //  IAgoraRtcChannel.cs
 //
 //  Created by Yiqing Huang on June 1, 2021.
-//  Modified by Yiqing Huang on June 6, 2021.
+//  Modified by Yiqing Huang on June 9, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -16,7 +16,7 @@ namespace agora_gaming_rtc
 
     public abstract class AgoraChannel
     {
-        public abstract void InitEventHandler(IRtcChannelEventHandler channelEventHandler);
+        public abstract void InitEventHandler(IAgoraRtcChannelEventHandler channelEventHandler);
         public abstract void Dispose();
 
         [Obsolete(ObsoleteMethodWarning.ReleaseChannelWarning, false)]
@@ -82,7 +82,7 @@ namespace agora_gaming_rtc
         public abstract int EnableRemoteSuperResolution(uint userId, bool enable);
     }
 
-    public abstract class IRtcChannelEventHandler
+    public abstract class IAgoraRtcChannelEventHandler
     {
         public virtual void OnChannelWarning(string channelId, int warn, string msg)
         {
@@ -232,6 +232,15 @@ namespace agora_gaming_rtc
 
         public virtual void OnConnectionStateChanged(string channelId, CONNECTION_STATE_TYPE state,
             CONNECTION_CHANGED_REASON_TYPE reason)
+        {
+        }
+
+        public virtual bool OnReadyToSendMetadata(Metadata metadata)
+        {
+            return true;
+        }
+
+        public virtual void OnMetadataReceived(Metadata metadata)
         {
         }
     }

@@ -13,7 +13,7 @@ namespace agora_gaming_rtc
 {
     internal class AgoraLog
     {
-        private const string AgoraMsgTag = "[Agora]";
+        private const string AgoraMsgTag = "[Agora]: ";
 
         internal static void Log(string msg)
         {

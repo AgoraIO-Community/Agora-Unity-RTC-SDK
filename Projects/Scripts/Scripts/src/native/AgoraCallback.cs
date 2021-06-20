@@ -106,7 +106,7 @@ namespace agora_gaming_rtc
     [StructLayout(LayoutKind.Sequential)]
     internal struct IrisRtcCRendererCacheConfigNative
     {
-        internal IntPtr type;
+        internal int type;
         internal IntPtr OnVideoFrameReceived;
         internal int resize_width;
         internal int resize_height;

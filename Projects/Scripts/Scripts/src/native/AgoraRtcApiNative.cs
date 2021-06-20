@@ -138,15 +138,15 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcRendererCacheConfigHandle EnableVideoFrameCache(IrisRtcRendererPtr renderer_ptr,
-            ref IrisRtcCRendererCacheConfigNative cacheConfigNative, uint uid, string channel_id = "");
+            ref IrisRtcCRendererCacheConfigNative cacheConfigNative, uint uid = 0, string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void DisableVideoFrameCache(IrisRtcRendererPtr renderer_ptr,
-            ref IrisRtcRendererCacheConfigHandle? handle, uint uid = uint.MaxValue, string channel_id = "");
+            IrisRtcRendererCacheConfigHandle rendererCacheConfigHandle, uint uid = 0, string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool GetVideoFrame(IrisRtcRendererPtr renderer_ptr, ref IrisRtcVideoFrame video_frame,
-            out bool is_new_frame, uint uid, string channel_id = "");
+            ref bool is_new_frame, uint uid, string channel_id = "");
         
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcVideoFrame ConvertVideoFrame(ref IrisRtcVideoFrame src, VIDEO_FRAME_TYPE format);

@@ -16,7 +16,7 @@ namespace agora_gaming_rtc
     {
     }
 
-    public abstract class IRtcEngine
+public abstract class IRtcEngine
     {
         public abstract int Initialize(RtcEngineContext context);
         public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
@@ -43,7 +43,6 @@ namespace agora_gaming_rtc
         public abstract IAgoraRtcVideoDeviceManager GetAgoraRtcVideoDeviceManager();
         public abstract IAudioRawDataManager GetAudioRawDataManager();
         public abstract IVideoRawDataManager GetVideoRawDataManager();
-        public abstract IVideoRender GetVideoRender();
         public abstract IAgoraRtcChannel CreateChannel(string channelId);
         public abstract int SetChannelProfile(CHANNEL_PROFILE_TYPE profile);
         public abstract int SetClientRole(CLIENT_ROLE_TYPE role);

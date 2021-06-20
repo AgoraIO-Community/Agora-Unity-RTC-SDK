@@ -20,6 +20,8 @@ namespace agora_gaming_rtc
     using IrisRtcDeviceManagerPtr = IntPtr;
     using IrisRtcVideoFrameObserverHandleNative = IntPtr;
     using IrisRtcAudioFrameObserverHandleNative = IntPtr;
+    using IrisRtcRendererPtr = IntPtr;
+
 
     internal sealed class RtcEngineEventHandlerNative
     {
@@ -847,7 +849,7 @@ namespace agora_gaming_rtc
         }
 
         [Obsolete("This method is deprecated. Please call CreateAgoraRtcEngine instead.", false)]
-        public static IRtcEngine QueryEngine()
+        public static IAgoraRtcEngine QueryEngine()
         {
             return engineInstance[0];
         }
@@ -891,8 +893,8 @@ namespace agora_gaming_rtc
 
             _irisCEngineEventHandler = new IrisCEventHandler
             {
-                OnEvent = _rtcEngineEventHandlerNative.OnEvent,
-                OnEventWithBuffer = _rtcEngineEventHandlerNative.OnEventWithBuffer
+                OnEvent = new Func_Event_Native(_rtcEngineEventHandlerNative.OnEvent),
+                OnEventWithBuffer = new Func_EventWithBuffer_Native(_rtcEngineEventHandlerNative.OnEventWithBuffer)
             };
 
             _irisCEngineEventHandlerNative = new IrisCEventHandlerNative
@@ -1091,11 +1093,6 @@ namespace agora_gaming_rtc
             throw new NotImplementedException();
         }
 
-        public override IVideoRender GetVideoRender()
-        {
-            throw new NotImplementedException();
-        }
-
         public override IAgoraRtcChannel CreateChannel(string channelId)
         {
             if (_channelInstance.ContainsKey(channelId))
@@ -1106,6 +1103,11 @@ namespace agora_gaming_rtc
             var ret = new AgoraRtcChannel(this, channelId);
             _channelInstance.Add(channelId, ret);
             return ret;
+        }
+
+        internal IVideoStreamManager GetVideoStreamManager()
+        {
+            return new VideoStreamManager(this);
         }
 
         internal void ReleaseChannel(string channelId)

@@ -5258,8 +5258,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
     public struct DeviceInfo
     {
-        internal string deviceName { set; get; }
-        internal string deviceId { set; get; }
+        public string deviceName { set; get; }
+        public string deviceId { set; get; }
     }
 
     /** The external video frame.

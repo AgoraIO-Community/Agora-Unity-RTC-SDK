@@ -156,8 +156,6 @@ namespace agora_gaming_rtc
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
         private byte[] resultChar;
 
-        
-
         public string Result =>
             Marshal.PtrToStringAuto(
                 Marshal.UnsafeAddrOfPinnedArrayElement(

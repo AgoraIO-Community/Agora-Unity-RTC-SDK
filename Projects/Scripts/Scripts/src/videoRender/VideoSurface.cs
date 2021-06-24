@@ -1,3 +1,11 @@
+//  VideoSurface.cs
+//
+//  Created by Yiqing Huang on June 2, 2021.
+//  Modified by Tao Zhang on June 20, 2021.
+//
+//  Copyright © 2021 Agora. All rights reserved.
+//
+
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,22 +22,15 @@ namespace agora_gaming_rtc
 
     public sealed class VideoSurface : MonoBehaviour
     {
-        [SerializeField]
-        private AgoraVideoSurfaceType VideoSurfaceType = AgoraVideoSurfaceType.Renderer;
-        [SerializeField]
-        private int VideoPixelWidth = 1080;
-        [SerializeField]
-        private int VideoPixelHeight = 720;
-        [SerializeField]
-        private bool FlipX = false;
-        [SerializeField]
-        private bool FlipY = false;
-        [SerializeField]
-        private uint Uid = 0;
-        [SerializeField]
-        private string ChannelId = "";
-        [SerializeField]
-        private bool Enable = true;
+        [SerializeField] private AgoraEngineType AgoraEngineType = AgoraEngineType.MainProcess;
+        [SerializeField] private AgoraVideoSurfaceType VideoSurfaceType = AgoraVideoSurfaceType.Renderer;
+        [SerializeField] private int VideoPixelWidth = 1080;
+        [SerializeField] private int VideoPixelHeight = 720;
+        [SerializeField] private bool FlipX = false;
+        [SerializeField] private bool FlipY = false;
+        [SerializeField] private uint Uid = 0;
+        [SerializeField] private string ChannelId = "";
+        [SerializeField] private bool Enable = true;
 
         private Component _renderer;
         private bool _needUpdateInfo = true;
@@ -56,7 +57,8 @@ namespace agora_gaming_rtc
             if (_renderer == null || VideoSurfaceType == AgoraVideoSurfaceType.RawImage)
             {
                 _renderer = GetComponent<RawImage>();
-                if (_renderer != null) {
+                if (_renderer != null)
+                {
                     VideoSurfaceType = AgoraVideoSurfaceType.RawImage;
                 }
             }
@@ -76,7 +78,7 @@ namespace agora_gaming_rtc
 
         void Update()
         {
-            var engine = this.GetEngine();
+            var engine = GetEngine();
 
             if (engine == null || _renderer == null || _needUpdateInfo || _videoStreamManager == null)
             {
@@ -84,12 +86,12 @@ namespace agora_gaming_rtc
                 return;
             }
 
-            this.EnableFilpTextureApply(FlipX, FlipY);
+            EnableFilpTextureApply(FlipX, FlipY);
 
             if (Enable)
             {
                 bool isFresh = false;
-                var ret = this._videoStreamManager.GetVideoFrame(ref _cachedVideoFrame, ref isFresh, Uid, ChannelId);
+                var ret = _videoStreamManager.GetVideoFrame(ref _cachedVideoFrame, ref isFresh, Uid, ChannelId);
 
                 if (!ret)
                 {
@@ -99,14 +101,17 @@ namespace agora_gaming_rtc
 
                 if (IsBlankTexture())
                 {
-                    if (isFresh) {
-                        try { 
+                    if (isFresh)
+                    {
+                        try
+                        {
                             _texture = new Texture2D(VideoPixelWidth, VideoPixelHeight, TextureFormat.RGBA32, false);
-                            _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer, (int)VideoPixelWidth * (int)VideoPixelHeight * 4);
+                            _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer,
+                                (int) VideoPixelWidth * (int) VideoPixelHeight * 4);
                             ApplyTexture(_texture);
                             _texture.Apply();
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
                             AgoraLog.LogError("Exception e = " + e);
                         }
@@ -116,7 +121,8 @@ namespace agora_gaming_rtc
                 {
                     if (_texture == null)
                     {
-                        AgoraLog.LogError("You didn't initialize native texture, please remove native texture and initialize it by agora.");
+                        AgoraLog.LogError(
+                            "You didn't initialize native texture, please remove native texture and initialize it by agora.");
                         return;
                     }
 
@@ -127,16 +133,18 @@ namespace agora_gaming_rtc
                             if (_needResize)
                             {
                                 _texture.Resize(VideoPixelWidth, VideoPixelHeight);
-                                _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer, (int)VideoPixelWidth * (int)VideoPixelHeight * 4);
+                                _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer,
+                                    (int) VideoPixelWidth * (int) VideoPixelHeight * 4);
                                 _texture.Apply();
                             }
                             else
                             {
-                                _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer, (int)VideoPixelWidth * (int)VideoPixelHeight * 4);
+                                _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer,
+                                    (int) VideoPixelWidth * (int) VideoPixelHeight * 4);
                                 _texture.Apply();
                             }
                         }
-                        catch (System.Exception e)
+                        catch (Exception e)
                         {
                             AgoraLog.LogError("Exception e = " + e);
                         }
@@ -144,7 +152,7 @@ namespace agora_gaming_rtc
                 }
             }
             else
-            { 
+            {
                 if (!IsBlankTexture())
                 {
                     ApplyTexture(null);
@@ -155,11 +163,14 @@ namespace agora_gaming_rtc
 
         private IAgoraRtcEngine GetEngine()
         {
-            var engine = AgoraRtcEngine.QueryEngine();
+            var engine = AgoraRtcEngine.Get(AgoraEngineType);
             if (_needUpdateInfo && engine != null)
             {
-                _videoStreamManager ??= (engine as AgoraRtcEngine).GetVideoStreamManager();
-                _videoStreamManager.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
+                if (_videoStreamManager == null)
+                {
+                    _videoStreamManager = (engine as AgoraRtcEngine)?.GetVideoStreamManager();
+                }
+                _videoStreamManager?.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
                 _needUpdateInfo = false;
                 _needResize = true;
                 FreeMemory();
@@ -170,6 +181,7 @@ namespace agora_gaming_rtc
                     y_buffer = Marshal.AllocHGlobal(VideoPixelWidth * VideoPixelHeight * 4)
                 };
             }
+
             return engine;
         }
 
@@ -185,7 +197,8 @@ namespace agora_gaming_rtc
                 var rd = (_renderer as RawImage);
                 return (rd.texture == null);
             }
-            else {
+            else
+            {
                 return true;
             }
         }
@@ -215,11 +228,11 @@ namespace agora_gaming_rtc
 
         public void SetForUser(uint uid = 0, string channelId = "", int videoPixelWidth = 0, int videoPixelHeight = 0)
         {
-            this.Uid = uid;
-            this.ChannelId = channelId;
-            this.VideoPixelWidth = videoPixelWidth;
-            this.VideoPixelHeight = videoPixelHeight;
-            this._needUpdateInfo = true;
+            Uid = uid;
+            ChannelId = channelId;
+            VideoPixelWidth = videoPixelWidth;
+            VideoPixelHeight = videoPixelHeight;
+            _needUpdateInfo = true;
         }
 
         void OnDestroy()
@@ -257,13 +270,15 @@ namespace agora_gaming_rtc
         {
             if (FlipX != flipX)
             {
-                transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
+                transform.localScale =
+                    new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
                 FlipX = flipX;
             }
 
             if (FlipY != flipY)
             {
-                transform.localScale = new Vector3(transform.localScale.x, -transform.localScale.y, transform.localScale.z);
+                transform.localScale =
+                    new Vector3(transform.localScale.x, -transform.localScale.y, transform.localScale.z);
                 FlipY = flipY;
             }
         }

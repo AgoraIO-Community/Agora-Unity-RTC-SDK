@@ -1,7 +1,7 @@
 //  AgoraRtcEngine.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 10, 2021.
+//  Modified by Yiqing Huang on June 24, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -23,7 +23,6 @@ namespace agora_gaming_rtc
     using IrisRtcCVideoFrameObserverNativeMarshal = IntPtr;
     using IrisRtcAudioFrameObserverHandleNative = IntPtr;
     using IrisRtcRendererPtr = IntPtr;
-
     using IrisRtcCAudioFrameObserverNativeMarshal = IntPtr;
 
     internal sealed class RtcEngineEventHandlerNative
@@ -826,9 +825,18 @@ namespace agora_gaming_rtc
             return _irisRtcEngine;
         }
 
-        public static IAgoraRtcEngine CreateAgoraRtcEngine()
+        public static IAgoraRtcEngine CreateAgoraRtcEngine(AgoraEngineType engineType = AgoraEngineType.MainProcess)
         {
-            return engineInstance[0] ?? (engineInstance[0] = new AgoraRtcEngine());
+            switch (engineType)
+            {
+                case AgoraEngineType.MainProcess:
+                    return engineInstance[0] ?? (engineInstance[0] = new AgoraRtcEngine());
+                case AgoraEngineType.SubProcess:
+                    return engineInstance[1] ??
+                           (engineInstance[1] = new AgoraRtcEngine(EngineType.kEngineTypeSubProcess));
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(engineType), engineType, null);
+            }
         }
 
         [Obsolete(
@@ -858,9 +866,9 @@ namespace agora_gaming_rtc
             return engineInstance[0];
         }
 
-        public static IAgoraRtcEngine CreateAgoraSubRtcEngine()
+        public static IAgoraRtcEngine Get(AgoraEngineType engineType = AgoraEngineType.MainProcess)
         {
-            return engineInstance[1] ?? (engineInstance[1] = new AgoraRtcEngine(EngineType.kEngineTypeSubProcess));
+            return CreateAgoraRtcEngine(engineType);
         }
 
         private int SetAppType(AppType appType)
@@ -933,7 +941,7 @@ namespace agora_gaming_rtc
         private void SetIrisAudioFrameObserver()
         {
             if (_rtcAudioFrameObserverNative != null) return;
-            
+
             _rtcAudioFrameObserverNative = new RtcAudioFrameObserverNative();
 
             _irisRtcCAudioFrameObserver = new IrisRtcCAudioFrameObserver
@@ -992,7 +1000,7 @@ namespace agora_gaming_rtc
         private void SetIrisVideoFrameObserver()
         {
             if (_rtcVideoFrameObserverNative != null) return;
-            
+
             _rtcVideoFrameObserverNative = new RtcVideoFrameObserverNative();
 
             _irisRtcCVideoFrameObserver = new IrisRtcCVideoFrameObserver
@@ -1107,11 +1115,6 @@ namespace agora_gaming_rtc
         }
 
         public override IVideoRawDataManager GetVideoRawDataManager()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IVideoRender GetVideoRender()
         {
             throw new NotImplementedException();
         }

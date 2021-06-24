@@ -5633,6 +5633,12 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         }
     };
 
+    public enum AgoraEngineType
+    {
+        MainProcess,
+        SubProcess
+    }
+
     internal static partial class ObsoleteMethodWarning
     {
     }

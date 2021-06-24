@@ -1,10 +1,11 @@
 //  VideoRender.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 2, 2021.
+//  Modified by Yiqing Huang on June 24, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+
 using System;
 
 namespace agora_gaming_rtc
@@ -99,7 +100,7 @@ namespace agora_gaming_rtc
                 var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
                 var renderPtr = AgoraRtcNative.GetIrisRtcRenderer(rawDataPtr);
 
-                return AgoraRtcNative.GetVideoFrame(renderPtr, ref video_frame, ref is_new_frame, uid, channel_id);
+                return AgoraRtcNative.GetVideoFrame(renderPtr, ref video_frame, out is_new_frame, uid, channel_id);
             }
             return false;
         }

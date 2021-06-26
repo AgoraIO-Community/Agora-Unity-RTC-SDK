@@ -64,7 +64,7 @@ namespace agora_gaming_rtc
                 hwnd = (ulong) hwnd
             };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMStartVideoDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMStartDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
                 out _result);
         }
 
@@ -72,7 +72,7 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMStopVideoDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMStopDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
                 out _result);
         }
 
@@ -83,7 +83,7 @@ namespace agora_gaming_rtc
                 deviceId
             };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMSetCurrentVideoDeviceId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMSetDevice, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
                 out _result);
         }
 
@@ -91,7 +91,7 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMGetCurrentVideoDeviceId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMGetDevice, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
                 out _result) != 0
                 ? null
                 : _result.Result;
@@ -196,7 +196,7 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return _agoraRtcVideoDeviceManager.CallIrisRtcVideoDeviceManagerApi(
-                ApiTypeVideoDeviceManager.kVDMGetCurrentVideoDeviceId, JsonMapper.ToJson(param), out deviceId);
+                ApiTypeVideoDeviceManager.kVDMGetDevice, JsonMapper.ToJson(param), out deviceId);
         }
         
         ~VideoDeviceManager()

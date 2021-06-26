@@ -90,6 +90,9 @@ namespace agora_gaming_rtc
         kEnginePauseAllEffects,
         kEngineResumeEffect,
         kEngineResumeAllEffects,
+        kEngineGetEffectDuration,
+        kEngineSetEffectPosition,
+        kEngineGetEffectCurrentPosition,
         kEngineEnableDeepLearningDenoise,
         kEngineEnableSoundPositionIndication,
         kEngineSetRemoteVoicePosition,
@@ -118,6 +121,7 @@ namespace agora_gaming_rtc
         kEngineSetMixedAudioFrameParameters,
         kEngineAdjustRecordingSignalVolume,
         kEngineAdjustPlaybackSignalVolume,
+        kEngineAdjustLoopbackRecordingSignalVolume,
         kEngineEnableWebSdkInteroperability,
         kEngineSetVideoQualityParameters,
         kEngineSetLocalPublishFallbackOption,
@@ -182,6 +186,7 @@ namespace agora_gaming_rtc
         kMediaPushVideoFrame,
     }
 
+
     internal enum ApiTypeChannel
     {
         kChannelCreateChannel,
@@ -231,31 +236,27 @@ namespace agora_gaming_rtc
 
     internal enum ApiTypeAudioDeviceManager
     {
-        kADMEnumerateAudioPlaybackDevices,
-        kADMGetAudioPlaybackDeviceCount,
-        kADMGetAudioPlaybackDeviceInfoByIndex,
-        kADMSetCurrentAudioPlaybackDeviceId,
-        kADMGetCurrentAudioPlaybackDeviceId,
-        kADMGetCurrentAudioPlaybackDeviceInfo,
-        kADMSetAudioPlaybackDeviceVolume,
-        kADMGetAudioPlaybackDeviceVolume,
-        kADMSetAudioPlaybackDeviceMute,
-        kADMGetAudioPlaybackDeviceMute,
-        kADMStartAudioPlaybackDeviceTest,
-        kADMStopAudioPlaybackDeviceTest,
+        kADMEnumeratePlaybackDevices,
+        kADMSetPlaybackDevice,
+        kADMGetPlaybackDevice,
+        kADMGetPlaybackDeviceInfo,
+        kADMSetPlaybackDeviceVolume,
+        kADMGetPlaybackDeviceVolume,
+        kADMSetPlaybackDeviceMute,
+        kADMGetPlaybackDeviceMute,
+        kADMStartPlaybackDeviceTest,
+        kADMStopPlaybackDeviceTest,
 
-        kADMEnumerateAudioRecordingDevices,
-        kADMGetAudioRecordingDeviceCount,
-        kADMGetAudioRecordingDeviceInfoByIndex,
-        kADMSetCurrentAudioRecordingDeviceId,
-        kADMGetCurrentAudioRecordingDeviceId,
-        kADMGetCurrentAudioRecordingDeviceInfo,
-        kADMSetAudioRecordingDeviceVolume,
-        kADMGetAudioRecordingDeviceVolume,
-        kADMSetAudioRecordingDeviceMute,
-        kADMGetAudioRecordingDeviceMute,
-        kADMStartAudioRecordingDeviceTest,
-        kADMStopAudioRecordingDeviceTest,
+        kADMEnumerateRecordingDevices,
+        kADMSetRecordingDevice,
+        kADMGetRecordingDevice,
+        kADMGetRecordingDeviceInfo,
+        kADMSetRecordingDeviceVolume,
+        kADMGetRecordingDeviceVolume,
+        kADMSetRecordingDeviceMute,
+        kADMGetRecordingDeviceMute,
+        kADMStartRecordingDeviceTest,
+        kADMStopRecordingDeviceTest,
 
         kADMStartAudioDeviceLoopbackTest,
         kADMStopAudioDeviceLoopbackTest,
@@ -264,12 +265,10 @@ namespace agora_gaming_rtc
     internal enum ApiTypeVideoDeviceManager
     {
         kVDMEnumerateVideoDevices,
-        kVDMGetVideoDeviceCount,
-        kVDMGetVideoDeviceInfoByIndex,
-        kVDMSetCurrentVideoDeviceId,
-        kVDMGetCurrentVideoDeviceId,
-        kVDMStartVideoDeviceTest,
-        kVDMStopVideoDeviceTest,
+        kVDMSetDevice,
+        kVDMGetDevice,
+        kVDMStartDeviceTest,
+        kVDMStopDeviceTest,
     }
 
     internal enum ApiTypeRawDataPluginManager

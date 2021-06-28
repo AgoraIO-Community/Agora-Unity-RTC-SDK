@@ -28,11 +28,47 @@ namespace agora_gaming_rtc
     internal sealed class RtcEngineEventHandlerNative
     {
         private IAgoraRtcEngineEventHandler _engineEventHandler;
-        private AgoraCallbackObject _callbackObject;
 
-        internal RtcEngineEventHandlerNative()
+        [CanBeNull] private AgoraCallbackObject _callbackObject;
+
+        // private IrisCEventHandlerNative _cEventHandlerNativeLocal;
+        private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
+        private IrisCEventHandler irisCEventHandler;
+        private IntPtr nativeEventHandler;
+
+        internal RtcEngineEventHandlerNative(IrisRtcEnginePtr irisRtcEnginePtr)
         {
-            _callbackObject = new AgoraCallbackObject(GetHashCode().ToString());
+            var name = "Agora" + GetHashCode().ToString();
+
+            irisCEventHandler = new IrisCEventHandler()
+            {
+                OnEvent = OnEvent,
+                OnEventWithBuffer = OnEventWithBuffer
+            };
+
+            var _cEventHandlerNativeLocal = new IrisCEventHandlerNative
+            {
+                onEvent = Marshal.GetFunctionPointerForDelegate(irisCEventHandler.OnEvent),
+                onEventWithBuffer =
+                    Marshal.GetFunctionPointerForDelegate(irisCEventHandler.OnEventWithBuffer)
+            };
+
+            nativeEventHandler = Marshal.AllocHGlobal(Marshal.SizeOf(_cEventHandlerNativeLocal));
+            Marshal.StructureToPtr(_cEventHandlerNativeLocal, nativeEventHandler, true);
+            _irisEngineEventHandlerHandleNative =
+                AgoraRtcNative.SetIrisRtcEngineEventHandler(irisRtcEnginePtr, nativeEventHandler);
+
+            _callbackObject = new AgoraCallbackObject(name);
+        }
+
+        internal void Dispose()
+        {
+            _engineEventHandler = null;
+            if (_callbackObject != null) _callbackObject.Release();
+            _callbackObject = null;
+            AgoraRtcNative.UnsetIrisRtcEngineEventHandler(_irisEngineEventHandlerHandleNative);
+            Marshal.FreeHGlobal(nativeEventHandler);
+            _irisEngineEventHandlerHandleNative = IntPtr.Zero;
         }
 
         internal void SetEventHandler(IAgoraRtcEngineEventHandler engineEventHandler)
@@ -47,213 +83,316 @@ namespace agora_gaming_rtc
                 case "onWarning":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnWarning((int) AgoraJson.GetData<int>(data, "warn"),
-                            (string) AgoraJson.GetData<string>(data, "msg"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnWarning((int) AgoraJson.GetData<int>(data, "warn"),
+                                (string) AgoraJson.GetData<string>(data, "msg"));
+                        }
                     });
                     break;
                 case "onError":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnError((int) AgoraJson.GetData<int>(data, "err"),
-                            (string) AgoraJson.GetData<string>(data, "msg"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnError((int) AgoraJson.GetData<int>(data, "err"),
+                                (string) AgoraJson.GetData<string>(data, "msg"));
+                        }
                     });
                     break;
                 case "onJoinChannelSuccess":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnJoinChannelSuccess(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnJoinChannelSuccess(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onRejoinChannelSuccess":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRejoinChannelSuccess(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRejoinChannelSuccess(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onLeaveChannel":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLeaveChannel(
-                            AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLeaveChannel(
+                                AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onClientRoleChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnClientRoleChanged(
-                            (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "oldRole"),
-                            (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "newRole"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnClientRoleChanged(
+                                (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "oldRole"),
+                                (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "newRole"));
+                        }
                     });
                     break;
                 case "onUserJoined":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserJoined((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserJoined((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onUserOffline":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserOffline((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (USER_OFFLINE_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserOffline((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (USER_OFFLINE_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
                 case "onLastmileQuality":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLastmileQuality(
-                            (int) AgoraJson.GetData<int>(data, "quality"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLastmileQuality(
+                                (int) AgoraJson.GetData<int>(data, "quality"));
+                        }
                     });
                     break;
                 case "onLastmileProbeResult":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLastmileProbeResult(
-                            AgoraJson.JsonToStruct<LastmileProbeResult>(data, "result"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLastmileProbeResult(
+                                AgoraJson.JsonToStruct<LastmileProbeResult>(data, "result"));
+                        }
                     });
                     break;
                 case "onConnectionInterrupted":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnConnectionInterrupted(); });
+                    _callbackObject._CallbackQueue.EnQueue(
+                        () =>
+                        {
+                            if (_engineEventHandler != null)
+                            {
+                                _engineEventHandler.OnConnectionInterrupted();
+                            }
+                        });
                     break;
                 case "onConnectionLost":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnConnectionLost(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnConnectionLost();
+                        }
+                    });
                     break;
                 case "onConnectionBanned":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnConnectionBanned(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnConnectionBanned();
+                        }
+                    });
                     break;
                 case "onApiCallExecuted":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnApiCallExecuted(
-                            (int) AgoraJson.GetData<int>(data, "err"), (string) AgoraJson.GetData<string>(data, "api"),
-                            (string) AgoraJson.GetData<string>(data, "result"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnApiCallExecuted(
+                                (int) AgoraJson.GetData<int>(data, "err"),
+                                (string) AgoraJson.GetData<string>(data, "api"),
+                                (string) AgoraJson.GetData<string>(data, "result"));
+                        }
                     });
                     break;
                 case "onRequestToken":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnRequestToken(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRequestToken();
+                        }
+                    });
                     break;
                 case "onTokenPrivilegeWillExpire":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnTokenPrivilegeWillExpire(
-                            (string) AgoraJson.GetData<string>(data, "token"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnTokenPrivilegeWillExpire(
+                                (string) AgoraJson.GetData<string>(data, "token"));
+                        }
                     });
                     break;
                 case "onAudioQuality":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioQuality((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "quality"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "delay"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "lost"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioQuality((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "quality"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "delay"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "lost"));
+                        }
                     });
                     break;
                 case "onRtcStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRtcStats(
-                            AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRtcStats(
+                                AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onNetworkQuality":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnNetworkQuality((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "txQuality"),
-                            (int) AgoraJson.GetData<int>(data, "rxQuality"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnNetworkQuality((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "txQuality"),
+                                (int) AgoraJson.GetData<int>(data, "rxQuality"));
+                        }
                     });
                     break;
                 case "onLocalVideoStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalVideoStats(
-                            AgoraJson.JsonToStruct<LocalVideoStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalVideoStats(
+                                AgoraJson.JsonToStruct<LocalVideoStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onRemoteVideoStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteVideoStats(
-                            AgoraJson.JsonToStruct<RemoteVideoStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteVideoStats(
+                                AgoraJson.JsonToStruct<RemoteVideoStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onLocalAudioStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalAudioStats(
-                            AgoraJson.JsonToStruct<LocalAudioStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalAudioStats(
+                                AgoraJson.JsonToStruct<LocalAudioStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onRemoteAudioStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteAudioStats(
-                            AgoraJson.JsonToStruct<RemoteAudioStats>(data, "stats"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteAudioStats(
+                                AgoraJson.JsonToStruct<RemoteAudioStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onLocalAudioStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalAudioStateChanged(
-                            (LOCAL_AUDIO_STREAM_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (LOCAL_AUDIO_STREAM_ERROR) AgoraJson.GetData<int>(data, "error"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalAudioStateChanged(
+                                (LOCAL_AUDIO_STREAM_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (LOCAL_AUDIO_STREAM_ERROR) AgoraJson.GetData<int>(data, "error"));
+                        }
                     });
                     break;
                 case "onRemoteAudioStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteAudioStateChanged(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (REMOTE_AUDIO_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (REMOTE_AUDIO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteAudioStateChanged(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (REMOTE_AUDIO_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (REMOTE_AUDIO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onAudioPublishStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioPublishStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioPublishStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onVideoPublishStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnVideoPublishStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnVideoPublishStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onAudioSubscribeStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioSubscribeStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioSubscribeStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onVideoSubscribeStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnVideoSubscribeStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channel"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnVideoSubscribeStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channel"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onAudioVolumeIndication":
@@ -262,391 +401,578 @@ namespace agora_gaming_rtc
                     var totalVolume = (int) AgoraJson.GetData<int>(data, "totalVolume");
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioVolumeIndication(speakers, speakerNumber, totalVolume);
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioVolumeIndication(speakers, speakerNumber, totalVolume);
+                        }
                     });
                     break;
                 case "onActiveSpeaker":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnActiveSpeaker((uint) AgoraJson.GetData<uint>(data, "uid"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnActiveSpeaker((uint) AgoraJson.GetData<uint>(data, "uid"));
+                        }
                     });
                     break;
                 case "onVideoStopped":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnVideoStopped(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnVideoStopped();
+                        }
+                    });
                     break;
                 case "onFirstLocalVideoFrame":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstLocalVideoFrame(
-                            (int) AgoraJson.GetData<int>(data, "width"),
-                            (int) AgoraJson.GetData<int>(data, "height"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstLocalVideoFrame(
+                                (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onFirstLocalVideoFramePublished":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstLocalVideoFramePublished(
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstLocalVideoFramePublished(
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onFirstRemoteVideoDecoded":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstRemoteVideoDecoded(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "width"), (int) AgoraJson.GetData<int>(data, "height"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstRemoteVideoDecoded(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onFirstRemoteVideoFrame":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstRemoteVideoFrame(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "width"), (int) AgoraJson.GetData<int>(data, "height"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstRemoteVideoFrame(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onUserMuteAudio":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserMuteAudio((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserMuteAudio((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        }
                     });
                     break;
                 case "onUserMuteVideo":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserMuteVideo((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserMuteVideo((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        }
                     });
                     break;
                 case "onUserEnableVideo":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserEnableVideo((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserEnableVideo((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        }
                     });
                     break;
                 case "onAudioDeviceStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioDeviceStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "deviceId"),
-                            (int) AgoraJson.GetData<int>(data, "deviceType"),
-                            (int) AgoraJson.GetData<int>(data, "deviceState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioDeviceStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "deviceId"),
+                                (int) AgoraJson.GetData<int>(data, "deviceType"),
+                                (int) AgoraJson.GetData<int>(data, "deviceState"));
+                        }
                     });
                     break;
                 case "onAudioDeviceVolumeChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioDeviceVolumeChanged(
-                            (MEDIA_DEVICE_TYPE) AgoraJson.GetData<int>(data, "deviceType"),
-                            (int) AgoraJson.GetData<int>(data, "volume"),
-                            (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioDeviceVolumeChanged(
+                                (MEDIA_DEVICE_TYPE) AgoraJson.GetData<int>(data, "deviceType"),
+                                (int) AgoraJson.GetData<int>(data, "volume"),
+                                (bool) AgoraJson.GetData<bool>(data, "muted"));
+                        }
                     });
                     break;
                 case "onCameraReady":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnCameraReady(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnCameraReady();
+                        }
+                    });
                     break;
                 case "onCameraFocusAreaChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnCameraFocusAreaChanged(
-                            (int) AgoraJson.GetData<int>(data, "x"),
-                            (int) AgoraJson.GetData<int>(data, "y"), (int) AgoraJson.GetData<int>(data, "width"),
-                            (int) AgoraJson.GetData<int>(data, "height"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnCameraFocusAreaChanged(
+                                (int) AgoraJson.GetData<int>(data, "x"),
+                                (int) AgoraJson.GetData<int>(data, "y"), (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"));
+                        }
                     });
                     break;
                 case "onFacePositionChanged":
                     var numFaces = (int) AgoraJson.GetData<int>(data, "numFaces");
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFacePositionChanged(
-                            (int) AgoraJson.GetData<int>(data, "imageWidth"),
-                            (int) AgoraJson.GetData<int>(data, "imageHeight"),
-                            AgoraJson.JsonToStruct<Rectangle>((string) AgoraJson.GetData<string>(data, "vecRectangle")),
-                            AgoraJson.JsonToStructArray<int>(data, "vecDistance", (uint) numFaces), numFaces);
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFacePositionChanged(
+                                (int) AgoraJson.GetData<int>(data, "imageWidth"),
+                                (int) AgoraJson.GetData<int>(data, "imageHeight"),
+                                AgoraJson.JsonToStruct<Rectangle>(
+                                    (string) AgoraJson.GetData<string>(data, "vecRectangle")),
+                                AgoraJson.JsonToStructArray<int>(data, "vecDistance", (uint) numFaces), numFaces);
+                        }
                     });
                     break;
                 case "onCameraExposureAreaChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnCameraExposureAreaChanged(
-                            (int) AgoraJson.GetData<int>(data, "x"),
-                            (int) AgoraJson.GetData<int>(data, "y"), (int) AgoraJson.GetData<int>(data, "width"),
-                            (int) AgoraJson.GetData<int>(data, "height"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnCameraExposureAreaChanged(
+                                (int) AgoraJson.GetData<int>(data, "x"),
+                                (int) AgoraJson.GetData<int>(data, "y"), (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"));
+                        }
                     });
                     break;
                 case "onAudioMixingFinished":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnAudioMixingFinished(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioMixingFinished();
+                        }
+                    });
                     break;
                 case "onAudioMixingStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioMixingStateChanged(
-                            (AUDIO_MIXING_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
-                            (AUDIO_MIXING_ERROR_TYPE) AgoraJson.GetData<int>(data, "errorCode"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioMixingStateChanged(
+                                (AUDIO_MIXING_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
+                                (AUDIO_MIXING_ERROR_TYPE) AgoraJson.GetData<int>(data, "errorCode"));
+                        }
                     });
                     break;
                 case "onRemoteAudioMixingBegin":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnRemoteAudioMixingBegin(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteAudioMixingBegin();
+                        }
+                    });
                     break;
                 case "onRemoteAudioMixingEnd":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnRemoteAudioMixingEnd(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteAudioMixingEnd();
+                        }
+                    });
                     break;
                 case "onAudioEffectFinished":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioEffectFinished(
-                            (int) AgoraJson.GetData<int>(data, "soundId"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioEffectFinished(
+                                (int) AgoraJson.GetData<int>(data, "soundId"));
+                        }
                     });
                     break;
                 case "onFirstRemoteAudioDecoded":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstRemoteAudioDecoded(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstRemoteAudioDecoded(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onVideoDeviceStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnVideoDeviceStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "deviceId"),
-                            (int) AgoraJson.GetData<int>(data, "deviceType"),
-                            (int) AgoraJson.GetData<int>(data, "deviceState"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnVideoDeviceStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "deviceId"),
+                                (int) AgoraJson.GetData<int>(data, "deviceType"),
+                                (int) AgoraJson.GetData<int>(data, "deviceState"));
+                        }
                     });
                     break;
                 case "onLocalVideoStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalVideoStateChanged(
-                            (LOCAL_VIDEO_STREAM_STATE) AgoraJson.GetData<int>(data, "localVideoState"),
-                            (LOCAL_VIDEO_STREAM_ERROR) AgoraJson.GetData<int>(data, "error"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalVideoStateChanged(
+                                (LOCAL_VIDEO_STREAM_STATE) AgoraJson.GetData<int>(data, "localVideoState"),
+                                (LOCAL_VIDEO_STREAM_ERROR) AgoraJson.GetData<int>(data, "error"));
+                        }
                     });
                     break;
                 case "onVideoSizeChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnVideoSizeChanged((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "width"), (int) AgoraJson.GetData<int>(data, "height"),
-                            (int) AgoraJson.GetData<int>(data, "rotation"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnVideoSizeChanged((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"),
+                                (int) AgoraJson.GetData<int>(data, "rotation"));
+                        }
                     });
                     break;
                 case "onRemoteVideoStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteVideoStateChanged(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (REMOTE_VIDEO_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (REMOTE_VIDEO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteVideoStateChanged(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (REMOTE_VIDEO_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (REMOTE_VIDEO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onUserEnableLocalVideo":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserEnableLocalVideo(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserEnableLocalVideo(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        }
                     });
                     break;
                 case "onStreamMessageError":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnStreamMessageError(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "streamId"), (int) AgoraJson.GetData<int>(data, "code"),
-                            (int) AgoraJson.GetData<int>(data, "missed"), (int) AgoraJson.GetData<int>(data, "cached"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnStreamMessageError(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "streamId"),
+                                (int) AgoraJson.GetData<int>(data, "code"),
+                                (int) AgoraJson.GetData<int>(data, "missed"),
+                                (int) AgoraJson.GetData<int>(data, "cached"));
+                        }
                     });
                     break;
                 case "onMediaEngineLoadSuccess":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnMediaEngineLoadSuccess(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnMediaEngineLoadSuccess();
+                        }
+                    });
                     break;
                 case "onMediaEngineStartCallSuccess":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnMediaEngineStartCallSuccess();
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnMediaEngineStartCallSuccess();
+                        }
                     });
                     break;
                 case "onUserSuperResolutionEnabled":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserSuperResolutionEnabled(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "enabled"),
-                            (SUPER_RESOLUTION_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserSuperResolutionEnabled(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"),
+                                (SUPER_RESOLUTION_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
                 case "onChannelMediaRelayStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnChannelMediaRelayStateChanged(
-                            (CHANNEL_MEDIA_RELAY_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (CHANNEL_MEDIA_RELAY_ERROR) AgoraJson.GetData<int>(data, "code"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnChannelMediaRelayStateChanged(
+                                (CHANNEL_MEDIA_RELAY_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (CHANNEL_MEDIA_RELAY_ERROR) AgoraJson.GetData<int>(data, "code"));
+                        }
                     });
                     break;
                 case "onChannelMediaRelayEvent":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnChannelMediaRelayEvent(
-                            (CHANNEL_MEDIA_RELAY_EVENT) AgoraJson.GetData<int>(data, "code"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnChannelMediaRelayEvent(
+                                (CHANNEL_MEDIA_RELAY_EVENT) AgoraJson.GetData<int>(data, "code"));
+                        }
                     });
                     break;
                 case "onFirstLocalAudioFrame":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstLocalAudioFrame(
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstLocalAudioFrame(
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onFirstLocalAudioFramePublished":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstLocalAudioFramePublished(
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstLocalAudioFramePublished(
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onFirstRemoteAudioFrame":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnFirstRemoteAudioFrame(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnFirstRemoteAudioFrame(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onRtmpStreamingStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRtmpStreamingStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (RTMP_STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (RTMP_STREAM_PUBLISH_ERROR) AgoraJson.GetData<int>(data, "errCode"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRtmpStreamingStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (RTMP_STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (RTMP_STREAM_PUBLISH_ERROR) AgoraJson.GetData<int>(data, "errCode"));
+                        }
                     });
                     break;
                 case "onRtmpStreamingEvent":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRtmpStreamingEvent(
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (RTMP_STREAMING_EVENT) AgoraJson.GetData<int>(data, "eventCode"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRtmpStreamingEvent(
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (RTMP_STREAMING_EVENT) AgoraJson.GetData<int>(data, "eventCode"));
+                        }
                     });
                     break;
                 case "onStreamPublished":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnStreamPublished(
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (int) AgoraJson.GetData<int>(data, "error"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnStreamPublished(
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (int) AgoraJson.GetData<int>(data, "error"));
+                        }
                     });
                     break;
                 case "onStreamUnpublished":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnStreamUnpublished(
-                            (string) AgoraJson.GetData<string>(data, "url"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnStreamUnpublished(
+                                (string) AgoraJson.GetData<string>(data, "url"));
+                        }
                     });
                     break;
                 case "onTranscodingUpdated":
-                    _callbackObject._CallbackQueue.EnQueue(() => { _engineEventHandler?.OnTranscodingUpdated(); });
+                    _callbackObject._CallbackQueue.EnQueue(() =>
+                    {
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnTranscodingUpdated();
+                        }
+                    });
                     break;
                 case "onStreamInjectedStatus":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnStreamInjectedStatus(
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "status"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnStreamInjectedStatus(
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "status"));
+                        }
                     });
                     break;
                 case "onAudioRouteChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnAudioRouteChanged(
-                            (AUDIO_ROUTE_TYPE) AgoraJson.GetData<int>(data, "routing"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnAudioRouteChanged(
+                                (AUDIO_ROUTE_TYPE) AgoraJson.GetData<int>(data, "routing"));
+                        }
                     });
                     break;
                 case "onLocalPublishFallbackToAudioOnly":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalPublishFallbackToAudioOnly(
-                            (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalPublishFallbackToAudioOnly(
+                                (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        }
                     });
                     break;
                 case "onRemoteSubscribeFallbackToAudioOnly":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteSubscribeFallbackToAudioOnly(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteSubscribeFallbackToAudioOnly(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        }
                     });
                     break;
                 case "onRemoteAudioTransportStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteAudioTransportStats(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "delay"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "lost"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "rxKBitRate"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteAudioTransportStats(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "delay"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "lost"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "rxKBitRate"));
+                        }
                     });
                     break;
                 case "onRemoteVideoTransportStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnRemoteVideoTransportStats(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "delay"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "lost"),
-                            (ushort) AgoraJson.GetData<ushort>(data, "rxKBitRate"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnRemoteVideoTransportStats(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "delay"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "lost"),
+                                (ushort) AgoraJson.GetData<ushort>(data, "rxKBitRate"));
+                        }
                     });
                     break;
                 case "onMicrophoneEnabled":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnMicrophoneEnabled(
-                            (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnMicrophoneEnabled(
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"));
+                        }
                     });
                     break;
                 case "onConnectionStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnConnectionStateChanged(
-                            (CONNECTION_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
-                            (CONNECTION_CHANGED_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnConnectionStateChanged(
+                                (CONNECTION_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
+                                (CONNECTION_CHANGED_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
                 case "onNetworkTypeChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnNetworkTypeChanged(
-                            (NETWORK_TYPE) AgoraJson.GetData<int>(data, "type"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnNetworkTypeChanged(
+                                (NETWORK_TYPE) AgoraJson.GetData<int>(data, "type"));
+                        }
                     });
                     break;
                 case "onLocalUserRegistered":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnLocalUserRegistered(
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (string) AgoraJson.GetData<string>(data, "userAccount"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnLocalUserRegistered(
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (string) AgoraJson.GetData<string>(data, "userAccount"));
+                        }
                     });
                     break;
                 case "onUserInfoUpdated":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUserInfoUpdated((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            AgoraJson.JsonToStruct<UserInfo>(data, "info"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUserInfoUpdated((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                AgoraJson.JsonToStruct<UserInfo>(data, "info"));
+                        }
                     });
                     break;
                 case "onUploadLogResult":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnUploadLogResult(
-                            (string) AgoraJson.GetData<string>(data, "requestId"),
-                            (bool) AgoraJson.GetData<bool>(data, "success"),
-                            (UPLOAD_ERROR_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnUploadLogResult(
+                                (string) AgoraJson.GetData<string>(data, "requestId"),
+                                (bool) AgoraJson.GetData<bool>(data, "success"),
+                                (UPLOAD_ERROR_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
             }
@@ -656,45 +982,44 @@ namespace agora_gaming_rtc
         {
             var byteData = new byte[length];
             if (buffer != IntPtr.Zero) Marshal.Copy(buffer, byteData, 0, (int) length);
+            if (_callbackObject == null || _callbackObject._CallbackQueue == null) return;
             switch (@event)
             {
                 case "onStreamMessage":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _engineEventHandler?.OnStreamMessage((uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                        if (_engineEventHandler != null)
+                        {
+                            _engineEventHandler.OnStreamMessage((uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                        }
                     });
                     break;
                 case "onReadyToSendMetadata":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
+                        if (_engineEventHandler == null) return;
                         var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
                             (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
                             (long) AgoraJson.GetData<long>(data, "timeStampMs"));
-                        _engineEventHandler?.OnReadyToSendMetadata(metadata);
+                        _engineEventHandler.OnReadyToSendMetadata(metadata);
                     });
                     break;
                 case "onMetadataReceived":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
+                        if (_engineEventHandler == null) return;
                         var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
                             (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
                             (long) AgoraJson.GetData<long>(data, "timeStampMs"));
-                        _engineEventHandler?.OnMetadataReceived(metadata);
+                        _engineEventHandler.OnMetadataReceived(metadata);
                     });
                     break;
             }
         }
-
-        internal void Dispose()
-        {
-            _engineEventHandler = null;
-            _callbackObject.Release();
-            _callbackObject = null;
-        }
     }
 
-    public sealed class AgoraRtcEngine : IAgoraRtcEngine, IDisposable
+    public sealed class AgoraRtcEngine : IAgoraRtcEngine
     {
         private bool _disposed;
 
@@ -704,10 +1029,7 @@ namespace agora_gaming_rtc
 
         private IrisRtcEnginePtr _irisRtcEngine;
 
-        private RtcEngineEventHandlerNative _rtcEngineEventHandlerNative;
-        private IrisCEventHandlerNativeMarshal _irisCEngineEventHandlerNative;
-        private IrisCEventHandler? _irisCEngineEventHandler;
-        private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
+        [CanBeNull] private RtcEngineEventHandlerNative _rtcEngineEventHandlerNative;
 
         private readonly Dictionary<string, AgoraRtcChannel> _channelInstance;
 
@@ -722,12 +1044,12 @@ namespace agora_gaming_rtc
 
         private RtcAudioFrameObserverNative _rtcAudioFrameObserverNative;
         private IrisRtcCAudioFrameObserverNativeMarshal _irisRtcCAudioFrameObserverNative;
-        private IrisRtcCAudioFrameObserver? _irisRtcCAudioFrameObserver;
+        private IrisRtcCAudioFrameObserver _irisRtcCAudioFrameObserver;
         private IrisRtcAudioFrameObserverHandleNative _irisRtcAudioFrameObserverHandleNative;
 
         private RtcVideoFrameObserverNative _rtcVideoFrameObserverNative;
         private IrisRtcCVideoFrameObserverNativeMarshal _irisRtcCVideoFrameObserverNative;
-        private IrisRtcCVideoFrameObserver? _irisRtcCVideoFrameObserver;
+        private IrisRtcCVideoFrameObserver _irisRtcCVideoFrameObserver;
         private IrisRtcVideoFrameObserverHandleNative _irisRtcVideoFrameObserverHandleNative;
 
         private CharArrayAssistant _result;
@@ -740,7 +1062,7 @@ namespace agora_gaming_rtc
                 ? AgoraRtcNative.CreateIrisRtcEngine()
                 : AgoraRtcNative.CreateIrisRtcEngine(EngineType.kEngineTypeSubProcess);
 
-            SetIrisEngineEventHandler();
+            _rtcEngineEventHandlerNative = new RtcEngineEventHandlerNative(_irisRtcEngine);
 
             _irisRtcDeviceManager = AgoraRtcNative.GetIrisRtcDeviceManager(_irisRtcEngine);
 
@@ -759,7 +1081,7 @@ namespace agora_gaming_rtc
                 new AudioEffectManager(type == EngineType.kEngineTypeNormal ? engineInstance[0] : engineInstance[1]);
         }
 
-        private void Dispose(bool disposing)
+        private void Dispose(bool disposing, bool sync)
         {
             if (_disposed) return;
 
@@ -768,9 +1090,8 @@ namespace agora_gaming_rtc
             if (disposing)
             {
                 // TODO: Unmanaged resources.
-                UnsetIrisRtcEngineEventHandler();
-                UnSetIrisAudioFrameObserver();
-                UnSetIrisVideoFrameObserver();
+                //UnSetIrisAudioFrameObserver();
+                //UnSetIrisVideoFrameObserver();
 
                 foreach (var channelInstance in _channelInstance.Values)
                 {
@@ -798,8 +1119,9 @@ namespace agora_gaming_rtc
                 _irisRtcDeviceManager = IntPtr.Zero;
             }
 
-            Release();
-
+            Release(sync);
+            if (_rtcEngineEventHandlerNative != null) _rtcEngineEventHandlerNative.Dispose();
+            _rtcEngineEventHandlerNative = null;
             _disposed = true;
         }
 
@@ -835,7 +1157,7 @@ namespace agora_gaming_rtc
                     return engineInstance[1] ??
                            (engineInstance[1] = new AgoraRtcEngine(EngineType.kEngineTypeSubProcess));
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(engineType), engineType, null);
+                    throw new ArgumentOutOfRangeException("", engineType, null);
             }
         }
 
@@ -896,41 +1218,19 @@ namespace agora_gaming_rtc
 
         public override void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler)
         {
-            _rtcEngineEventHandlerNative.SetEventHandler(engineEventHandler);
+            if (_rtcEngineEventHandlerNative != null) _rtcEngineEventHandlerNative.SetEventHandler(engineEventHandler);
         }
 
-        private void SetIrisEngineEventHandler()
-        {
-            _rtcEngineEventHandlerNative = new RtcEngineEventHandlerNative();
-
-            _irisCEngineEventHandler = new IrisCEventHandler
-            {
-                OnEvent = _rtcEngineEventHandlerNative.OnEvent,
-                OnEventWithBuffer = _rtcEngineEventHandlerNative.OnEventWithBuffer
-            };
-
-            var irisCEventHandlerNativeLocal = new IrisCEventHandlerNative
-            {
-                onEvent = Marshal.GetFunctionPointerForDelegate(_irisCEngineEventHandler?.OnEvent),
-                onEventWithBuffer = Marshal.GetFunctionPointerForDelegate(_irisCEngineEventHandler?.OnEventWithBuffer)
-            };
-
-            _irisCEngineEventHandlerNative = Marshal.AllocHGlobal(Marshal.SizeOf(irisCEventHandlerNativeLocal));
-            Marshal.StructureToPtr(irisCEventHandlerNativeLocal, _irisCEngineEventHandlerNative, false);
-
-            _irisEngineEventHandlerHandleNative =
-                AgoraRtcNative.SetIrisRtcEngineEventHandler(_irisRtcEngine, _irisCEngineEventHandlerNative);
-        }
-
-        private void UnsetIrisRtcEngineEventHandler()
-        {
-            AgoraRtcNative.UnsetIrisRtcEngineEventHandler(_irisRtcEngine, ref _irisEngineEventHandlerHandleNative);
-            _irisEngineEventHandlerHandleNative = IntPtr.Zero;
-            _rtcEngineEventHandlerNative?.Dispose();
-            _rtcEngineEventHandlerNative = null;
-            _irisCEngineEventHandler = null;
-            Marshal.FreeHGlobal(_irisCEngineEventHandlerNative);
-        }
+        // private void SetIrisEngineEventHandler()
+        // {
+        //     _rtcEngineEventHandlerNative = new RtcEngineEventHandlerNative(this);
+        // }
+        //
+        // private void UnsetIrisRtcEngineEventHandler()
+        // {
+        //     _rtcEngineEventHandlerNative?.Dispose();
+        //     _rtcEngineEventHandlerNative = null;
+        // }
 
         public override void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver)
         {
@@ -957,19 +1257,18 @@ namespace agora_gaming_rtc
             var irisRtcCAudioFrameObserverNativeLocal = new IrisRtcCAudioFrameObserverNative
             {
                 OnRecordAudioFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver?.OnRecordAudioFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnRecordAudioFrame),
                 OnPlaybackAudioFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver?.OnPlaybackAudioFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnPlaybackAudioFrame),
                 OnMixedAudioFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver?.OnMixedAudioFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnMixedAudioFrame),
                 OnPlaybackAudioFrameBeforeMixing =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver
-                        ?.OnPlaybackAudioFrameBeforeMixing),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.OnPlaybackAudioFrameBeforeMixing),
                 IsMultipleChannelFrameWanted =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver?.IsMultipleChannelFrameWanted),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCAudioFrameObserver.IsMultipleChannelFrameWanted),
                 OnPlaybackAudioFrameBeforeMixingEx =
                     Marshal.GetFunctionPointerForDelegate(
-                        _irisRtcCAudioFrameObserver?.OnPlaybackAudioFrameBeforeMixingEx)
+                        _irisRtcCAudioFrameObserver.OnPlaybackAudioFrameBeforeMixingEx)
             };
 
             _irisRtcCAudioFrameObserverNative =
@@ -985,9 +1284,9 @@ namespace agora_gaming_rtc
             AgoraRtcNative.UnRegisterAudioFrameObserver(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine),
                 _irisRtcAudioFrameObserverHandleNative, this == engineInstance[0] ? identifier[0] : identifier[1]);
             _irisRtcAudioFrameObserverHandleNative = IntPtr.Zero;
-            _rtcAudioFrameObserverNative?.Dispose();
+            if (_rtcAudioFrameObserverNative != null) _rtcAudioFrameObserverNative.Dispose();
             _rtcAudioFrameObserverNative = null;
-            _irisRtcCAudioFrameObserver = null;
+            _irisRtcCAudioFrameObserver = new IrisRtcCAudioFrameObserver();
             Marshal.FreeHGlobal(_irisRtcCAudioFrameObserverNative);
         }
 
@@ -1016,18 +1315,18 @@ namespace agora_gaming_rtc
             var irisRtcCVideoFrameObserverNativeLocal = new IrisRtcCVideoFrameObserverNative
             {
                 OnCaptureVideoFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver?.OnCaptureVideoFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnCaptureVideoFrame),
                 OnPreEncodeVideoFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver?.OnPreEncodeVideoFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnPreEncodeVideoFrame),
                 OnRenderVideoFrame =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver?.OnRenderVideoFrame),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.OnRenderVideoFrame),
                 GetObservedFramePosition =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver?.GetObservedFramePosition),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.GetObservedFramePosition),
                 IsMultipleChannelFrameWanted =
-                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver?.IsMultipleChannelFrameWanted),
+                    Marshal.GetFunctionPointerForDelegate(_irisRtcCVideoFrameObserver.IsMultipleChannelFrameWanted),
                 OnRenderVideoFrameEx =
                     Marshal.GetFunctionPointerForDelegate(
-                        _irisRtcCVideoFrameObserver?.OnRenderVideoFrameEx)
+                        _irisRtcCVideoFrameObserver.OnRenderVideoFrameEx)
             };
 
             _irisRtcCVideoFrameObserverNative =
@@ -1043,15 +1342,15 @@ namespace agora_gaming_rtc
             AgoraRtcNative.UnRegisterVideoFrameObserver(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine),
                 _irisRtcVideoFrameObserverHandleNative, this == engineInstance[0] ? identifier[0] : identifier[1]);
             _irisRtcVideoFrameObserverHandleNative = IntPtr.Zero;
-            _rtcVideoFrameObserverNative?.Dispose();
+            if (_rtcVideoFrameObserverNative != null) _rtcVideoFrameObserverNative.Dispose();
             _rtcVideoFrameObserverNative = null;
-            _irisRtcCVideoFrameObserver = null;
+            _irisRtcCVideoFrameObserver = new IrisRtcCVideoFrameObserver();
             Marshal.FreeHGlobal(_irisRtcCVideoFrameObserverNative);
         }
 
-        public override void Dispose()
+        public override void Dispose(bool sync = false)
         {
-            Dispose(true);
+            Dispose(true, sync);
             GC.SuppressFinalize(this);
         }
 
@@ -1060,7 +1359,7 @@ namespace agora_gaming_rtc
         {
             if (rtcEngine == null)
             {
-                engineInstance[0]?.Dispose();
+                if (engineInstance[0] != null) engineInstance[0].Dispose();
             }
             else
             {
@@ -3106,7 +3405,7 @@ namespace agora_gaming_rtc
 
         ~AgoraRtcEngine()
         {
-            Dispose(false);
+            Dispose(false, false);
         }
     }
 }

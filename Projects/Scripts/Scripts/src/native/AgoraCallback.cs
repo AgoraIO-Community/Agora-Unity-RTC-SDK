@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 
 namespace agora_gaming_rtc
 {
-
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     internal delegate bool Func_Bool_Natvie();
 

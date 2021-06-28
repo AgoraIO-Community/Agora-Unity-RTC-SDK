@@ -38,292 +38,405 @@ namespace agora_gaming_rtc
                 case "onChannelWarning":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnChannelWarning((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (int) AgoraJson.GetData<int>(data, "warn"),
-                            (string) AgoraJson.GetData<string>(data, "msg"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnChannelWarning((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (int) AgoraJson.GetData<int>(data, "warn"),
+                                (string) AgoraJson.GetData<string>(data, "msg"));
+                        }
                     });
                     break;
                 case "onChannelError":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnChannelError((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (int) AgoraJson.GetData<int>(data, "err"), (string) AgoraJson.GetData<string>(data, "msg"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnChannelError((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (int) AgoraJson.GetData<int>(data, "err"),
+                                (string) AgoraJson.GetData<string>(data, "msg"));
+                        }
                     });
                     break;
                 case "onJoinChannelSuccess":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnJoinChannelSuccess(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnJoinChannelSuccess(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onRejoinChannelSuccess":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRejoinChannelSuccess(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRejoinChannelSuccess(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onLeaveChannel":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnLeaveChannel((string) AgoraJson.GetData<string>(data, "channelId"),
-                            AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnLeaveChannel((string) AgoraJson.GetData<string>(data, "channelId"),
+                                AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onClientRoleChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnClientRoleChanged((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "oldRole"),
-                            (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "newRole"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnClientRoleChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "oldRole"),
+                                (CLIENT_ROLE_TYPE) AgoraJson.GetData<int>(data, "newRole"));
+                        }
                     });
                     break;
                 case "onUserJoined":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnUserJoined((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnUserJoined((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onUserOffline":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnUserOffline((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (USER_OFFLINE_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnUserOffline((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (USER_OFFLINE_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
                 case "onConnectionLost":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnConnectionLost(
-                            (string) AgoraJson.GetData<string>(data, "channelId"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnConnectionLost(
+                                (string) AgoraJson.GetData<string>(data, "channelId"));
+                        }
                     });
                     break;
                 case "onRequestToken":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRequestToken((string) AgoraJson.GetData<string>(data, "channelId"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRequestToken((string) AgoraJson.GetData<string>(data, "channelId"));
+                        }
                     });
                     break;
                 case "onTokenPrivilegeWillExpire":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnTokenPrivilegeWillExpire(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (string) AgoraJson.GetData<string>(data, "token"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnTokenPrivilegeWillExpire(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (string) AgoraJson.GetData<string>(data, "token"));
+                        }
                     });
                     break;
                 case "onRtcStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRtcStats((string) AgoraJson.GetData<string>(data, "channelId"),
-                            AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRtcStats((string) AgoraJson.GetData<string>(data, "channelId"),
+                                AgoraJson.JsonToStruct<RtcStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onNetworkQuality":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnNetworkQuality((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "txQuality"),
-                            (int) AgoraJson.GetData<int>(data, "rxQuality"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnNetworkQuality((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "txQuality"),
+                                (int) AgoraJson.GetData<int>(data, "rxQuality"));
+                        }
                     });
                     break;
                 case "onRemoteVideoStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRemoteVideoStats((string) AgoraJson.GetData<string>(data, "channelId"),
-                            AgoraJson.JsonToStruct<RemoteVideoStats>(data, "stats"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRemoteVideoStats(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                AgoraJson.JsonToStruct<RemoteVideoStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onRemoteAudioStats":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRemoteAudioStats((string) AgoraJson.GetData<string>(data, "channelId"),
-                            AgoraJson.JsonToStruct<RemoteAudioStats>(data, "stats"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRemoteAudioStats(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                AgoraJson.JsonToStruct<RemoteAudioStats>(data, "stats"));
+                        }
                     });
                     break;
                 case "onRemoteAudioStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRemoteAudioStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (REMOTE_AUDIO_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (REMOTE_AUDIO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRemoteAudioStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (REMOTE_AUDIO_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (REMOTE_AUDIO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onAudioPublishStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnAudioPublishStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnAudioPublishStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onVideoPublishStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnVideoPublishStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnVideoPublishStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onAudioSubscribeStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnAudioSubscribeStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnAudioSubscribeStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onVideoSubscribeStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnVideoSubscribeStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
-                            (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
-                            (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnVideoSubscribeStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "oldState"),
+                                (STREAM_SUBSCRIBE_STATE) AgoraJson.GetData<int>(data, "newState"),
+                                (int) AgoraJson.GetData<int>(data, "elapseSinceLastState"));
+                        }
                     });
                     break;
                 case "onUserSuperResolutionEnabled":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnUserSuperResolutionEnabled(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "enabled"),
-                            (SUPER_RESOLUTION_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnUserSuperResolutionEnabled(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"),
+                                (SUPER_RESOLUTION_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
                 case "onActiveSpeaker":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnActiveSpeaker((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnActiveSpeaker((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"));
+                        }
                     });
                     break;
                 case "onVideoSizeChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnVideoSizeChanged((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "width"),
-                            (int) AgoraJson.GetData<int>(data, "height"),
-                            (int) AgoraJson.GetData<int>(data, "rotation"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnVideoSizeChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "width"),
+                                (int) AgoraJson.GetData<int>(data, "height"),
+                                (int) AgoraJson.GetData<int>(data, "rotation"));
+                        }
                     });
                     break;
                 case "onRemoteVideoStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRemoteVideoStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (REMOTE_VIDEO_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (REMOTE_VIDEO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
-                            (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRemoteVideoStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (REMOTE_VIDEO_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (REMOTE_VIDEO_STATE_REASON) AgoraJson.GetData<int>(data, "reason"),
+                                (int) AgoraJson.GetData<int>(data, "elapsed"));
+                        }
                     });
                     break;
                 case "onStreamMessageError":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnStreamMessageError(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"), (int) AgoraJson.GetData<int>(data, "streamId"),
-                            (int) AgoraJson.GetData<int>(data, "code"), (int) AgoraJson.GetData<int>(data, "missed"),
-                            (int) AgoraJson.GetData<int>(data, "cached"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnStreamMessageError(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "streamId"),
+                                (int) AgoraJson.GetData<int>(data, "code"),
+                                (int) AgoraJson.GetData<int>(data, "missed"),
+                                (int) AgoraJson.GetData<int>(data, "cached"));
+                        }
                     });
                     break;
                 case "onChannelMediaRelayStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnChannelMediaRelayStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (CHANNEL_MEDIA_RELAY_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (CHANNEL_MEDIA_RELAY_ERROR) AgoraJson.GetData<int>(data, "code"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnChannelMediaRelayStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (CHANNEL_MEDIA_RELAY_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (CHANNEL_MEDIA_RELAY_ERROR) AgoraJson.GetData<int>(data, "code"));
+                        }
                     });
                     break;
                 case "onChannelMediaRelayEvent":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnChannelMediaRelayEvent(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (CHANNEL_MEDIA_RELAY_EVENT) AgoraJson.GetData<int>(data, "code"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnChannelMediaRelayEvent(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (CHANNEL_MEDIA_RELAY_EVENT) AgoraJson.GetData<int>(data, "code"));
+                        }
                     });
                     break;
                 case "onRtmpStreamingStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRtmpStreamingStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (RTMP_STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "state"),
-                            (RTMP_STREAM_PUBLISH_ERROR) AgoraJson.GetData<int>(data, "errCode"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRtmpStreamingStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (RTMP_STREAM_PUBLISH_STATE) AgoraJson.GetData<int>(data, "state"),
+                                (RTMP_STREAM_PUBLISH_ERROR) AgoraJson.GetData<int>(data, "errCode"));
+                        }
                     });
                     break;
                 case "onRtmpStreamingEvent":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRtmpStreamingEvent(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (RTMP_STREAMING_EVENT) AgoraJson.GetData<int>(data, "eventCode"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRtmpStreamingEvent(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (RTMP_STREAMING_EVENT) AgoraJson.GetData<int>(data, "eventCode"));
+                        }
                     });
                     break;
                 case "onTranscodingUpdated":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnTranscodingUpdated(
-                            (string) AgoraJson.GetData<string>(data, "channelId"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnTranscodingUpdated(
+                                (string) AgoraJson.GetData<string>(data, "channelId"));
+                        }
                     });
                     break;
                 case "onStreamInjectedStatus":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnStreamInjectedStatus(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (string) AgoraJson.GetData<string>(data, "url"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "status"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnStreamInjectedStatus(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (string) AgoraJson.GetData<string>(data, "url"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "status"));
+                        }
                     });
                     break;
                 case "onLocalPublishFallbackToAudioOnly":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnLocalPublishFallbackToAudioOnly(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnLocalPublishFallbackToAudioOnly(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        }
                     });
                     break;
                 case "onRemoteSubscribeFallbackToAudioOnly":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnRemoteSubscribeFallbackToAudioOnly(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnRemoteSubscribeFallbackToAudioOnly(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (bool) AgoraJson.GetData<bool>(data, "isFallbackOrRecover"));
+                        }
                     });
                     break;
                 case "onConnectionStateChanged":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnConnectionStateChanged(
-                            (string) AgoraJson.GetData<string>(data, "channelId"),
-                            (CONNECTION_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
-                            (CONNECTION_CHANGED_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnConnectionStateChanged(
+                                (string) AgoraJson.GetData<string>(data, "channelId"),
+                                (CONNECTION_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
+                                (CONNECTION_CHANGED_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
+                        }
                     });
                     break;
             }
@@ -338,9 +451,12 @@ namespace agora_gaming_rtc
                 case "onStreamMessage":
                     _callbackObject._CallbackQueue.EnQueue(() =>
                     {
-                        _channelEventHandler?.OnStreamMessage((string) AgoraJson.GetData<string>(data, "channelId"),
-                            (uint) AgoraJson.GetData<uint>(data, "uid"),
-                            (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnStreamMessage((string) AgoraJson.GetData<string>(data, "channelId"),
+                                (uint) AgoraJson.GetData<uint>(data, "uid"),
+                                (int) AgoraJson.GetData<int>(data, "streamId"), byteData, length);
+                        }
                     });
                     break;
                 case "onReadyToSendMetadata":
@@ -349,7 +465,10 @@ namespace agora_gaming_rtc
                         var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
                             (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
                             (long) AgoraJson.GetData<long>(data, "timeStampMs"));
-                        _channelEventHandler?.OnReadyToSendMetadata(metadata);
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnReadyToSendMetadata(metadata);
+                        }
                     });
                     break;
                 case "onMetadataReceived":
@@ -358,7 +477,10 @@ namespace agora_gaming_rtc
                         var metadata = new Metadata((uint) AgoraJson.GetData<uint>(data, "uid"),
                             (uint) AgoraJson.GetData<uint>(data, "size"), byteData,
                             (long) AgoraJson.GetData<long>(data, "timeStampMs"));
-                        _channelEventHandler?.OnMetadataReceived(metadata);
+                        if (_channelEventHandler != null)
+                        {
+                            _channelEventHandler.OnMetadataReceived(metadata);
+                        }
                     });
                     break;
             }
@@ -440,7 +562,7 @@ namespace agora_gaming_rtc
             AgoraRtcNative.UnRegisterIrisRtcChannelEventHandler(_irisRtcChannel,
                 _irisChannelEventHandlerHandleNative, _channelId);
             _irisChannelEventHandlerHandleNative = IntPtr.Zero;
-            _rtcChannelEventHandlerNative?.Dispose();
+            if (_rtcChannelEventHandlerNative != null) _rtcChannelEventHandlerNative.Dispose();
             _rtcChannelEventHandlerNative = null;
             _irisCChannelEventHandler = new IrisCEventHandler();
             _irisCChannelEventHandlerNative = new IrisCEventHandlerNative();

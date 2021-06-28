@@ -46,7 +46,6 @@ namespace agora_gaming_rtc
             _cachedVideoFrame.v_buffer = IntPtr.Zero;
         }
 
-
         void Start()
         {
             if (VideoSurfaceType == AgoraVideoSurfaceType.Renderer)
@@ -136,6 +135,7 @@ namespace agora_gaming_rtc
                                 _texture.LoadRawTextureData(_cachedVideoFrame.y_buffer,
                                     (int) VideoPixelWidth * (int) VideoPixelHeight * 4);
                                 _texture.Apply();
+                                _needResize = false;
                             }
                             else
                             {
@@ -168,15 +168,16 @@ namespace agora_gaming_rtc
             {
                 if (_videoStreamManager == null)
                 {
-                    _videoStreamManager = (engine as AgoraRtcEngine)?.GetVideoStreamManager();
+                    _videoStreamManager = ((AgoraRtcEngine) engine).GetVideoStreamManager();
                 }
-                _videoStreamManager?.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
+                if (_videoStreamManager != null) _videoStreamManager.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
                 _needUpdateInfo = false;
                 _needResize = true;
                 FreeMemory();
                 _cachedVideoFrame = new IrisRtcVideoFrame
                 {
-                    y_stride = VideoPixelWidth,
+                    type = VIDEO_FRAME_TYPE.FRAME_TYPE_RGBA,
+                    y_stride = VideoPixelWidth * 4,
                     height = VideoPixelHeight,
                     y_buffer = Marshal.AllocHGlobal(VideoPixelWidth * VideoPixelHeight * 4)
                 };
@@ -226,7 +227,7 @@ namespace agora_gaming_rtc
             }
         }
 
-        public void SetForUser(uint uid = 0, string channelId = "", int videoPixelWidth = 0, int videoPixelHeight = 0)
+        public void SetForUser(uint uid = 0, string channelId = "", int videoPixelWidth = 1080, int videoPixelHeight = 720)
         {
             Uid = uid;
             ChannelId = channelId;

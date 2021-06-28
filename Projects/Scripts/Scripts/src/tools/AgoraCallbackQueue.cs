@@ -48,17 +48,12 @@ namespace agora_gaming_rtc {
                 return action;
             }
 
-            private void Awake()
-            {
-
-            }
-            
             // Update is called once per frame
             private void Update()
             {
                 var action = DeQueue();
 
-                action?.Invoke();
+                if (action != null) action.Invoke();
             }
 
             private void OnDestroy()

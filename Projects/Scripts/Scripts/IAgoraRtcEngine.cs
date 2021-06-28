@@ -16,13 +16,13 @@ namespace agora_gaming_rtc
     {
     }
 
-public abstract class IRtcEngine
+    public abstract class IRtcEngine
     {
         public abstract int Initialize(RtcEngineContext context);
         public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
         public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver);
         public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver);
-        public abstract void Dispose();
+        public abstract void Dispose(bool sync = false);
 
         [Obsolete(ObsoleteMethodWarning.GetAudioEffectManagerWarning, false)]
         public abstract IAudioEffectManager GetAudioEffectManager();

@@ -57,8 +57,8 @@ namespace agora_gaming_rtc
                 // Remote Audio Frame
                 if (_localAudioFrames.AudioFrameBeforeMixingEx[channelId] == null)
                 {
-                    _localAudioFrames.AudioFrameBeforeMixingEx[channelId] = new Dictionary<uint, AudioFrame>
-                        {[uid] = new AudioFrame()};
+                    _localAudioFrames.AudioFrameBeforeMixingEx[channelId] = new Dictionary<uint, AudioFrame>();
+                    _localAudioFrames.AudioFrameBeforeMixingEx[channelId][uid] = new AudioFrame();
                 }
                 else if (_localAudioFrames.AudioFrameBeforeMixingEx[channelId][uid] == null)
                 {
@@ -113,7 +113,7 @@ namespace agora_gaming_rtc
 
         internal bool IsMultipleChannelFrameWanted()
         {
-            return _audioFrameObserver?.IsMultipleChannelFrameWanted() ?? true;
+            return _audioFrameObserver == null || _audioFrameObserver.IsMultipleChannelFrameWanted();
         }
 
         internal bool OnPlaybackAudioFrameBeforeMixingEx(string channelId, uint uid, ref IrisRtcAudioFrame audioFrame)

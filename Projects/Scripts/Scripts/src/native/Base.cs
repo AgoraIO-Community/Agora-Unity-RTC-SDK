@@ -1,7 +1,7 @@
 //  IrisRtcBase.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 10, 2021.
+//  Modified by Yiqing Huang on June 26, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //

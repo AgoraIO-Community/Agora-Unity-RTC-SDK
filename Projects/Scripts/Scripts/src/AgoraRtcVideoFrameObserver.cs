@@ -56,8 +56,8 @@ namespace agora_gaming_rtc
             {
                 if (_localVideoFrames.RenderVideoFrameEx[channelId] == null)
                 {
-                    _localVideoFrames.RenderVideoFrameEx[channelId] = new Dictionary<uint, VideoFrame>
-                        {[uid] = new VideoFrame()};
+                    _localVideoFrames.RenderVideoFrameEx[channelId] = new Dictionary<uint, VideoFrame>();
+                    _localVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
                 }
                 else if (_localVideoFrames.RenderVideoFrameEx[channelId][uid] == null)
                 {
@@ -128,7 +128,7 @@ namespace agora_gaming_rtc
 
         internal bool IsMultipleChannelFrameWanted()
         {
-            return _videoFrameObserver?.IsMultipleChannelFrameWanted() ?? true;
+            return _videoFrameObserver == null || _videoFrameObserver.IsMultipleChannelFrameWanted();
         }
 
         internal bool OnRenderVideoFrameEx(string channelId, uint uid, ref IrisRtcVideoFrame videoFrame)

@@ -28,12 +28,12 @@ namespace agora_gaming_rtc
         #region DllImport
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
-        public const string AgoraRtcLibName = "iris-rtc";
+        public const string AgoraRtcLibName = "AgoraRtcWrapperUnity";
 #else
 #if UNITY_IPHONE
 		public const string AgoraRtcLibName = "__Internal";
 #else
-        public const string AgoraRtcLibName = "iris-rtc";
+        public const string AgoraRtcLibName = "AgoraRtcWrapperUnity";
 #endif
 #endif
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]

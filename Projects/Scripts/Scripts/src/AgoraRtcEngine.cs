@@ -32,12 +32,14 @@ namespace agora_gaming_rtc
         [CanBeNull] private AgoraCallbackObject _callbackObject;
 
         // private IrisCEventHandlerNative _cEventHandlerNativeLocal;
+        private IrisRtcEnginePtr _irisRtcEnginePtr;
         private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
         private IrisCEventHandler irisCEventHandler;
-        private IntPtr nativeEventHandler;
+        private IrisEventHandlerHandleNative _irisCEngineEventHandlerNative;
 
         internal RtcEngineEventHandlerNative(IrisRtcEnginePtr irisRtcEnginePtr)
         {
+            _irisRtcEnginePtr = irisRtcEnginePtr;
             var name = "Agora" + GetHashCode().ToString();
 
             irisCEventHandler = new IrisCEventHandler()
@@ -53,10 +55,10 @@ namespace agora_gaming_rtc
                     Marshal.GetFunctionPointerForDelegate(irisCEventHandler.OnEventWithBuffer)
             };
 
-            nativeEventHandler = Marshal.AllocHGlobal(Marshal.SizeOf(_cEventHandlerNativeLocal));
-            Marshal.StructureToPtr(_cEventHandlerNativeLocal, nativeEventHandler, true);
+            _irisCEngineEventHandlerNative = Marshal.AllocHGlobal(Marshal.SizeOf(_cEventHandlerNativeLocal));
+            Marshal.StructureToPtr(_cEventHandlerNativeLocal, _irisCEngineEventHandlerNative, true);
             _irisEngineEventHandlerHandleNative =
-                AgoraRtcNative.SetIrisRtcEngineEventHandler(irisRtcEnginePtr, nativeEventHandler);
+                AgoraRtcNative.SetIrisRtcEngineEventHandler(_irisRtcEnginePtr, _irisCEngineEventHandlerNative);
 
             _callbackObject = new AgoraCallbackObject(name);
         }
@@ -66,8 +68,8 @@ namespace agora_gaming_rtc
             _engineEventHandler = null;
             if (_callbackObject != null) _callbackObject.Release();
             _callbackObject = null;
-            AgoraRtcNative.UnsetIrisRtcEngineEventHandler(_irisEngineEventHandlerHandleNative);
-            Marshal.FreeHGlobal(nativeEventHandler);
+            AgoraRtcNative.UnsetIrisRtcEngineEventHandler(_irisRtcEnginePtr, _irisEngineEventHandlerHandleNative);
+            Marshal.FreeHGlobal(_irisCEngineEventHandlerNative);
             _irisEngineEventHandlerHandleNative = IntPtr.Zero;
         }
 
@@ -1089,6 +1091,8 @@ namespace agora_gaming_rtc
 
             if (disposing)
             {
+                if (_rtcEngineEventHandlerNative != null) _rtcEngineEventHandlerNative.Dispose();
+                _rtcEngineEventHandlerNative = null;
                 // TODO: Unmanaged resources.
                 //UnSetIrisAudioFrameObserver();
                 //UnSetIrisVideoFrameObserver();
@@ -1120,8 +1124,7 @@ namespace agora_gaming_rtc
             }
 
             Release(sync);
-            if (_rtcEngineEventHandlerNative != null) _rtcEngineEventHandlerNative.Dispose();
-            _rtcEngineEventHandlerNative = null;
+
             _disposed = true;
         }
 

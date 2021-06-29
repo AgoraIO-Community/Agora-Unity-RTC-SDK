@@ -5518,7 +5518,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
             level = LOG_LEVEL.LOG_LEVEL_INFO;
         }
 
-        public LogConfig(string filePath, int fileSize, LOG_LEVEL level)
+        public LogConfig(string filePath, int fileSize = 1024, LOG_LEVEL level = LOG_LEVEL.LOG_LEVEL_INFO)
         {
             this.filePath = filePath;
             this.fileSize = fileSize;

@@ -49,7 +49,7 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void UnsetIrisRtcEngineEventHandler(IrisRtcEnginePtr engine_ptr,
-            ref IrisEventHandlerHandle handle);
+            IrisEventHandlerHandle handle);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcEngineApi(IrisRtcEnginePtr engine_ptr, ApiTypeEngine api_type,
@@ -140,16 +140,16 @@ namespace agora_gaming_rtc
             ref IrisRtcCRendererCacheConfigNative cacheConfigNative, uint uid = 0, string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void DisableVideoFrameCache(IrisRtcRendererPtr renderer_ptr,
+        internal static extern void DisableVideoFrameCacheByUid(IrisRtcRendererPtr renderer_ptr,
             IrisRtcRendererCacheConfigHandle rendererCacheConfigHandle, uint uid = 0, string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool GetVideoFrame(IrisRtcRendererPtr renderer_ptr, ref IrisRtcVideoFrame video_frame,
             out bool is_new_frame, uint uid, string channel_id = "");
-        
+
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcVideoFrame ConvertVideoFrame(ref IrisRtcVideoFrame src, VIDEO_FRAME_TYPE format);
-        
+
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void ClearVideoFrame(ref IrisRtcVideoFrame video_frame);
 

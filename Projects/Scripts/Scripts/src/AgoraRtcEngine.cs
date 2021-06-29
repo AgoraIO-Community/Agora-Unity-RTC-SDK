@@ -1190,7 +1190,15 @@ namespace agora_gaming_rtc
 
         public static IAgoraRtcEngine Get(AgoraEngineType engineType = AgoraEngineType.MainProcess)
         {
-            return CreateAgoraRtcEngine(engineType);
+            switch (engineType)
+            {
+                case AgoraEngineType.MainProcess:
+                    return engineInstance[0];
+                case AgoraEngineType.SubProcess:
+                    return engineInstance[1];
+                default:
+                throw new ArgumentOutOfRangeException("", engineType, null);
+            }
         }
 
         private int SetAppType(AppType appType)

@@ -16,26 +16,17 @@ namespace agora_gaming_rtc
     {
         private GameObject _CallbackGameObject { get; set; }
         internal AgoraCallbackQueue _CallbackQueue { set; get; }
-        internal string GameObjectName { set; get; }
+        private string GameObjectName { set; get; }
 
         internal AgoraCallbackObject(string gameObjectName)
         {
+            GameObjectName = gameObjectName;
             InitGameObject(gameObjectName);
         }
 
         internal void Release()
         {
-            if (!ReferenceEquals(_CallbackGameObject, null))
-            {
-                if (!ReferenceEquals(_CallbackQueue, null))
-                {
-                    _CallbackQueue.ClearQueue();
-                }
-
-                Object.Destroy(_CallbackGameObject);
-                _CallbackGameObject = null;
-                _CallbackQueue = null;
-            }
+            DeInitGameObject(GameObjectName);
         }
 
         private void InitGameObject(string gameObjectName)

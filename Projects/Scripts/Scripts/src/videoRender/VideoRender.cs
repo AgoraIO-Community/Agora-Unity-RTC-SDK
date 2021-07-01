@@ -80,7 +80,7 @@ namespace agora_gaming_rtc
                 var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
                 var renderPtr = AgoraRtcNative.GetIrisRtcRenderer(rawDataPtr);
 
-                AgoraRtcNative.DisableVideoFrameCacheByUid(renderPtr, _irisRtcRendererCacheConfigHandle, uid, channel_id);
+                AgoraRtcNative.DisableVideoFrameCacheByUid(renderPtr, uid, channel_id);
             }
         }
 

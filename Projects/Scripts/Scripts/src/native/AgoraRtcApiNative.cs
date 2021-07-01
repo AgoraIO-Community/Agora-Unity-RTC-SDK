@@ -140,8 +140,8 @@ namespace agora_gaming_rtc
             ref IrisRtcCRendererCacheConfigNative cacheConfigNative, uint uid = 0, string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void DisableVideoFrameCacheByUid(IrisRtcRendererPtr renderer_ptr,
-            IrisRtcRendererCacheConfigHandle rendererCacheConfigHandle, uint uid = 0, string channel_id = "");
+        internal static extern void DisableVideoFrameCacheByUid(IrisRtcRendererPtr renderer_ptr, uint uid = 0,
+            string channel_id = "");
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern bool GetVideoFrame(IrisRtcRendererPtr renderer_ptr, ref IrisRtcVideoFrame video_frame,

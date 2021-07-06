@@ -11,7 +11,7 @@ using System;
 namespace agora_gaming_rtc
 {
     using uid_t = UInt32;
-    using view_t = IntPtr;
+    using view_t = UInt64;
 
     /** Warning code. */
     public enum WARN_CODE_TYPE
@@ -4801,7 +4801,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     {
         public VideoCanvas()
         {
-            view = IntPtr.Zero;
+            view = 0;
             renderMode = (int) RENDER_MODE_TYPE.RENDER_MODE_HIDDEN;
             channelId = "";
             uid = 0;
@@ -4811,7 +4811,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public VideoCanvas(view_t? view, RENDER_MODE_TYPE renderMode, string channelId = "", uint uid = 0,
             VIDEO_MIRROR_MODE_TYPE mirrorMode = VIDEO_MIRROR_MODE_TYPE.VIDEO_MIRROR_MODE_AUTO)
         {
-            this.view = view ?? IntPtr.Zero;
+            this.view = view ?? 0;
             this.renderMode = (int) renderMode;
             this.channelId = channelId;
             this.uid = uid;

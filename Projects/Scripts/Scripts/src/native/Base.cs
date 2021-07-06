@@ -316,4 +316,49 @@ namespace agora_gaming_rtc
         internal long render_time_ms;
         internal int av_sync_type;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IrisWindowCollection
+    {
+        internal IntPtr windows;
+        internal uint length;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IrisDisplayCollection
+    {
+        internal IntPtr displays;
+        internal int length;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IrisWindow
+    {
+        internal ulong id;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        internal string name;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        internal string owner_name;
+        internal IrisRect bounds;
+        internal IrisRect work_area;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IrisDisplay
+    {
+        internal uint id;
+        internal float scale;
+        internal IrisRect bounds;
+        internal IrisRect work_area;
+        internal int rotation;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct IrisRect
+    {
+        internal double x;
+        internal double y;
+        internal double width;
+        internal double height;
+    }
 }

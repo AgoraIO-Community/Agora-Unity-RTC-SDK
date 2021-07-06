@@ -10,7 +10,7 @@ using System;
 
 namespace agora_gaming_rtc
 {
-    using view_t = IntPtr;
+    using view_t = UInt64;
 
     public abstract class IAgoraRtcEngine : IRtcEngine
     {

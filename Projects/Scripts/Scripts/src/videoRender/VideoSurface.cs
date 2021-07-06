@@ -46,6 +46,11 @@ namespace agora_gaming_rtc
             _cachedVideoFrame.v_buffer = IntPtr.Zero;
         }
 
+        public void SetEngineType(AgoraEngineType agoraEngineType = AgoraEngineType.MainProcess)
+        {
+            AgoraEngineType = agoraEngineType;
+        }
+
         void Start()
         {
             if (VideoSurfaceType == AgoraVideoSurfaceType.Renderer)
@@ -170,7 +175,9 @@ namespace agora_gaming_rtc
                 {
                     _videoStreamManager = ((AgoraRtcEngine) engine).GetVideoStreamManager();
                 }
-                if (_videoStreamManager != null) _videoStreamManager.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
+
+                if (_videoStreamManager != null)
+                    _videoStreamManager.EnableVideoFrameCache(VideoPixelWidth, VideoPixelHeight, Uid, ChannelId);
                 _needUpdateInfo = false;
                 _needResize = true;
                 FreeMemory();

@@ -14,7 +14,7 @@ using LitJson;
 
 namespace agora_gaming_rtc
 {
-    using view_t = IntPtr;
+    using view_t = UInt64;
     using IrisRtcEnginePtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
     using IrisCEventHandlerNativeMarshal = IntPtr;
@@ -80,6 +80,7 @@ namespace agora_gaming_rtc
 
         internal void OnEvent(string @event, string data)
         {
+            if (_callbackObject == null || _callbackObject._CallbackQueue == null) return;
             switch (@event)
             {
                 case "onWarning":
@@ -2784,25 +2785,31 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByDisplayId(uint displayId, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
-            var ewl = new ulong[captureParams.excludeWindowCount];
-            for (var i = 0; i < captureParams.excludeWindowCount; i++)
-            {
-                ewl[i] = (ulong) captureParams.excludeWindowList[i];
-            }
-
+            // var ewl = new ulong[captureParams.excludeWindowCount];
+            // for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            // {
+            //     ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            // }
+            //
+            // var param = new
+            // {
+            //     displayId,
+            //     regionRect,
+            //     captureParams = new
+            //     {
+            //         captureParams.dimensions,
+            //         captureParams.frameRate,
+            //         captureParams.bitrate,
+            //         captureParams.windowFocus,
+            //         excludeWindowList = ewl,
+            //         captureParams.excludeWindowCount
+            //     }
+            // };
             var param = new
             {
                 displayId,
                 regionRect,
-                captureParams = new
-                {
-                    captureParams.dimensions,
-                    captureParams.frameRate,
-                    captureParams.bitrate,
-                    captureParams.windowFocus,
-                    excludeWindowList = ewl,
-                    captureParams.excludeWindowCount
-                }
+                captureParams
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByDisplayId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2812,25 +2819,31 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByScreenRect(Rectangle screenRect, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
-            var ewl = new ulong[captureParams.excludeWindowCount];
-            for (var i = 0; i < captureParams.excludeWindowCount; i++)
-            {
-                ewl[i] = (ulong) captureParams.excludeWindowList[i];
-            }
-
+            // var ewl = new ulong[captureParams.excludeWindowCount];
+            // for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            // {
+            //     ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            // }
+            //
+            // var param = new
+            // {
+            //     screenRect,
+            //     regionRect,
+            //     captureParams = new
+            //     {
+            //         captureParams.dimensions,
+            //         captureParams.frameRate,
+            //         captureParams.bitrate,
+            //         captureParams.windowFocus,
+            //         excludeWindowList = ewl,
+            //         captureParams.excludeWindowCount
+            //     }
+            // };
             var param = new
             {
                 screenRect,
                 regionRect,
-                captureParams = new
-                {
-                    captureParams.dimensions,
-                    captureParams.frameRate,
-                    captureParams.bitrate,
-                    captureParams.windowFocus,
-                    excludeWindowList = ewl,
-                    captureParams.excludeWindowCount
-                }
+                captureParams
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByScreenRect, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2840,25 +2853,31 @@ namespace agora_gaming_rtc
         public override int StartScreenCaptureByWindowId(view_t windowId, Rectangle regionRect,
             ScreenCaptureParameters captureParams)
         {
-            var ewl = new ulong[captureParams.excludeWindowCount];
-            for (var i = 0; i < captureParams.excludeWindowCount; i++)
-            {
-                ewl[i] = (ulong) captureParams.excludeWindowList[i];
-            }
+            // var ewl = new ulong[captureParams.excludeWindowCount];
+            // for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            // {
+            //     ewl[i] = captureParams.excludeWindowList[i];
+            // }
 
+            // var param = new
+            // {
+            //     windowId,
+            //     regionRect,
+            //     captureParams = new
+            //     {
+            //         captureParams.dimensions,
+            //         captureParams.frameRate,
+            //         captureParams.bitrate,
+            //         captureParams.windowFocus,
+            //         excludeWindowList = ewl,
+            //         captureParams.excludeWindowCount
+            //     }
+            // };
             var param = new
             {
-                windowId = (ulong) windowId,
+                windowId,
                 regionRect,
-                captureParams = new
-                {
-                    captureParams.dimensions,
-                    captureParams.frameRate,
-                    captureParams.bitrate,
-                    captureParams.windowFocus,
-                    excludeWindowList = ewl,
-                    captureParams.excludeWindowCount
-                }
+                captureParams
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartScreenCaptureByWindowId, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
@@ -2878,23 +2897,27 @@ namespace agora_gaming_rtc
 
         public override int UpdateScreenCaptureParameters(ScreenCaptureParameters captureParams)
         {
-            var ewl = new ulong[captureParams.excludeWindowCount];
-            for (var i = 0; i < captureParams.excludeWindowCount; i++)
-            {
-                ewl[i] = (ulong) captureParams.excludeWindowList[i];
-            }
-
+            // var ewl = new ulong[captureParams.excludeWindowCount];
+            // for (var i = 0; i < captureParams.excludeWindowCount; i++)
+            // {
+            //     ewl[i] = (ulong) captureParams.excludeWindowList[i];
+            // }
+            //
+            // var param = new
+            // {
+            //     captureParams = new
+            //     {
+            //         captureParams.dimensions,
+            //         captureParams.frameRate,
+            //         captureParams.bitrate,
+            //         captureParams.windowFocus,
+            //         excludeWindowList = ewl,
+            //         captureParams.excludeWindowCount
+            //     }
+            // };
             var param = new
             {
-                captureParams = new
-                {
-                    captureParams.dimensions,
-                    captureParams.frameRate,
-                    captureParams.bitrate,
-                    captureParams.windowFocus,
-                    excludeWindowList = ewl,
-                    captureParams.excludeWindowCount
-                }
+                captureParams
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineUpdateScreenCaptureParameters, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),

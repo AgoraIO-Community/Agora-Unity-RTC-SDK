@@ -1,7 +1,7 @@
 //  AgoraRtcEngineExtension.cs
 //
 //  Created by Yiqing Huang on July 1, 2021.
-//  Modified by Yiqing Huang on July 1, 2021.
+//  Modified by Yiqing Huang on July 6, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -23,11 +23,19 @@ namespace agora_gaming_rtc
             var displayInfos = new AgoraDisplayInfo[displayCollection.length];
             for (var i = 0; i < displayCollection.length; i++)
             {
+#if NET_2_0_SUBSET
+                var display =
+                    (IrisDisplay) (Marshal.PtrToStructure(
+                        (IntPtr) ((long) displayCollection.displays + Marshal.SizeOf(typeof(IrisDisplay)) * i),
+                        typeof(IrisDisplay)) ?? new IrisDisplay());
+                displayInfos[i] = new AgoraDisplayInfo(display.id, display.bounds, display.work_area);
+#else
                 var display =
                     (IrisDisplay) (Marshal.PtrToStructure(
                         displayCollection.displays + Marshal.SizeOf(typeof(IrisDisplay)) * i,
                         typeof(IrisDisplay)) ?? new IrisDisplay());
                 displayInfos[i] = new AgoraDisplayInfo(display.id, display.bounds, display.work_area);
+#endif
             }
 
             AgoraRtcNative.FreeIrisDisplayCollection(displayCollectionPtr);
@@ -47,6 +55,14 @@ namespace agora_gaming_rtc
             var windowInfos = new AgoraWindowInfo[windowCollection.length];
             for (var i = 0; i < windowCollection.length; i++)
             {
+#if NET_2_0_SUBSET
+                var window =
+                    (IrisWindow) (Marshal.PtrToStructure(
+                        (IntPtr) ((long) windowCollection.windows + Marshal.SizeOf(typeof(IrisWindow)) * i),
+                        typeof(IrisWindow)) ?? new IrisWindow());
+                windowInfos[i] = new AgoraWindowInfo(window.id, window.name, window.owner_name, window.bounds,
+                    window.work_area);
+#else
                 var window =
                     (IrisWindow) (Marshal.PtrToStructure(
                                       windowCollection.windows + Marshal.SizeOf(typeof(IrisWindow)) * i,
@@ -54,6 +70,7 @@ namespace agora_gaming_rtc
                                   new IrisWindow());
                 windowInfos[i] = new AgoraWindowInfo(window.id, window.name, window.owner_name, window.bounds,
                     window.work_area);
+#endif
             }
 
             AgoraRtcNative.FreeIrisWindowCollection(windowCollectionPtr);
@@ -79,11 +96,11 @@ namespace agora_gaming_rtc
                 Convert.ToInt32(workArea.width), Convert.ToInt32(workArea.height));
         }
 
-        public ulong WindowId { get; }
-        public string WindowName { get; }
-        public string AppName { get; }
-        public Rectangle Bounds { get; }
-        public Rectangle WorkArea { get; }
+        public ulong WindowId { get; private set; }
+        public string WindowName { get; private set; }
+        public string AppName { get; private set; }
+        public Rectangle Bounds { get; private set; }
+        public Rectangle WorkArea { get; private set; }
     }
 
     public class AgoraDisplayInfo
@@ -97,8 +114,8 @@ namespace agora_gaming_rtc
                 Convert.ToInt32(workArea.width), Convert.ToInt32(workArea.height));
         }
 
-        public uint DisplayId { get; }
-        public Rectangle Bounds { get; }
-        public Rectangle WorkArea { get; }
+        public uint DisplayId { get; private set; }
+        public Rectangle Bounds { get; private set; }
+        public Rectangle WorkArea { get; private set; }
     }
 }

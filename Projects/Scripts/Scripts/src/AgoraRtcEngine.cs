@@ -34,7 +34,7 @@ namespace agora_gaming_rtc
         // private IrisCEventHandlerNative _cEventHandlerNativeLocal;
         private IrisRtcEnginePtr _irisRtcEnginePtr;
         private IrisEventHandlerHandleNative _irisEngineEventHandlerHandleNative;
-        private IrisCEventHandler irisCEventHandler;
+        private IrisCEventHandler _irisCEventHandler;
         private IrisEventHandlerHandleNative _irisCEngineEventHandlerNative;
 
         internal RtcEngineEventHandlerNative(IrisRtcEnginePtr irisRtcEnginePtr)
@@ -42,21 +42,21 @@ namespace agora_gaming_rtc
             _irisRtcEnginePtr = irisRtcEnginePtr;
             var name = "Agora" + GetHashCode().ToString();
 
-            irisCEventHandler = new IrisCEventHandler()
+            _irisCEventHandler = new IrisCEventHandler()
             {
                 OnEvent = OnEvent,
                 OnEventWithBuffer = OnEventWithBuffer
             };
 
-            var _cEventHandlerNativeLocal = new IrisCEventHandlerNative
+            var cEventHandlerNativeLocal = new IrisCEventHandlerNative
             {
-                onEvent = Marshal.GetFunctionPointerForDelegate(irisCEventHandler.OnEvent),
+                onEvent = Marshal.GetFunctionPointerForDelegate(_irisCEventHandler.OnEvent),
                 onEventWithBuffer =
-                    Marshal.GetFunctionPointerForDelegate(irisCEventHandler.OnEventWithBuffer)
+                    Marshal.GetFunctionPointerForDelegate(_irisCEventHandler.OnEventWithBuffer)
             };
 
-            _irisCEngineEventHandlerNative = Marshal.AllocHGlobal(Marshal.SizeOf(_cEventHandlerNativeLocal));
-            Marshal.StructureToPtr(_cEventHandlerNativeLocal, _irisCEngineEventHandlerNative, true);
+            _irisCEngineEventHandlerNative = Marshal.AllocHGlobal(Marshal.SizeOf(cEventHandlerNativeLocal));
+            Marshal.StructureToPtr(cEventHandlerNativeLocal, _irisCEngineEventHandlerNative, true);
             _irisEngineEventHandlerHandleNative =
                 AgoraRtcNative.SetIrisRtcEngineEventHandler(_irisRtcEnginePtr, _irisCEngineEventHandlerNative);
 

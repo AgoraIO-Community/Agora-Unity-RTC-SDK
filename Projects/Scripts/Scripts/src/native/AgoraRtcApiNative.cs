@@ -27,14 +27,14 @@ namespace agora_gaming_rtc
     {
         #region DllImport
 
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR
-        public const string AgoraRtcLibName = "AgoraRtcWrapperUnity";
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        private const string AgoraRtcLibName = "AgoraRtcWrapper";
+#elif UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+        private const string AgoraRtcLibName = "AgoraRtcWrapperUnity";
+#elif UNITY_IPHONE
+		private const string AgoraRtcLibName = "__Internal";
 #else
-#if UNITY_IPHONE
-		public const string AgoraRtcLibName = "__Internal";
-#else
-        public const string AgoraRtcLibName = "AgoraRtcWrapperUnity";
-#endif
+        private const string AgoraRtcLibName = "AgoraRtcWrapper";
 #endif
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcEnginePtr CreateIrisRtcEngine(EngineType type = EngineType.kEngineTypeNormal,

@@ -19,11 +19,50 @@ namespace agora_gaming_rtc
     internal sealed class RtcChannelEventHandlerNative
     {
         private IAgoraRtcChannelEventHandler _channelEventHandler;
-        private AgoraCallbackObject _callbackObject;
 
-        internal RtcChannelEventHandlerNative()
+        [CanBeNull] private AgoraCallbackObject _callbackObject;
+
+        private IrisRtcChannelPtr _irisRtcChannelPtr;
+        private readonly string _channelId;
+        private IrisEventHandlerHandleNative _irisChannelEventHandlerHandleNative;
+        private IrisCEventHandler _irisCEventHandler;
+        private IrisEventHandlerHandleNative _irisCChannelEventHandlerNative;
+
+        internal RtcChannelEventHandlerNative(IrisRtcChannelPtr irisRtcChannelPtr, string channelId)
         {
-            _callbackObject = new AgoraCallbackObject(GetHashCode().ToString());
+            _irisRtcChannelPtr = irisRtcChannelPtr;
+            _channelId = channelId;
+            var name = "Agora" + GetHashCode().ToString();
+
+            _irisCEventHandler = new IrisCEventHandler()
+            {
+                OnEvent = OnEvent,
+                OnEventWithBuffer = OnEventWithBuffer
+            };
+
+            var cChannelEventHandlerNativeLocal = new IrisCEventHandlerNative
+            {
+                onEvent = Marshal.GetFunctionPointerForDelegate(_irisCEventHandler.OnEvent),
+                onEventWithBuffer = Marshal.GetFunctionPointerForDelegate(_irisCEventHandler.OnEventWithBuffer)
+            };
+
+            _irisCChannelEventHandlerNative = Marshal.AllocHGlobal(Marshal.SizeOf(cChannelEventHandlerNativeLocal));
+            Marshal.StructureToPtr(cChannelEventHandlerNativeLocal, _irisCChannelEventHandlerNative, true);
+            _irisChannelEventHandlerHandleNative = AgoraRtcNative.RegisterIrisRtcChannelEventHandler(_irisRtcChannelPtr,
+                _channelId,
+                _irisCChannelEventHandlerNative);
+
+            _callbackObject = new AgoraCallbackObject(name);
+        }
+
+        internal void Dispose()
+        {
+            _channelEventHandler = null;
+            if (_callbackObject != null) _callbackObject.Release();
+            _callbackObject = null;
+            AgoraRtcNative.UnRegisterIrisRtcChannelEventHandler(_irisRtcChannelPtr,
+                _irisChannelEventHandlerHandleNative, _channelId);
+            _irisChannelEventHandlerHandleNative = IntPtr.Zero;
         }
 
         internal void SetEventHandler(IAgoraRtcChannelEventHandler channelEventHandler)
@@ -33,6 +72,7 @@ namespace agora_gaming_rtc
 
         internal void OnEvent(string @event, string data)
         {
+            if (_callbackObject == null || _callbackObject._CallbackQueue == null) return;
             switch (@event)
             {
                 case "onChannelWarning":
@@ -446,6 +486,7 @@ namespace agora_gaming_rtc
         {
             var byteData = new byte[length];
             if (buffer != IntPtr.Zero) Marshal.Copy(buffer, byteData, 0, (int) length);
+            if (_callbackObject == null || _callbackObject._CallbackQueue == null) return;
             switch (@event)
             {
                 case "onStreamMessage":
@@ -485,13 +526,6 @@ namespace agora_gaming_rtc
                     break;
             }
         }
-
-        internal void Dispose()
-        {
-            _channelEventHandler = null;
-            _callbackObject.Release();
-            _callbackObject = null;
-        }
     }
 
     public sealed class AgoraRtcChannel : IAgoraRtcChannel, IDisposable
@@ -504,9 +538,6 @@ namespace agora_gaming_rtc
         private AgoraRtcEngine _rtcEngine;
 
         private RtcChannelEventHandlerNative _rtcChannelEventHandlerNative;
-        private IrisCEventHandlerNative _irisCChannelEventHandlerNative;
-        private IrisCEventHandler _irisCChannelEventHandler;
-        private IrisEventHandlerHandleNative _irisChannelEventHandlerHandleNative;
 
         private CharArrayAssistant _result;
 
@@ -522,7 +553,6 @@ namespace agora_gaming_rtc
             };
             AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelCreateChannel,
                 Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
-            SetIrisChannelEventHandler();
         }
 
         [Obsolete(ObsoleteMethodWarning.CreateChannelWarning, true)]
@@ -533,7 +563,8 @@ namespace agora_gaming_rtc
 
         public override void InitEventHandler(IAgoraRtcChannelEventHandler channelEventHandler)
         {
-            _rtcChannelEventHandlerNative.SetEventHandler(channelEventHandler);
+            if (_rtcChannelEventHandlerNative != null)
+                _rtcChannelEventHandlerNative.SetEventHandler(channelEventHandler);
         }
 
         private void SetIrisChannelEventHandler()
@@ -580,7 +611,8 @@ namespace agora_gaming_rtc
 
             if (disposing)
             {
-                UnsetIrisRtcChannelEventHandler();
+                if (_rtcChannelEventHandlerNative != null) _rtcChannelEventHandlerNative.Dispose();
+                _rtcChannelEventHandlerNative = null;
             }
 
             Release();

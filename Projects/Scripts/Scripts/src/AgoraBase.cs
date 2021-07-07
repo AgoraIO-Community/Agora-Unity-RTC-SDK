@@ -4720,7 +4720,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     {
         public ScreenCaptureParameters()
         {
-            dimensions = new VideoDimensions(1020, 1080);
+            dimensions = new VideoDimensions(1920, 1080);
             frameRate = 5;
             bitrate = (int) BITRATE.STANDARD_BITRATE;
             captureMouseCursor = true;

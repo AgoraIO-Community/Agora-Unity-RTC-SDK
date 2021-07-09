@@ -42,7 +42,7 @@ namespace agora_gaming_rtc
             }
 
             _irisRtcDeviceManager = IntPtr.Zero;
-            _result = null;
+            _result = new CharArrayAssistant();
             _disposed = true;
         }
 
@@ -51,7 +51,7 @@ namespace agora_gaming_rtc
             var param = new { };
 
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMEnumerateVideoDevices, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMEnumerateVideoDevices, JsonMapper.ToJson(param),
                 out _result) != 0
                 ? new DeviceInfo[0]
                 : AgoraJson.JsonToStructArray<DeviceInfo>(_result.Result);
@@ -64,7 +64,7 @@ namespace agora_gaming_rtc
                 hwnd = (ulong) hwnd
             };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMStartDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMStartDeviceTest, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -72,7 +72,7 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMStopDeviceTest, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMStopDeviceTest, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -83,7 +83,7 @@ namespace agora_gaming_rtc
                 deviceId
             };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMSetDevice, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMSetDevice, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -91,7 +91,7 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMGetDevice, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeVideoDeviceManager.kVDMGetDevice, JsonMapper.ToJson(param),
                 out _result) != 0
                 ? null
                 : _result.Result;
@@ -101,7 +101,7 @@ namespace agora_gaming_rtc
             out string result)
         {
             var ret = AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager, apiType,
-                Encoding.UTF8.GetBytes(paramJson), out _result);
+                paramJson, out _result);
             result = _result.Result;
             return ret;
         }

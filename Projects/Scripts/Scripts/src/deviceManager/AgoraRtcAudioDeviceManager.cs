@@ -41,7 +41,7 @@ namespace agora_gaming_rtc
             }
 
             _irisRtcDeviceManager = IntPtr.Zero;
-            _result = null;
+            _result = new CharArrayAssistant();
             _disposed = true;
         }
 
@@ -51,7 +51,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMEnumeratePlaybackDevices,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? new DeviceInfo[0]
                 : AgoraJson.JsonToStructArray<DeviceInfo>(_result.Result);
         }
@@ -65,7 +65,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetPlaybackDevice,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StartPlaybackDeviceTest(string testAudioFilePath)
@@ -77,7 +77,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStartPlaybackDeviceTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StopPlaybackDeviceTest()
@@ -86,7 +86,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStopPlaybackDeviceTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetPlaybackDeviceVolume(int volume)
@@ -98,7 +98,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetPlaybackDeviceVolume,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int GetPlaybackDeviceVolume()
@@ -107,7 +107,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetPlaybackDeviceVolume,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetPlaybackDeviceMute(bool mute)
@@ -119,7 +119,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetPlaybackDeviceMute,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override bool GetPlaybackDeviceMute()
@@ -128,7 +128,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetPlaybackDeviceMute,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) == 1;
+                JsonMapper.ToJson(param), out _result) == 1;
         }
 
         public override string GetPlaybackDevice()
@@ -137,7 +137,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetPlaybackDevice,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? null
                 : _result.Result;
         }
@@ -148,7 +148,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetPlaybackDeviceInfo,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? new DeviceInfo()
                 : AgoraJson.JsonToStruct<DeviceInfo>(_result.Result);
         }
@@ -162,7 +162,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStartAudioDeviceLoopbackTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StopAudioDeviceLoopbackTest()
@@ -171,14 +171,14 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStopAudioDeviceLoopbackTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         internal int CallIrisRtcAudioDeviceManagerApi(ApiTypeAudioDeviceManager apiType, string paramJson,
             out string result)
         {
             var ret = AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager, apiType,
-                Encoding.UTF8.GetBytes(paramJson), out _result);
+                paramJson, out _result);
             result = _result.Result;
             return ret;
         }
@@ -226,7 +226,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMEnumerateRecordingDevices,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? new DeviceInfo[0]
                 : AgoraJson.JsonToStructArray<DeviceInfo>(_result.Result);
         }
@@ -240,7 +240,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetRecordingDevice,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRecordingDeviceVolume(int volume)
@@ -252,7 +252,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetRecordingDeviceVolume,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int GetRecordingDeviceVolume()
@@ -261,7 +261,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetRecordingDeviceVolume,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRecordingDeviceMute(bool mute)
@@ -273,7 +273,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMSetRecordingDeviceMute,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override bool GetRecordingDeviceMute()
@@ -282,7 +282,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetRecordingDeviceMute,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) == 1;
+                JsonMapper.ToJson(param), out _result) == 1;
         }
 
         public override int StartRecordingDeviceTest(int indicationInterval)
@@ -294,7 +294,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStartRecordingDeviceTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StopRecordingDeviceTest()
@@ -303,7 +303,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMStopRecordingDeviceTest,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override string GetRecordingDevice()
@@ -312,7 +312,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetRecordingDevice,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? null
                 : _result.Result;
         }
@@ -323,7 +323,7 @@ namespace agora_gaming_rtc
 
             return AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager,
                 ApiTypeAudioDeviceManager.kADMGetRecordingDeviceInfo,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? new DeviceInfo()
                 : AgoraJson.JsonToStruct<DeviceInfo>(_result.Result);
         }
@@ -332,7 +332,7 @@ namespace agora_gaming_rtc
             out string result)
         {
             var ret = AgoraRtcNative.CallIrisRtcAudioDeviceManagerApi(_irisRtcDeviceManager, apiType,
-                Encoding.UTF8.GetBytes(paramJson), out _result);
+                paramJson, out _result);
             result = _result.Result;
             return ret;
         }

@@ -19,7 +19,7 @@ namespace agora_gaming_rtc
         {
             var jData = JsonMapper.ToObject(data);
             if (jData[key] == null) return null;
-            var jValue = jData[key].ToString();
+            var jValue = jData[key].ToJson();
 
             switch (typeof(T).Name)
             {
@@ -58,7 +58,7 @@ namespace agora_gaming_rtc
         {
             var jData = JsonMapper.ToObject(new string(data, 0, Array.IndexOf(data, '\0')));
             if (jData[key] == null) return null;
-            var jValue = jData[key].ToString();
+            var jValue = jData[key].ToJson();
 
             switch (typeof(T).Name)
             {
@@ -109,11 +109,11 @@ namespace agora_gaming_rtc
             var jValueArray = key == null
                 ? JsonMapper.ToObject(new string(data, 0, Array.IndexOf(data, '\0')))
                 : JsonMapper.ToObject(new string(data, 0, Array.IndexOf(data, '\0')))[key];
-            length = length == 0 ? length : (uint) jValueArray.Count;
+            length = length != 0 ? length : (uint) jValueArray.Count;
             var ret = new T[length];
             for (var i = 0; i < length; i++)
             {
-                ret[i] = JsonMapper.ToObject<T>(jValueArray[i].ToString());
+                ret[i] = JsonMapper.ToObject<T>(jValueArray[i].ToJson());
             }
 
             return ret;
@@ -133,11 +133,11 @@ namespace agora_gaming_rtc
         internal static T[] JsonToStructArray<T>(string data, string key = null, uint length = 0)
         {
             var jValueArray = key == null ? JsonMapper.ToObject(data) : JsonMapper.ToObject(data)[key];
-            length = length == 0 ? length : (uint) jValueArray.Count;
+            length = length != 0 ? length : (uint) jValueArray.Count;
             var ret = new T[length];
             for (var i = 0; i < length; i++)
             {
-                ret[i] = JsonMapper.ToObject<T>(jValueArray[i].ToString());
+                ret[i] = JsonMapper.ToObject<T>(jValueArray[i].ToJson());
             }
 
             return ret;
@@ -146,23 +146,28 @@ namespace agora_gaming_rtc
 
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class CharArrayAssistant
+    internal struct CharArrayAssistant
     {
-        internal CharArrayAssistant()
+        internal CharArrayAssistant(int length = 2048)
         {
-            resultChar = new byte[2048];
+            resultChar = null;
+            // resultChar = new byte[2048];
         }
 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
-        private byte[] resultChar;
+        // [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
+        // private byte[] resultChar;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 2048)]
+        private string resultChar;
 
         public string Result
         {
             get
             {
-                return Marshal.PtrToStringAuto(
-                    Marshal.UnsafeAddrOfPinnedArrayElement(
-                        Encoding.Convert(Encoding.Default, Encoding.Unicode, resultChar, 0, 2047), 0));
+                return resultChar;
+                // return Marshal.PtrToStringAuto(
+                //     Marshal.UnsafeAddrOfPinnedArrayElement(
+                //         Encoding.Convert(Encoding.Default, Encoding.Unicode, resultChar, 0, 2047), 0));
             }
         }
     }

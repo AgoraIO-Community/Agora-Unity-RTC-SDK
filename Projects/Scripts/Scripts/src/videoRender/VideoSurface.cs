@@ -32,6 +32,10 @@ namespace agora_gaming_rtc
         [SerializeField] private string ChannelId = "";
         [SerializeField] private bool Enable = true;
 
+        private uint count = 0;
+        private DateTime toc = DateTime.MinValue;
+        private DateTime tic = DateTime.MinValue;
+
         private Component _renderer;
         private bool _needUpdateInfo = true;
         private bool _needResize = false;
@@ -82,6 +86,33 @@ namespace agora_gaming_rtc
 
         void Update()
         {
+            var tic1 = DateTime.Now;
+
+            var ret = false;
+            var isFresh = false;
+
+            if (toc == DateTime.MinValue && tic == DateTime.MinValue)
+            {
+                tic = DateTime.Now;
+                toc = DateTime.Now;
+                count += 1;
+            }
+            else
+            {
+                toc = DateTime.Now;
+
+                if (toc.Subtract(tic).Milliseconds >= 1000)
+                {
+                    AgoraLog.Log(string.Format(">>>>> times per sec: {0}", count));
+                    count = 1;
+                    tic = DateTime.Now;
+                }
+                else
+                {
+                    count += 1;
+                }
+            }
+
             var engine = GetEngine();
 
             if (engine == null || _renderer == null || _needUpdateInfo || _videoStreamManager == null)
@@ -94,14 +125,18 @@ namespace agora_gaming_rtc
 
             if (Enable)
             {
-                bool isFresh = false;
-                var ret = _videoStreamManager.GetVideoFrame(ref _cachedVideoFrame, ref isFresh, Uid, ChannelId);
-
+                isFresh = false;
+                var tic2 = DateTime.Now;
+                ret = _videoStreamManager.GetVideoFrame(ref _cachedVideoFrame, ref isFresh, Uid, ChannelId);
+                var toc2 = DateTime.Now;
+                Debug.LogFormat("Time Exec GetVideoFrame: {0}", toc2.Subtract(tic2).Milliseconds);
                 if (!ret)
                 {
                     AgoraLog.LogWarning(string.Format("no video frame for user channel: {0} uid: {1}", ChannelId, Uid));
                     return;
                 }
+                
+                //Debug.LogFormat("videoframe uid {0}");
 
                 if (IsBlankTexture())
                 {
@@ -164,6 +199,11 @@ namespace agora_gaming_rtc
                     DestroyTexture();
                 }
             }
+
+            var toc1 = DateTime.Now;
+            AgoraLog.Log(string.Format("Time proc video frame: {0}  ret: {1}  is_fresh: {2}",
+                toc1.Subtract(tic1).Milliseconds, ret, isFresh));
+            // Debug.LogFormat("Time proc video frame: {0}  ret: {1}  is_fresh: {2}", toc1.Subtract(tic1).Milliseconds, ret, isFresh);
         }
 
         private IAgoraRtcEngine GetEngine()
@@ -234,7 +274,8 @@ namespace agora_gaming_rtc
             }
         }
 
-        public void SetForUser(uint uid = 0, string channelId = "", int videoPixelWidth = 1080, int videoPixelHeight = 720)
+        public void SetForUser(uint uid = 0, string channelId = "", int videoPixelWidth = 640,
+            int videoPixelHeight = 360)
         {
             Uid = uid;
             ChannelId = channelId;

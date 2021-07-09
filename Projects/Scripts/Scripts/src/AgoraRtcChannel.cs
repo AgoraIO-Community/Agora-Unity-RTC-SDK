@@ -8,7 +8,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using LitJson;
 
 namespace agora_gaming_rtc
@@ -20,7 +19,7 @@ namespace agora_gaming_rtc
     {
         private IAgoraRtcChannelEventHandler _channelEventHandler;
 
-        [CanBeNull] private AgoraCallbackObject _callbackObject;
+        private AgoraCallbackObject _callbackObject;
 
         private IrisRtcChannelPtr _irisRtcChannelPtr;
         private readonly string _channelId;
@@ -552,7 +551,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelCreateChannel,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.CreateChannelWarning, true)]
@@ -565,38 +564,6 @@ namespace agora_gaming_rtc
         {
             if (_rtcChannelEventHandlerNative != null)
                 _rtcChannelEventHandlerNative.SetEventHandler(channelEventHandler);
-        }
-
-        private void SetIrisChannelEventHandler()
-        {
-            _rtcChannelEventHandlerNative = new RtcChannelEventHandlerNative();
-
-            _irisCChannelEventHandler = new IrisCEventHandler
-            {
-                OnEvent = _rtcChannelEventHandlerNative.OnEvent,
-                OnEventWithBuffer = _rtcChannelEventHandlerNative.OnEventWithBuffer
-            };
-
-            _irisCChannelEventHandlerNative = new IrisCEventHandlerNative
-            {
-                onEvent = Marshal.GetFunctionPointerForDelegate(_irisCChannelEventHandler.OnEvent),
-                onEventWithBuffer = Marshal.GetFunctionPointerForDelegate(_irisCChannelEventHandler.OnEventWithBuffer)
-            };
-
-            _irisChannelEventHandlerHandleNative =
-                AgoraRtcNative.RegisterIrisRtcChannelEventHandler(_irisRtcChannel, _channelId,
-                    ref _irisCChannelEventHandlerNative);
-        }
-
-        private void UnsetIrisRtcChannelEventHandler()
-        {
-            AgoraRtcNative.UnRegisterIrisRtcChannelEventHandler(_irisRtcChannel,
-                _irisChannelEventHandlerHandleNative, _channelId);
-            _irisChannelEventHandlerHandleNative = IntPtr.Zero;
-            if (_rtcChannelEventHandlerNative != null) _rtcChannelEventHandlerNative.Dispose();
-            _rtcChannelEventHandlerNative = null;
-            _irisCChannelEventHandler = new IrisCEventHandler();
-            _irisCChannelEventHandlerNative = new IrisCEventHandlerNative();
         }
 
         public override void Dispose()
@@ -626,11 +593,11 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelRelease,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
             _rtcEngine.ReleaseChannel(_channelId);
             _rtcEngine = null;
             _irisRtcChannel = IntPtr.Zero;
-            _result = null;
+            _result = new CharArrayAssistant();
         }
 
         [Obsolete(ObsoleteMethodWarning.ReleaseChannelWarning, false)]
@@ -651,7 +618,7 @@ namespace agora_gaming_rtc
                 options
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelJoinChannel,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int JoinChannelWithUserAccount(string token, string userAccount, ChannelMediaOptions options)
@@ -664,7 +631,7 @@ namespace agora_gaming_rtc
                 options
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelJoinChannelWithUserAccount, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelJoinChannelWithUserAccount, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -675,7 +642,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelLeaveChannel,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int Publish()
@@ -685,7 +652,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelPublish,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int Unpublish()
@@ -695,7 +662,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelUnPublish,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override string ChannelId()
@@ -710,7 +677,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelGetCallId,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result) != 0
+                JsonMapper.ToJson(param), out _result) != 0
                 ? null
                 : _result.Result;
         }
@@ -723,7 +690,7 @@ namespace agora_gaming_rtc
                 token
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelRenewToken,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.SetEncryptionSecretWarning, false)]
@@ -735,7 +702,7 @@ namespace agora_gaming_rtc
                 secret
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetEncryptionSecret,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.SetEncryptionModeWarning, false)]
@@ -747,7 +714,7 @@ namespace agora_gaming_rtc
                 encryptionMode
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetEncryptionMode,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int EnableEncryption(bool enabled, EncryptionConfig config)
@@ -759,7 +726,7 @@ namespace agora_gaming_rtc
                 config
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelEnableEncryption,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int RegisterPacketObserver(IPacketObserver observer)
@@ -770,7 +737,7 @@ namespace agora_gaming_rtc
                 observer
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelRegisterPacketObserver,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int RegisterMediaMetadataObserver(METADATA_TYPE type)
@@ -781,7 +748,7 @@ namespace agora_gaming_rtc
                 type
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelRegisterMediaMetadataObserver, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelRegisterMediaMetadataObserver, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -794,7 +761,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
                 ApiTypeChannel.kChannelUnRegisterMediaMetadataObserver,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetMaxMetadataSize(int size)
@@ -805,7 +772,7 @@ namespace agora_gaming_rtc
                 size
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetMaxMetadataSize,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SendMetadata(Metadata metadata)
@@ -816,7 +783,7 @@ namespace agora_gaming_rtc
                 metadata
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSendMetadata,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetClientRole(CLIENT_ROLE_TYPE role)
@@ -827,7 +794,7 @@ namespace agora_gaming_rtc
                 role
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetClientRole,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
             ;
         }
 
@@ -840,7 +807,7 @@ namespace agora_gaming_rtc
                 options
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetClientRole,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRemoteUserPriority(uint uid, PRIORITY_TYPE userPriority)
@@ -852,7 +819,7 @@ namespace agora_gaming_rtc
                 userPriority
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetRemoteUserPriority,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRemoteVoicePosition(uint uid, double pan, double gain)
@@ -865,7 +832,7 @@ namespace agora_gaming_rtc
                 gain
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetRemoteVoicePosition,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRemoteRenderMode(uint userId, RENDER_MODE_TYPE renderMode,
@@ -879,7 +846,7 @@ namespace agora_gaming_rtc
                 mirrorMode
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetRemoteRenderMode,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
@@ -892,7 +859,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
                 ApiTypeChannel.kChannelSetDefaultMuteAllRemoteAudioStreams,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
@@ -905,7 +872,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
                 ApiTypeChannel.kChannelSetDefaultMuteAllRemoteVideoStreams,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int MuteAllRemoteAudioStreams(bool mute)
@@ -916,7 +883,7 @@ namespace agora_gaming_rtc
                 mute
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelMuteAllRemoteAudioStreams, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelMuteAllRemoteAudioStreams, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -929,7 +896,7 @@ namespace agora_gaming_rtc
                 volume
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelAdjustUserPlaybackSignalVolume, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelAdjustUserPlaybackSignalVolume, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -942,7 +909,7 @@ namespace agora_gaming_rtc
                 mute
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelMuteRemoteAudioStream,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int MuteAllRemoteVideoStreams(bool mute)
@@ -953,7 +920,7 @@ namespace agora_gaming_rtc
                 mute
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelMuteAllRemoteVideoStreams, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelMuteAllRemoteVideoStreams, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -966,7 +933,7 @@ namespace agora_gaming_rtc
                 mute
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelMuteRemoteVideoStream,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetRemoteVideoStreamType(uint userId, REMOTE_VIDEO_STREAM_TYPE streamType)
@@ -978,7 +945,7 @@ namespace agora_gaming_rtc
                 streamType
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelSetRemoteVideoStreamType, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelSetRemoteVideoStreamType, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -990,7 +957,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
                 ApiTypeChannel.kChannelSetRemoteDefaultVideoStreamType,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
@@ -1003,7 +970,7 @@ namespace agora_gaming_rtc
                 ordered
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelCreateDataStream,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int CreateDataStream(DataStreamConfig config)
@@ -1014,7 +981,7 @@ namespace agora_gaming_rtc
                 config
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelCreateDataStream,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SendStreamMessage(int streamId, byte[] data)
@@ -1027,7 +994,7 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApiWithBuffer(_irisRtcChannel,
                 ApiTypeChannel.kChannelSendStreamMessage,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), data, out _result);
+                JsonMapper.ToJson(param), data, out _result);
         }
 
         public override int AddPublishStreamUrl(string url, bool transcodingEnabled)
@@ -1039,7 +1006,7 @@ namespace agora_gaming_rtc
                 transcodingEnabled
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelAddPublishStreamUrl,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int RemovePublishStreamUrl(string url)
@@ -1050,7 +1017,7 @@ namespace agora_gaming_rtc
                 url
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelRemovePublishStreamUrl,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int SetLiveTranscoding(LiveTranscoding transcoding)
@@ -1061,7 +1028,7 @@ namespace agora_gaming_rtc
                 transcoding
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelSetLiveTranscoding,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int AddInjectStreamUrl(string url, InjectStreamConfig config)
@@ -1073,7 +1040,7 @@ namespace agora_gaming_rtc
                 config
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelAddInjectStreamUrl,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int RemoveInjectStreamUrl(string url)
@@ -1084,7 +1051,7 @@ namespace agora_gaming_rtc
                 url
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelRemoveInjectStreamUrl,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StartChannelMediaRelay(ChannelMediaRelayConfiguration configuration)
@@ -1095,7 +1062,7 @@ namespace agora_gaming_rtc
                 configuration
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelStartChannelMediaRelay,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int UpdateChannelMediaRelay(ChannelMediaRelayConfiguration configuration)
@@ -1106,7 +1073,7 @@ namespace agora_gaming_rtc
                 configuration
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelUpdateChannelMediaRelay,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override int StopChannelMediaRelay()
@@ -1116,7 +1083,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelStopChannelMediaRelay,
-                Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)), out _result);
+                JsonMapper.ToJson(param), out _result);
         }
 
         public override CONNECTION_STATE_TYPE GetConnectionState()
@@ -1126,7 +1093,7 @@ namespace agora_gaming_rtc
                 channelId = _channelId
             };
             return (CONNECTION_STATE_TYPE) AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelGetConnectionState, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelGetConnectionState, JsonMapper.ToJson(param),
                 out _result);
         }
 
@@ -1139,7 +1106,7 @@ namespace agora_gaming_rtc
                 enable
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
-                ApiTypeChannel.kChannelEnableRemoteSuperResolution, Encoding.UTF8.GetBytes(JsonMapper.ToJson(param)),
+                ApiTypeChannel.kChannelEnableRemoteSuperResolution, JsonMapper.ToJson(param),
                 out _result);
         }
 

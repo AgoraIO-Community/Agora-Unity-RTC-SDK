@@ -1,7 +1,7 @@
 //  AgoraRtcChannel.cs
 //
 //  Created by Yiqing Huang on June 6, 2021.
-//  Modified by Yiqing Huang on June 6, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -538,11 +538,11 @@ namespace agora_gaming_rtc
 
         private RtcChannelEventHandlerNative _rtcChannelEventHandlerNative;
 
-        private CharArrayAssistant _result;
+        private CharAssistant _result;
 
         internal AgoraRtcChannel(AgoraRtcEngine rtcEngine, string channelId)
         {
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
             _rtcEngine = rtcEngine;
             _channelId = channelId;
             _irisRtcChannel = AgoraRtcNative.GetIrisRtcChannel(rtcEngine.GetNativeHandler());
@@ -597,7 +597,7 @@ namespace agora_gaming_rtc
             _rtcEngine.ReleaseChannel(_channelId);
             _rtcEngine = null;
             _irisRtcChannel = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
         }
 
         [Obsolete(ObsoleteMethodWarning.ReleaseChannelWarning, false)]

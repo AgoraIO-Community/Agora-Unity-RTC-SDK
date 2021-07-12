@@ -1,7 +1,7 @@
 //  AgoraRtcVideoDeviceManager.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 26, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -19,11 +19,11 @@ namespace agora_gaming_rtc
     {
         private bool _disposed;
         private IrisRtcDeviceManagerPtr _irisRtcDeviceManager;
-        private CharArrayAssistant _result;
+        private CharAssistant _result;
 
         internal AgoraRtcVideoDeviceManager(IrisRtcDeviceManagerPtr irisRtcDeviceManager)
         {
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
             _irisRtcDeviceManager = irisRtcDeviceManager;
         }
 
@@ -42,7 +42,7 @@ namespace agora_gaming_rtc
             }
 
             _irisRtcDeviceManager = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
             _disposed = true;
         }
 

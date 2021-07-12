@@ -1,7 +1,7 @@
 //  AgoraRtcEngine.cs
 //
 //  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 24, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -1053,11 +1053,11 @@ namespace agora_gaming_rtc
         private IrisRtcCVideoFrameObserver _irisRtcCVideoFrameObserver;
         private IrisRtcVideoFrameObserverHandleNative _irisRtcVideoFrameObserverHandleNative;
 
-        private CharArrayAssistant _result;
+        private CharAssistant _result;
 
         private AgoraRtcEngine(EngineType type = EngineType.kEngineTypeNormal)
         {
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
             _channelInstance = new Dictionary<string, AgoraRtcChannel>();
             _irisRtcEngine = type == EngineType.kEngineTypeNormal
                 ? AgoraRtcNative.CreateIrisRtcEngine()
@@ -1136,7 +1136,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
             AgoraRtcNative.DestroyIrisRtcEngine(_irisRtcEngine);
             _irisRtcEngine = IntPtr.Zero;
-            _result = new CharArrayAssistant();
+            _result = new CharAssistant();
             for (var i = 0; i < engineInstance.Length; i++)
             {
                 if (engineInstance[i] == this) engineInstance[i] = null;
@@ -1148,6 +1148,7 @@ namespace agora_gaming_rtc
             return _irisRtcEngine;
         }
 
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
         public static IAgoraRtcEngine CreateAgoraRtcEngine(AgoraEngineType engineType = AgoraEngineType.MainProcess)
         {
             switch (engineType)
@@ -1161,6 +1162,12 @@ namespace agora_gaming_rtc
                     throw new ArgumentOutOfRangeException("", engineType, null);
             }
         }
+#elif UNITY_ANDROID || UNITY_IPHONE
+        public static IAgoraRtcEngine CreateAgoraRtcEngine()
+        {
+            return engineInstance[0] ?? (engineInstance[0] = new AgoraRtcEngine());
+        }
+#endif
 
         [Obsolete(
             "This method is deprecated. Please call CreateAgoraRtcEngine and Initialize instead",
@@ -1183,7 +1190,7 @@ namespace agora_gaming_rtc
             return agoraRtcEngine;
         }
 
-        [Obsolete("This method is deprecated. Please call CreateAgoraRtcEngine instead.", false)]
+        [Obsolete("This method is deprecated. Please call Get instead.", false)]
         public static IRtcEngine QueryEngine()
         {
             return engineInstance[0];
@@ -1418,6 +1425,10 @@ namespace agora_gaming_rtc
 
         public override IAgoraRtcChannel CreateChannel(string channelId)
         {
+            if (this == engineInstance[1])
+                throw new NotSupportedException(
+                    "The `CreateChannel` method is not supported by the sub-process engine.");
+
             if (_channelInstance.ContainsKey(channelId))
             {
                 return _channelInstance[channelId];

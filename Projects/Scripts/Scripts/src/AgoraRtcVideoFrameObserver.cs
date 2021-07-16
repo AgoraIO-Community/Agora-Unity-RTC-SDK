@@ -1,7 +1,7 @@
 //  AgoraRtcVideoFrameObserver.cs
 //
 //  Created by Yiqing Huang on June 9, 2021.
-//  Modified by Yiqing Huang on June 24, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //

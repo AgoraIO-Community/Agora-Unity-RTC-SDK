@@ -1,7 +1,7 @@
 //  AgoraRtcApiNative.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 3, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -53,11 +53,11 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcEngineApi(IrisRtcEnginePtr engine_ptr, ApiTypeEngine api_type,
-            string @params, out CharArrayAssistant result);
+            string @params, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcEngineApiWithBuffer(IrisRtcEnginePtr engine_ptr, ApiTypeEngine api_type,
-            string @params, byte[] buffer, out CharArrayAssistant result);
+            string @params, byte[] buffer, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcDeviceManagerPtr GetIrisRtcDeviceManager(IrisRtcEnginePtr engine_ptr);
@@ -70,19 +70,19 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcAudioDeviceManagerApi(IrisRtcDeviceManagerPtr device_manager_ptr,
-            ApiTypeAudioDeviceManager api_type, string @params, out CharArrayAssistant result);
+            ApiTypeAudioDeviceManager api_type, string @params, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcVideoDeviceManagerApi(IrisRtcDeviceManagerPtr device_manager_ptr,
-            ApiTypeVideoDeviceManager api_type, string @params, out CharArrayAssistant result);
+            ApiTypeVideoDeviceManager api_type, string @params, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisEventHandlerHandle SetIrisRtcChannelEventHandler(IrisRtcChannelPtr channel_ptr,
-            ref IrisCEventHandlerNative event_handler);
+            IntPtr event_handler);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void UnsetIrisRtcChannelEventHandler(IrisRtcChannelPtr channel_ptr,
-            ref IrisEventHandlerHandle handle);
+            IrisEventHandlerHandle handle);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisEventHandlerHandle RegisterIrisRtcChannelEventHandler(IrisRtcChannelPtr channel_ptr,
@@ -94,11 +94,11 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcChannelApi(IrisRtcChannelPtr channel_ptr, ApiTypeChannel api_type,
-            string @params, out CharArrayAssistant result);
+            string @params, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcChannelApiWithBuffer(IrisRtcChannelPtr channel_ptr,
-            ApiTypeChannel api_type, string @params, byte[] buffer, out CharArrayAssistant result);
+            ApiTypeChannel api_type, string @params, byte[] buffer, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcAudioFrameObserverHandle RegisterAudioFrameObserver(
@@ -125,15 +125,7 @@ namespace agora_gaming_rtc
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int CallIrisRtcRawDataPluginManagerApi(IrisRtcRawDataPluginManagerPtr plugin_manager_ptr,
-            ApiTypeRawDataPluginManager api_type, string @params, out CharArrayAssistant result);
-
-        // [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        // internal static extern IrisEventHandlerHandle SetIrisRtcRendererEventHandler(IrisRtcRendererPtr renderer_ptr,
-        //     ref IrisCEventHandlerNative event_handler);
-
-        // [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        // internal static extern void UnsetIrisRtcRendererEventHandler(IrisRtcRendererPtr renderer_ptr,
-        //     IrisEventHandlerHandle handle);
+            ApiTypeRawDataPluginManager api_type, string @params, out CharAssistant result);
 
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IrisRtcRendererCacheConfigHandle EnableVideoFrameCache(IrisRtcRendererPtr renderer_ptr,
@@ -166,29 +158,6 @@ namespace agora_gaming_rtc
         [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void FreeIrisWindowCollection(IntPtr collection);
 #endif
-
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test1();
-
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test2(IrisRtcEnginePtr engine_ptr);
-
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test3(ApiTypeEngine api_type);
-
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test4(string @params);
-
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test5(out CharArrayAssistant result);
-        
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test6(IrisRtcEnginePtr engine_ptr, ApiTypeEngine api_type,
-            string @params, out CharArrayAssistant result);
-        
-        [DllImport(AgoraRtcLibName, CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int test7(IrisRtcEnginePtr engine_ptr, ApiTypeEngine api_type,
-            string @params, out CharArrayAssistant result);
 
         #endregion
     }

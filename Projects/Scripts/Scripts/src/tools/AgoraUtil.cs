@@ -1,14 +1,13 @@
 //  AgoraUtil.cs
 //
 //  Created by Yiqing Huang on Dec 15, 2020.
-//  Modified by Yiqing Huang on May 25, 2021.
+//  Modified by Yiqing Huang on July 12, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
 using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using LitJson;
 
 namespace agora_gaming_rtc
@@ -146,17 +145,8 @@ namespace agora_gaming_rtc
 
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct CharArrayAssistant
+    internal struct CharAssistant
     {
-        internal CharArrayAssistant(int length = 2048)
-        {
-            resultChar = null;
-            // resultChar = new byte[2048];
-        }
-
-        // [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
-        // private byte[] resultChar;
-
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 2048)]
         private string resultChar;
 
@@ -165,9 +155,6 @@ namespace agora_gaming_rtc
             get
             {
                 return resultChar;
-                // return Marshal.PtrToStringAuto(
-                //     Marshal.UnsafeAddrOfPinnedArrayElement(
-                //         Encoding.Convert(Encoding.Default, Encoding.Unicode, resultChar, 0, 2047), 0));
             }
         }
     }

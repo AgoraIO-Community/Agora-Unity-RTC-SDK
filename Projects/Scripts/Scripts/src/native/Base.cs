@@ -335,10 +335,13 @@ namespace agora_gaming_rtc
     internal struct IrisWindow
     {
         internal ulong id;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
         internal string name;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
         internal string owner_name;
+
         internal IrisRect bounds;
         internal IrisRect work_area;
     }

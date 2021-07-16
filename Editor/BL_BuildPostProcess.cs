@@ -9,7 +9,7 @@ public class BL_BuildPostProcess
     {
         var arch = BuildTarget == BuildTarget.StandaloneWindows64 ? "x86_64/" : "x86/";
         var exeName = "AgoraRtcScreenSharing.exe";
-        var strPathFrom = UnityEngine.Application.dataPath + "/Agora-Plugin/Plugins/" + arch + exeName;
+        var strPathFrom = UnityEngine.Application.dataPath + "/Agora-Plugin/Agora-Unity-RTC-SDK/Plugins/" + arch + exeName;
         UnityEngine.Debug.LogFormat("src path: {0}", strPathFrom);
         var nIdxSlash = path.LastIndexOf('/');
         var nIdxDot = path.LastIndexOf('.');

@@ -246,11 +246,17 @@ namespace agora_gaming_rtc
 
             if (_irisEngineEventHandlerHandleNative == IntPtr.Zero)
             {
-                _irisCEventHandler = new IrisCEventHandler
-                {
-                    OnEvent = RtcEngineEventHandlerNative.OnEvent,
-                    OnEventWithBuffer = RtcEngineEventHandlerNative.OnEventWithBuffer
-                };
+                _irisCEventHandler = idx == 0
+                    ? new IrisCEventHandler
+                    {
+                        OnEvent = RtcEngineEventHandlerNative.OnEvent,
+                        OnEventWithBuffer = RtcEngineEventHandlerNative.OnEventWithBuffer
+                    }
+                    : new IrisCEventHandler
+                    {
+                        OnEvent = RtcEngineEventHandlerNative.OnEventSubProcess,
+                        OnEventWithBuffer = RtcEngineEventHandlerNative.OnEventWithBufferSubProcess
+                    };
 
                 var cEventHandlerNativeLocal = new IrisCEventHandlerNative
                 {

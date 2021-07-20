@@ -93,10 +93,14 @@ wget --header="$HEADER" "$WIN_URL" -P "$CUR_DIR"/temp/win || exit 1
 #--------------------------------------
 # Extract plugins
 #--------------------------------------
-unzip "$CUR_DIR"/temp/ios/iris_*.zip || exit 1
-unzip "$CUR_DIR"/temp/android/iris_*.zip || exit 1
-unzip "$CUR_DIR"/temp/mac/iris_*.zip || exit 1
-unzip "$CUR_DIR"/temp/win/iris_*.zip || exit 1
+unzip -d "$CUR_DIR"/temp/ios/ "$CUR_DIR"/temp/ios/iris_*.zip || exit 1
+unzip -d "$CUR_DIR"/temp/android/ "$CUR_DIR"/temp/android/iris_*.zip || exit 1
+unzip -d "$CUR_DIR"/temp/mac/ "$CUR_DIR"/temp/mac/iris_*.zip || exit 1
+unzip -d "$CUR_DIR"/temp/win/ "$CUR_DIR"/temp/win/iris_*.zip || exit 1
 
+#--------------------------------------
+# Delete zip files
+#--------------------------------------
+rm "$CUR_DIR"/temp/ios/iris_*.zip "$CUR_DIR"/temp/android/iris_*.zip "$CUR_DIR"/temp/mac/iris_*.zip "$CUR_DIR"/temp/win/iris_*.zip
 
 exit 0

@@ -1,7 +1,7 @@
 //  IAgoraRtcEngine.cs
 //
 //  Created by Yiqing Huang on June 1, 2021.
-//  Modified by Yiqing Huang on June 4, 2021.
+//  Modified by Yiqing Huang on July 21, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -21,7 +21,9 @@ namespace agora_gaming_rtc
         public abstract int Initialize(RtcEngineContext context);
         public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
         public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver);
+        public abstract void UnRegisterAudioFrameObserver();
         public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver);
+        public abstract void UnRegisterVideoFrameObserver();
         public abstract void Dispose(bool sync = false);
 
         [Obsolete(ObsoleteMethodWarning.GetAudioEffectManagerWarning, false)]

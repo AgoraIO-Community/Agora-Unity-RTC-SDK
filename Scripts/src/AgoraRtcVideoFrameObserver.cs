@@ -1,7 +1,7 @@
 //  AgoraRtcVideoFrameObserver.cs
 //
 //  Created by Yiqing Huang on June 9, 2021.
-//  Modified by Yiqing Huang on July 12, 2021.
+//  Modified by Yiqing Huang on July 21, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -9,35 +9,32 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using AOT;
 
 namespace agora_gaming_rtc
 {
-    internal sealed class RtcVideoFrameObserverNative
+    internal static class RtcVideoFrameObserverNative
     {
-        private IAgoraRtcVideoFrameObserver _videoFrameObserver;
-        private LocalVideoFrames _localVideoFrames = new LocalVideoFrames();
+        internal static IAgoraRtcVideoFrameObserver VideoFrameObserver;
 
-        private class LocalVideoFrames
+        private static class LocalVideoFrames
         {
-            internal readonly VideoFrame CaptureVideoFrame = new VideoFrame();
-            internal readonly VideoFrame PreEncodeVideoFrame = new VideoFrame();
+            internal static readonly VideoFrame CaptureVideoFrame = new VideoFrame();
+            internal static readonly VideoFrame PreEncodeVideoFrame = new VideoFrame();
 
-            internal readonly Dictionary<string, Dictionary<uint, VideoFrame>> RenderVideoFrameEx =
+            internal static readonly Dictionary<string, Dictionary<uint, VideoFrame>> RenderVideoFrameEx =
                 new Dictionary<string, Dictionary<uint, VideoFrame>>();
         }
 
-        internal void SetVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver)
+        private static VideoFrame ProcessVideoFrameReceived(IntPtr videoFramePtr, string channelId, uint uid)
         {
-            _videoFrameObserver = videoFrameObserver;
-        }
-
-        private VideoFrame ProcessVideoFrameReceived(ref IrisRtcVideoFrame videoFrame, string channelId, uint uid)
-        {
+            var videoFrame = (IrisRtcVideoFrame) (Marshal.PtrToStructure(videoFramePtr, typeof(IrisRtcVideoFrame)) ??
+                                                        new IrisRtcVideoFrame());
             var localVideoFrame = new VideoFrame();
 
-            var ifConverted = _videoFrameObserver.GetVideoFormatPreference() != VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420;
+            var ifConverted = VideoFrameObserver.GetVideoFormatPreference() != VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420;
             var videoFrameConverted = ifConverted
-                ? AgoraRtcNative.ConvertVideoFrame(ref videoFrame, _videoFrameObserver.GetVideoFormatPreference())
+                ? AgoraRtcNative.ConvertVideoFrame(ref videoFrame, VideoFrameObserver.GetVideoFormatPreference())
                 : videoFrame;
 
             if (channelId == "")
@@ -45,26 +42,26 @@ namespace agora_gaming_rtc
                 switch (uid)
                 {
                     case 0:
-                        localVideoFrame = _localVideoFrames.CaptureVideoFrame;
+                        localVideoFrame = LocalVideoFrames.CaptureVideoFrame;
                         break;
                     case 1:
-                        localVideoFrame = _localVideoFrames.PreEncodeVideoFrame;
+                        localVideoFrame = LocalVideoFrames.PreEncodeVideoFrame;
                         break;
                 }
             }
             else
             {
-                if (_localVideoFrames.RenderVideoFrameEx[channelId] == null)
+                if (!LocalVideoFrames.RenderVideoFrameEx.ContainsKey(channelId))
                 {
-                    _localVideoFrames.RenderVideoFrameEx[channelId] = new Dictionary<uint, VideoFrame>();
-                    _localVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
+                    LocalVideoFrames.RenderVideoFrameEx[channelId] = new Dictionary<uint, VideoFrame>();
+                    LocalVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
                 }
-                else if (_localVideoFrames.RenderVideoFrameEx[channelId][uid] == null)
+                else if (!LocalVideoFrames.RenderVideoFrameEx[channelId].ContainsKey(uid))
                 {
-                    _localVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
+                    LocalVideoFrames.RenderVideoFrameEx[channelId][uid] = new VideoFrame();
                 }
 
-                localVideoFrame = _localVideoFrames.RenderVideoFrameEx[channelId][uid];
+                localVideoFrame = LocalVideoFrames.RenderVideoFrameEx[channelId][uid];
             }
 
             if (localVideoFrame.height != videoFrameConverted.height ||
@@ -88,8 +85,11 @@ namespace agora_gaming_rtc
                     (int) videoFrameConverted.v_buffer_length);
             localVideoFrame.width = videoFrameConverted.width;
             localVideoFrame.height = videoFrameConverted.height;
+            localVideoFrame.yBufferPtr = videoFrameConverted.y_buffer;
             localVideoFrame.yStride = videoFrameConverted.y_stride;
+            localVideoFrame.uBufferPtr = videoFrameConverted.u_buffer;
             localVideoFrame.uStride = videoFrameConverted.u_stride;
+            localVideoFrame.vBufferPtr = videoFrameConverted.v_buffer;
             localVideoFrame.vStride = videoFrameConverted.v_stride;
             localVideoFrame.rotation = videoFrameConverted.rotation;
             localVideoFrame.renderTimeMs = videoFrameConverted.render_time_ms;
@@ -100,49 +100,49 @@ namespace agora_gaming_rtc
             return localVideoFrame;
         }
 
-        internal bool OnCaptureVideoFrame(ref IrisRtcVideoFrame videoFrame)
+        [MonoPInvokeCallback(typeof(Func_VideoFrameLocal_Native))]
+        internal static bool OnCaptureVideoFrame(IntPtr videoFramePtr)
         {
-            return _videoFrameObserver == null ||
-                   _videoFrameObserver.OnCaptureVideoFrame(ProcessVideoFrameReceived(ref videoFrame, "", 0));
+            return VideoFrameObserver == null ||
+                   VideoFrameObserver.OnCaptureVideoFrame(ProcessVideoFrameReceived(videoFramePtr, "", 0));
         }
 
-        internal bool OnPreEncodeVideoFrame(ref IrisRtcVideoFrame videoFrame)
+        [MonoPInvokeCallback(typeof(Func_VideoFrameLocal_Native))]
+        internal static bool OnPreEncodeVideoFrame(IntPtr videoFramePtr)
         {
-            return _videoFrameObserver == null ||
-                   _videoFrameObserver.OnPreEncodeVideoFrame(ProcessVideoFrameReceived(ref videoFrame, "", 1));
+            return VideoFrameObserver == null ||
+                   VideoFrameObserver.OnPreEncodeVideoFrame(ProcessVideoFrameReceived(videoFramePtr, "", 1));
         }
 
-        internal bool OnRenderVideoFrame(uint uid, ref IrisRtcVideoFrame videoFrame)
+        [MonoPInvokeCallback(typeof(Func_VideoFrameRemote_Native))]
+        internal static bool OnRenderVideoFrame(uint uid, IntPtr videoFramePtr)
         {
             return true;
         }
 
-        internal uint GetObservedFramePosition()
+        [MonoPInvokeCallback(typeof(Func_Uint32_t_Native))]
+        internal static uint GetObservedFramePosition()
         {
-            if (_videoFrameObserver == null)
+            if (VideoFrameObserver == null)
                 return (uint) (VIDEO_OBSERVER_POSITION.POSITION_POST_CAPTURER |
                                VIDEO_OBSERVER_POSITION.POSITION_PRE_RENDERER);
 
-            return (uint) _videoFrameObserver.GetObservedFramePosition();
+            return (uint) VideoFrameObserver.GetObservedFramePosition();
         }
 
-        internal bool IsMultipleChannelFrameWanted()
+        [MonoPInvokeCallback(typeof(Func_Bool_Natvie))]
+        internal static bool IsMultipleChannelFrameWanted()
         {
-            return _videoFrameObserver == null || _videoFrameObserver.IsMultipleChannelFrameWanted();
+            return VideoFrameObserver == null || VideoFrameObserver.IsMultipleChannelFrameWanted();
         }
 
-        internal bool OnRenderVideoFrameEx(string channelId, uint uid, ref IrisRtcVideoFrame videoFrame)
+        [MonoPInvokeCallback(typeof(Func_VideoFrameEx_Native))]
+        internal static bool OnRenderVideoFrameEx(string channelId, uint uid, IntPtr videoFramePtr)
         {
-            if (_videoFrameObserver == null) return true;
+            if (VideoFrameObserver == null) return true;
 
-            return _videoFrameObserver.OnRenderVideoFrameEx(channelId, uid,
-                ProcessVideoFrameReceived(ref videoFrame, channelId, uid));
-        }
-
-        internal void Dispose()
-        {
-            _videoFrameObserver = null;
-            _localVideoFrames = null;
+            return VideoFrameObserver.OnRenderVideoFrameEx(channelId, uid,
+                ProcessVideoFrameReceived(videoFramePtr, channelId, uid));
         }
     }
 }

@@ -1,7 +1,7 @@
 //  AgoraEnums.cs
 //
 //  Created by Yiqing Huang on May 25, 2021.
-//  Modified by Yiqing Huang on June 6, 2021.
+//  Modified by Yiqing Huang on July 21, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
@@ -5194,6 +5194,8 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 */
         public byte[] buffer { set; get; } //data buffer
 
+        public IntPtr bufferPtr { set; get; }
+
         /** The timestamp of the external audio frame. You can use this parameter for the following purposes:
 		 - Restore the order of the captured audio frame.
 		 - Synchronize audio and video frames in video-related scenarios, including where external video sources are used.
@@ -5360,13 +5362,19 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
      */
         public byte[] yBuffer; //Y data buffer
 
+        public IntPtr yBufferPtr;
+
         /** Pointer to the U buffer pointer within the YUV data.
      */
         public byte[] uBuffer; //U data buffer
 
+        public IntPtr uBufferPtr;
+
         /** Pointer to the V buffer pointer within the YUV data.
      */
         public byte[] vBuffer; //V data buffer
+
+        public IntPtr vBufferPtr;
 
         /** Set the rotation of this frame before rendering the video. Supports 0, 90, 180, 270 degrees clockwise.
      */

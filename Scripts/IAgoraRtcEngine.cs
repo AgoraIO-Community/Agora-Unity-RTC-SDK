@@ -43,8 +43,6 @@ namespace agora_gaming_rtc
         public abstract IVideoDeviceManager GetVideoDeviceManager();
 
         public abstract IAgoraRtcVideoDeviceManager GetAgoraRtcVideoDeviceManager();
-        public abstract IAudioRawDataManager GetAudioRawDataManager();
-        public abstract IVideoRawDataManager GetVideoRawDataManager();
         public abstract IAgoraRtcChannel CreateChannel(string channelId);
         public abstract int SetChannelProfile(CHANNEL_PROFILE_TYPE profile);
         public abstract int SetClientRole(CLIENT_ROLE_TYPE role);

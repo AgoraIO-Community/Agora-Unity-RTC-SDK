@@ -490,16 +490,6 @@ namespace agora_gaming_rtc
             return _videoDeviceManagerInstance;
         }
 
-        public override IAudioRawDataManager GetAudioRawDataManager()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IVideoRawDataManager GetVideoRawDataManager()
-        {
-            throw new NotImplementedException();
-        }
-
         public override IAgoraRtcChannel CreateChannel(string channelId)
         {
             if (this == engineInstance[1])

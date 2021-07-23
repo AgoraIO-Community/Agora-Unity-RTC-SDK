@@ -168,6 +168,8 @@ namespace agora_gaming_rtc
         kEngineAddInjectStreamUrl,
         kEngineStartChannelMediaRelay,
         kEngineUpdateChannelMediaRelay,
+        kEnginePauseAllChannelMediaRelay,
+        kEngineResumeAllChannelMediaRelay,
         kEngineStopChannelMediaRelay,
         kEngineRemoveInjectStreamUrl,
         kEngineSendCustomReportMessage,
@@ -233,10 +235,12 @@ namespace agora_gaming_rtc
         kChannelRemoveInjectStreamUrl,
         kChannelStartChannelMediaRelay,
         kChannelUpdateChannelMediaRelay,
+        kChannelPauseAllChannelMediaRelay,
+        kChannelResumeAllChannelMediaRelay,
         kChannelStopChannelMediaRelay,
         kChannelGetConnectionState,
         kChannelEnableRemoteSuperResolution,
-    };
+    }
 
     internal enum ApiTypeAudioDeviceManager
     {

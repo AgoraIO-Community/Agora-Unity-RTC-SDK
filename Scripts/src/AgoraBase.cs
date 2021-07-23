@@ -439,6 +439,9 @@ namespace agora_gaming_rtc
         ERR_MODULE_SUPER_RESOLUTION_NOT_FOUND = 158,
 
         /// @endcond
+        /** 160: The recording operation has been performed.
+   */
+        ERR_ALREADY_IN_RECORDING = 160,
 
         //signaling: 400~600
         ERR_LOGOUT_OTHER = 400, //
@@ -1017,31 +1020,59 @@ namespace agora_gaming_rtc
         AUDIO_MIXING_STATE_FAILED = 714,
     }
 
-    /** The error codes of the local user's audio mixing file.
-*/
-    public enum AUDIO_MIXING_ERROR_TYPE
+    /** The reason of audio mixing state change.
+ */
+    public enum AUDIO_MIXING_REASON_TYPE
     {
         /** 701: The SDK cannot open the audio mixing file.
-    */
-        AUDIO_MIXING_ERROR_CAN_NOT_OPEN = 701,
+   */
+        AUDIO_MIXING_REASON_CAN_NOT_OPEN = 701,
 
         /** 702: The SDK opens the audio mixing file too frequently.
-    */
-        AUDIO_MIXING_ERROR_TOO_FREQUENT_CALL = 702,
+   */
+        AUDIO_MIXING_REASON_TOO_FREQUENT_CALL = 702,
 
         /** 703: The audio mixing file playback is interrupted.
-     */
-        AUDIO_MIXING_ERROR_INTERRUPTED_EOF = 703,
+   */
+        AUDIO_MIXING_REASON_INTERRUPTED_EOF = 703,
 
-        /** 0: The SDK can open the audio mixing file.
-    */
-        AUDIO_MIXING_ERROR_OK = 0,
+        /** 720: The audio mixing is started by user.
+   */
+        AUDIO_MIXING_REASON_STARTED_BY_USER = 720,
+
+        /** 721: The audio mixing file is played once.
+   */
+        AUDIO_MIXING_REASON_ONE_LOOP_COMPLETED = 721,
+
+        /** 722: The audio mixing file is playing in a new loop.
+   */
+        AUDIO_MIXING_REASON_START_NEW_LOOP = 722,
+
+        /** 723: The audio mixing file is all played out.
+   */
+        AUDIO_MIXING_REASON_ALL_LOOPS_COMPLETED = 723,
+
+        /** 724: Playing of audio file is stopped by user.
+   */
+        AUDIO_MIXING_REASON_STOPPED_BY_USER = 724,
+
+        /** 725: Playing of audio file is paused by user.
+   */
+        AUDIO_MIXING_REASON_PAUSED_BY_USER = 725,
+
+        /** 726: Playing of audio file is resumed by user.
+   */
+        AUDIO_MIXING_REASON_RESUMED_BY_USER = 726,
     }
 
     /** Media device states.
  */
     public enum MEDIA_DEVICE_STATE_TYPE
     {
+        /** 0: The device is idle.
+   */
+        MEDIA_DEVICE_STATE_IDLE = 0,
+
         /** 1: The device is active.
   */
         MEDIA_DEVICE_STATE_ACTIVE = 1,
@@ -1140,6 +1171,9 @@ namespace agora_gaming_rtc
         /** 7:capture MultipleForegroundApps.  */
         LOCAL_VIDEO_STREAM_ERROR_CAPTURE_MULTIPLE_FOREGROUND_APPS = 7,
 
+        /** 8:capture not found*/
+        LOCAL_VIDEO_STREAM_ERROR_DEVICE_NOT_FOUND = 8,
+
         /** 11: The shared window is minimized when you call \ref IRtcEngine::startScreenCaptureByWindowId "startScreenCaptureByWindowId" to share a window.
      */
         LOCAL_VIDEO_STREAM_ERROR_SCREEN_CAPTURE_WINDOW_MINIMIZED = 11,
@@ -1207,7 +1241,15 @@ namespace agora_gaming_rtc
 
         /** 5: The local audio encoding fails.
      */
-        LOCAL_AUDIO_STREAM_ERROR_ENCODE_FAILURE = 5
+        LOCAL_AUDIO_STREAM_ERROR_ENCODE_FAILURE = 5,
+
+        /** 6: No recording audio device.
+   */
+        LOCAL_AUDIO_STREAM_ERROR_NO_RECORDING_DEVICE = 6,
+
+        /** 7: No playout audio device.
+   */
+        LOCAL_AUDIO_STREAM_ERROR_NO_PLAYOUT_DEVICE = 7
     }
 
     /** Audio recording qualities.
@@ -1678,6 +1720,20 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     }
 
     /// @endcond
+    public enum VIRTUAL_BACKGROUND_SOURCE_STATE_REASON
+    {
+        VIRTUAL_BACKGROUND_SOURCE_STATE_REASON_SUCCESS = 0,
+
+        // background image does not exist
+        VIRTUAL_BACKGROUND_SOURCE_STATE_REASON_IMAGE_NOT_EXIST = 1,
+
+        // color format is not supported
+        VIRTUAL_BACKGROUND_SOURCE_STATE_REASON_COLOR_FORMAT_NOT_SUPPORTED = 2,
+
+        // The device is not supported
+        VIRTUAL_BACKGROUND_SOURCE_STATE_REASON_DEVICE_NOT_SUPPORTED = 3,
+    }
+
     /** Reasons for a user being offline. */
     public enum USER_OFFLINE_REASON_TYPE
     {
@@ -1757,6 +1813,9 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 
         /** The format of the RTMP or RTMPS streaming URL is not supported. Check whether the URL format is correct. */
         RTMP_STREAM_PUBLISH_ERROR_FORMAT_NOT_SUPPORTED = 10,
+
+        /** The RTMP streaming unpublishes successfully. */
+        RTMP_STREAM_UNPUBLISH_ERROR_OK = 100,
     }
 
     /** Events during the RTMP or RTMPS streaming. */
@@ -1765,6 +1824,10 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         /** An error occurs when you add a background image or a watermark image to the RTMP or RTMPS stream.
    */
         RTMP_STREAMING_EVENT_FAILED_LOAD_IMAGE = 1,
+
+        /** The chosen URL address is already in use for CDN live streaming.
+   */
+        RTMP_STREAMING_EVENT_URL_ALREADY_IN_USE = 2,
     }
 
     /** States of importing an external video stream in the interactive live streaming. */
@@ -4037,6 +4100,70 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public VIDEO_MIRROR_MODE_TYPE mirrorMode { set; get; }
     }
 
+    /** Audio recording configurations.
+ */
+    public class AudioRecordingConfiguration
+    {
+        public AudioRecordingConfiguration()
+        {
+            filePath = null;
+            recordingQuality = AUDIO_RECORDING_QUALITY_TYPE.AUDIO_RECORDING_QUALITY_MEDIUM;
+            recordingPosition = AUDIO_RECORDING_POSITION.AUDIO_RECORDING_POSITION_MIXED_RECORDING_AND_PLAYBACK;
+            recordingSampleRate = 32000;
+        }
+
+        public AudioRecordingConfiguration(string filePath, AUDIO_RECORDING_QUALITY_TYPE recordingQuality,
+            AUDIO_RECORDING_POSITION recordingPosition, int recordingSampleRate)
+        {
+            this.filePath = filePath;
+            this.recordingQuality = recordingQuality;
+            this.recordingPosition = recordingPosition;
+            this.recordingSampleRate = recordingSampleRate;
+        }
+
+        /** Pointer to the absolute file path of the recording file. The string of the file name is in UTF-8.
+
+   The SDK determines the storage format of the recording file by the file name suffix:
+
+   - .wav: Large file size with high fidelity.
+   - .aac: Small file size with low fidelity.
+
+   Ensure that the directory to save the recording file exists and is writable.
+   */
+        public string filePath { set; get; }
+
+        /** Sets the audio recording quality. See #AUDIO_RECORDING_QUALITY_TYPE.
+
+   @note It is effective only when the recording format is AAC.
+   */
+        public AUDIO_RECORDING_QUALITY_TYPE recordingQuality { set; get; }
+
+        /** Sets the audio recording position. See #AUDIO_RECORDING_POSITION.
+   */
+        public AUDIO_RECORDING_POSITION recordingPosition { set; get; }
+
+        /** Sets the sample rate (Hz) of the recording file. Supported values are as follows:
+         * - 16000
+         * - (Default) 32000
+         * - 44100
+         * - 48000
+         */
+        int recordingSampleRate { set; get; }
+    }
+
+    /** Audio recording position. */
+    public enum AUDIO_RECORDING_POSITION
+    {
+        /** The SDK will record the voices of all users in the channel. */
+        AUDIO_RECORDING_POSITION_MIXED_RECORDING_AND_PLAYBACK = 0,
+
+        /** The SDK will record the voice of the local user. */
+        AUDIO_RECORDING_POSITION_RECORDING = 1,
+
+        /** The SDK will record the voices of remote users. */
+        AUDIO_RECORDING_POSITION_MIXED_PLAYBACK = 2,
+    };
+
     /** The video and audio properties of the user displaying the video in the CDN live. Agora supports a maximum of 17 transcoding users in a CDN streaming channel.
 	 */
     public class TranscodingUser
@@ -4899,6 +5026,40 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public float rednessLevel { set; get; }
     }
 
+    /** Background substitutoin meta data.
+ */
+    public class VirtualBackgroundSource
+    {
+        public VirtualBackgroundSource()
+        {
+            color = 0xFFFFFF;
+            source = null;
+            background_source_type = BACKGROUND_SOURCE_TYPE.BACKGROUND_COLOR;
+        }
+
+        /** The source type used to substitude capture image background.
+   */
+        public BACKGROUND_SOURCE_TYPE background_source_type { set; get; }
+
+        /** The background color in RGB hex value. Value only. Do not include a preceeding #. For example, 0xFFB6C1 (light pink). The default value is 0xffffff (white).
+   */
+        public uint color { set; get; }
+
+        /** image file path */
+        public string source { set; get; }
+    }
+
+    /** The source used to substitude image background(foreground is portrait area).
+   */
+    public enum BACKGROUND_SOURCE_TYPE
+    {
+        /** Background source is pure color*/
+        BACKGROUND_COLOR = 1,
+
+        /** Background source is image path, only support png and jpg format*/
+        BACKGROUND_IMG,
+    }
+
     /**
 	 * The UserInfo class.
 	 */
@@ -5043,7 +5204,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
     [Flags]
     public enum VIDEO_OBSERVER_POSITION
     {
-        /**
+        /**USER_OFFLINE_REASON_TYPE
      * 1: The post-capturer position, which corresponds to the video data in the onCaptureVideoFrame callback.
      */
         POSITION_POST_CAPTURER = 1 << 0,
@@ -5115,24 +5276,50 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 	 */
     public enum ENCRYPTION_MODE
     {
-        /** 1: (Default) 128-bit AES encryption, XTS mode.
-		 */
+        /** 1: 128-bit AES encryption, XTS mode.
+   */
         AES_128_XTS = 1,
 
         /** 2: 128-bit AES encryption, ECB mode.
-		 */
+   */
         AES_128_ECB = 2,
 
         /** 3: 256-bit AES encryption, XTS mode.
-		 */
+   */
         AES_256_XTS = 3,
 
+        /// @cond
         /** 4: 128-bit SM4 encryption, ECB mode.
-		 */
+         */
         SM4_128_ECB = 4,
 
+        /// @endcond
+        /** 5: 128-bit AES encryption, GCM mode.
+         *
+         * @since v3.3.1
+         */
+        AES_128_GCM = 5,
+
+        /** 6: 256-bit AES encryption, GCM mode.
+   *
+   * @since v3.3.1
+   */
+        AES_256_GCM = 6,
+
+        /** 7: (Default) 128-bit AES encryption, GCM mode, with custom KDF salt.
+   *
+   * @since v3.4.1
+   */
+        AES_128_GCM2 = 7,
+
+        /** 8: 256-bit AES encryption, GCM mode, with custom KDF salt.
+   *
+   * @since v3.4.1
+   */
+        AES_256_GCM2 = 8,
+
         /** Enumerator boundary.
-		 */
+   */
         MODE_END,
     }
 
@@ -5399,12 +5586,17 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         {
             autoSubscribeAudio = true;
             autoSubscribeVideo = true;
+            publishLocalAudio = true;
+            publishLocalVideo = true;
         }
 
-        public ChannelMediaOptions(bool autoSubscribeAudio, bool autoSubscribeVideo)
+        public ChannelMediaOptions(bool autoSubscribeAudio, bool autoSubscribeVideo, bool publishLocalAudio,
+            bool publishLocalVideo)
         {
             this.autoSubscribeAudio = autoSubscribeAudio;
             this.autoSubscribeVideo = autoSubscribeVideo;
+            this.publishLocalAudio = publishLocalAudio;
+            this.publishLocalVideo = publishLocalVideo;
         }
 
         /** Determines whether to subscribe to audio streams when the user joins the channel:
@@ -5422,6 +5614,24 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 you can call the `muteAllRemoteVideoStreams` method to set whether to subscribe to video streams in the channel.
 		 */
         public bool autoSubscribeVideo { set; get; }
+
+        /** Determines whether to publish audio stream when the user joins a channel:
+         - true: (Default) publish.
+         - false: Do not publish.
+
+         This member serves a similar function to the `muteLocalAudioStream` method. After joining the channel,
+         you can call the `muteLocalAudioStream` method to set whether to publish audio stream in the channel.
+         */
+        public bool publishLocalAudio { set; get; }
+
+        /** Determines whether to publish video stream when the user joins a channel:
+         - true: (Default) publish.
+         - false: Do not publish.
+
+         This member serves a similar function to the `muteLocalVideoStream` method. After joining the channel,
+         you can call the `muteLocalVideoStream` method to set whether to publish video stream in the channel.
+         */
+        public bool publishLocalVideo { set; get; }
     }
 
 
@@ -5432,12 +5642,14 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         {
             encryptionMode = ENCRYPTION_MODE.AES_128_XTS;
             encryptionKey = "";
+            encryptionKdfSalt = new byte[32];
         }
 
-        public EncryptionConfig(ENCRYPTION_MODE encryptionMode, string encryptionKey)
+        public EncryptionConfig(ENCRYPTION_MODE encryptionMode, string encryptionKey, byte[] encryptionKdfSalt)
         {
             this.encryptionMode = encryptionMode;
             this.encryptionKey = encryptionKey;
+            this.encryptionKdfSalt = encryptionKdfSalt;
         }
 
         /**
@@ -5451,6 +5663,15 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
 		 * @note If you do not set an encryption key or set it as NULL, you cannot use the built-in encryption, and the SDK returns #ERR_INVALID_ARGUMENT (-2).
 		 */
         public string encryptionKey { set; get; }
+
+        private byte[] encryptionKdfSalt32 = new byte[32];
+
+        public byte[] encryptionKdfSalt
+        {
+            set { Buffer.BlockCopy(encryptionKdfSalt, 0, encryptionKdfSalt32, 0, 32); }
+
+            get { return encryptionKdfSalt32; }
+        }
     }
 
     public class Metadata

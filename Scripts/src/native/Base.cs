@@ -121,7 +121,7 @@ namespace agora_gaming_rtc
         kEngineSetMixedAudioFrameParameters,
         kEngineAdjustRecordingSignalVolume,
         kEngineAdjustPlaybackSignalVolume,
-        kEngineAdjustLoopbackRecordingSignalVolume,
+        kEngineAdjustLoopBackRecordingSignalVolume,
         kEngineEnableWebSdkInteroperability,
         kEngineSetVideoQualityParameters,
         kEngineSetLocalPublishFallbackOption,
@@ -164,6 +164,7 @@ namespace agora_gaming_rtc
         kEngineAddVideoWaterMark,
         kEngineClearVideoWaterMarks,
         kEngineSetBeautyEffectOptions,
+        kEngineEnableVirtualBackground,
         kEngineAddInjectStreamUrl,
         kEngineStartChannelMediaRelay,
         kEngineUpdateChannelMediaRelay,
@@ -174,6 +175,7 @@ namespace agora_gaming_rtc
         kEngineEnableRemoteSuperResolution,
         kEngineRegisterMediaMetadataObserver,
         kEngineSetParameters,
+        kEngineSetLocalAccessPoint,
 
         kEngineUnRegisterMediaMetadataObserver,
         kEngineSetMaxMetadataSize,
@@ -213,6 +215,8 @@ namespace agora_gaming_rtc
         kChannelSetRemoteRenderMode,
         kChannelSetDefaultMuteAllRemoteAudioStreams,
         kChannelSetDefaultMuteAllRemoteVideoStreams,
+        kChannelMuteLocalAudioStream,
+        kChannelMuteLocalVideoStream,
         kChannelMuteAllRemoteAudioStreams,
         kChannelAdjustUserPlaybackSignalVolume,
         kChannelMuteRemoteAudioStream,
@@ -232,7 +236,7 @@ namespace agora_gaming_rtc
         kChannelStopChannelMediaRelay,
         kChannelGetConnectionState,
         kChannelEnableRemoteSuperResolution,
-    }
+    };
 
     internal enum ApiTypeAudioDeviceManager
     {

@@ -1071,6 +1071,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public override int StartAudioRecording(string filePath, int sampleRate, AUDIO_RECORDING_QUALITY_TYPE quality)
         {
             var param = new
@@ -1078,6 +1079,17 @@ namespace agora_gaming_rtc
                 filePath,
                 sampleRate,
                 quality
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineStartAudioRecording,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int StartAudioRecording(AudioRecordingConfiguration config)
+        {
+            var param = new
+            {
+                config
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineStartAudioRecording,
@@ -1092,6 +1104,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public override int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle)
         {
             var param = new
@@ -1100,6 +1113,20 @@ namespace agora_gaming_rtc
                 loopback,
                 replace,
                 cycle
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineStartAudioMixing,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle, int startPos)
+        {
+            var param = new
+            {
+                filePath,
+                loopback,
+                replace,
+                cycle,
+                startPos
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineStartAudioMixing,
                 JsonMapper.ToJson(param), out _result);
@@ -1190,9 +1217,21 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public override int GetAudioMixingDuration()
         {
             var param = new { };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineGetAudioMixingDuration,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int GetAudioMixingDuration(string filePath)
+        {
+            var param = new
+            {
+                filePath
+            };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineGetAudioMixingDuration,
                 JsonMapper.ToJson(param), out _result);
@@ -1268,6 +1307,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public override int PlayEffect(int soundId, string filePath, int loopCount, double pitch = 1.0,
             double pan = 0.0, int gain = 100, bool publish = false)
         {
@@ -1280,6 +1320,24 @@ namespace agora_gaming_rtc
                 pan,
                 gain,
                 publish
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEnginePlayEffect,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int PlayEffect(int soundId, string filePath, int loopCount, int startPos, double pitch = 1.0,
+            double pan = 0.0, int gain = 100, bool publish = false)
+        {
+            var param = new
+            {
+                soundId,
+                filePath,
+                loopCount,
+                pitch,
+                pan,
+                gain,
+                publish,
+                startPos
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEnginePlayEffect,
                 JsonMapper.ToJson(param), out _result);
@@ -1354,6 +1412,34 @@ namespace agora_gaming_rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineResumeAllEffects,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int GetEffectDuration()
+        {
+            var param = new { };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineGetEffectDuration,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int SetEffectPosition(int soundId, int pos)
+        {
+            var param = new
+            {
+                soundId,
+                pos
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineSetEffectPosition,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int GetEffectCurrentPosition(int soundId)
+        {
+            var param = new
+            {
+                soundId
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineGetEffectCurrentPosition,
                 JsonMapper.ToJson(param), out _result);
         }
 
@@ -1718,6 +1804,17 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        public override int AdjustLoopbackRecordingSignalVolume(int volume)
+        {
+            var param = new
+            {
+                volume
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineAdjustLoopBackRecordingSignalVolume,
+                JsonMapper.ToJson(param), out _result);
+        }
+
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public override int EnableWebSdkInteroperability(bool enabled)
         {
@@ -2057,7 +2154,12 @@ namespace agora_gaming_rtc
             var param = new
             {
                 enabled,
-                config
+                config = new
+                {
+                    config.encryptionMode,
+                    config.encryptionKey,
+                    config.encryptionKdfSalt
+                }
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineEnableEncryption,
                 JsonMapper.ToJson(param), out _result);
@@ -2183,6 +2285,18 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
                 ApiTypeEngine.kEngineSetBeautyEffectOptions,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int EnableVirtualBackground(bool enabled, VirtualBackgroundSource backgroundSource)
+        {
+            var param = new
+            {
+                enabled,
+                backgroundSource
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineEnableVirtualBackground,
                 JsonMapper.ToJson(param), out _result);
         }
 
@@ -2953,7 +3067,7 @@ namespace agora_gaming_rtc
                         {
                             EngineEventHandlerArr[0].OnAudioMixingStateChanged(
                                 (AUDIO_MIXING_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
-                                (AUDIO_MIXING_ERROR_TYPE) AgoraJson.GetData<int>(data, "errorCode"));
+                                (AUDIO_MIXING_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
                         }
                     });
                     break;
@@ -3084,6 +3198,17 @@ namespace agora_gaming_rtc
                         if (EngineEventHandlerArr[0] != null)
                         {
                             EngineEventHandlerArr[0].OnMediaEngineStartCallSuccess();
+                        }
+                    });
+                    break;
+                case "onVirtualBackgroundSourceEnabled":
+                    CallbackObjectArr[0]._CallbackQueue.EnQueue(() =>
+                    {
+                        if (EngineEventHandlerArr[0] != null)
+                        {
+                            EngineEventHandlerArr[0].OnVirtualBackgroundSourceEnabled(
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"),
+                                (VIRTUAL_BACKGROUND_SOURCE_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
                         }
                     });
                     break;
@@ -3898,7 +4023,7 @@ namespace agora_gaming_rtc
                         {
                             EngineEventHandlerArr[1].OnAudioMixingStateChanged(
                                 (AUDIO_MIXING_STATE_TYPE) AgoraJson.GetData<int>(data, "state"),
-                                (AUDIO_MIXING_ERROR_TYPE) AgoraJson.GetData<int>(data, "errorCode"));
+                                (AUDIO_MIXING_REASON_TYPE) AgoraJson.GetData<int>(data, "reason"));
                         }
                     });
                     break;
@@ -4029,6 +4154,17 @@ namespace agora_gaming_rtc
                         if (EngineEventHandlerArr[1] != null)
                         {
                             EngineEventHandlerArr[1].OnMediaEngineStartCallSuccess();
+                        }
+                    });
+                    break;
+                case "onVirtualBackgroundSourceEnabled":
+                    CallbackObjectArr[1]._CallbackQueue.EnQueue(() =>
+                    {
+                        if (EngineEventHandlerArr[1] != null)
+                        {
+                            EngineEventHandlerArr[1].OnVirtualBackgroundSourceEnabled(
+                                (bool) AgoraJson.GetData<bool>(data, "enabled"),
+                                (VIRTUAL_BACKGROUND_SOURCE_STATE_REASON) AgoraJson.GetData<int>(data, "reason"));
                         }
                     });
                     break;

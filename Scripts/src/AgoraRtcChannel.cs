@@ -174,6 +174,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.PublishWarning, false)]
         public override int Publish()
         {
             var param = new
@@ -184,6 +185,7 @@ namespace agora_gaming_rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
+        [Obsolete(ObsoleteMethodWarning.UnpublishWarning, false)]
         public override int Unpublish()
         {
             var param = new
@@ -252,7 +254,12 @@ namespace agora_gaming_rtc
             {
                 channelId = _channelId,
                 enabled,
-                config
+                config = new
+                {
+                    config.encryptionMode,
+                    config.encryptionKey,
+                    config.encryptionKdfSalt
+                }
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel, ApiTypeChannel.kChannelEnableEncryption,
                 JsonMapper.ToJson(param), out _result);
@@ -401,6 +408,30 @@ namespace agora_gaming_rtc
             };
             return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
                 ApiTypeChannel.kChannelSetDefaultMuteAllRemoteVideoStreams,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int MuteLocalAudioStream(bool mute)
+        {
+            var param = new
+            {
+                channelId = _channelId,
+                mute
+            };
+            return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
+                ApiTypeChannel.kChannelMuteLocalAudioStream,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        public override int MuteLocalVideoStream(bool mute)
+        {
+            var param = new
+            {
+                channelId = _channelId,
+                mute
+            };
+            return AgoraRtcNative.CallIrisRtcChannelApi(_irisRtcChannel,
+                ApiTypeChannel.kChannelMuteLocalVideoStream,
                 JsonMapper.ToJson(param), out _result);
         }
 

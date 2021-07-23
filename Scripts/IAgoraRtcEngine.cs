@@ -126,9 +126,17 @@ namespace agora_gaming_rtc
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int StartAudioRecording(string filePath, AUDIO_RECORDING_QUALITY_TYPE quality);
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int StartAudioRecording(string filePath, int sampleRate, AUDIO_RECORDING_QUALITY_TYPE quality);
+
+        public abstract int StartAudioRecording(AudioRecordingConfiguration config);
+
         public abstract int StopAudioRecording();
+
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle);
+
+        public abstract int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle, int startPos);
         public abstract int StopAudioMixing();
         public abstract int PauseAudioMixing();
         public abstract int ResumeAudioMixing();
@@ -141,7 +149,12 @@ namespace agora_gaming_rtc
         public abstract int GetAudioMixingPlayoutVolume();
         public abstract int AdjustAudioMixingPublishVolume(int volume);
         public abstract int GetAudioMixingPublishVolume();
+
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int GetAudioMixingDuration();
+
+        public abstract int GetAudioMixingDuration(string filePath);
+
         public abstract int GetAudioMixingCurrentPosition();
         public abstract int SetAudioMixingPosition(int pos);
         public abstract int SetAudioMixingPitch(int pitch);
@@ -150,7 +163,11 @@ namespace agora_gaming_rtc
         public abstract int SetVolumeOfEffect(int soundId, int volume);
         public abstract int EnableFaceDetection(bool enable);
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int PlayEffect(int soundId, string filePath, int loopCount, double pitch = 1.0,
+            double pan = 0.0, int gain = 100, bool publish = false);
+
+        public abstract int PlayEffect(int soundId, string filePath, int loopCount, int startPos, double pitch = 1.0,
             double pan = 0.0, int gain = 100, bool publish = false);
 
         public abstract int StopEffect(int soundId);
@@ -161,6 +178,9 @@ namespace agora_gaming_rtc
         public abstract int PauseAllEffects();
         public abstract int ResumeEffect(int soundId);
         public abstract int ResumeAllEffects();
+        public abstract int GetEffectDuration();
+        public abstract int SetEffectPosition(int soundId, int pos);
+        public abstract int GetEffectCurrentPosition(int soundId);
         public abstract int EnableDeepLearningDenoise(bool enable);
         public abstract int EnableSoundPositionIndication(bool enabled);
         public abstract int SetRemoteVoicePosition(uint uid, double pan, double gain);
@@ -218,6 +238,7 @@ namespace agora_gaming_rtc
         public abstract int SetMixedAudioFrameParameters(int sampleRate, int samplesPerCall);
         public abstract int AdjustRecordingSignalVolume(int volume);
         public abstract int AdjustPlaybackSignalVolume(int volume);
+        public abstract int AdjustLoopbackRecordingSignalVolume(int volume);
 
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int EnableWebSdkInteroperability(bool enabled);
@@ -283,6 +304,7 @@ namespace agora_gaming_rtc
         public abstract int AddVideoWatermark(string watermarkUrl, WatermarkOptions options);
         public abstract int ClearVideoWatermarks();
         public abstract int SetBeautyEffectOptions(bool enabled, BeautyOptions options);
+        public abstract int EnableVirtualBackground(bool enabled, VirtualBackgroundSource backgroundSource);
         public abstract int AddInjectStreamUrl(string url, InjectStreamConfig config);
         public abstract int StartChannelMediaRelay(ChannelMediaRelayConfiguration configuration);
         public abstract int UpdateChannelMediaRelay(ChannelMediaRelayConfiguration configuration);
@@ -495,7 +517,7 @@ namespace agora_gaming_rtc
         {
         }
 
-        public virtual void OnAudioMixingStateChanged(AUDIO_MIXING_STATE_TYPE state, AUDIO_MIXING_ERROR_TYPE errorCode)
+        public virtual void OnAudioMixingStateChanged(AUDIO_MIXING_STATE_TYPE state, AUDIO_MIXING_REASON_TYPE reason)
         {
         }
 
@@ -550,6 +572,11 @@ namespace agora_gaming_rtc
         }
 
         public virtual void OnMediaEngineStartCallSuccess()
+        {
+        }
+
+        public virtual void OnVirtualBackgroundSourceEnabled(bool enabled,
+            VIRTUAL_BACKGROUND_SOURCE_STATE_REASON reason)
         {
         }
 

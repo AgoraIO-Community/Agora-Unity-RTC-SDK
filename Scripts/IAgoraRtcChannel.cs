@@ -25,8 +25,13 @@ namespace agora_gaming_rtc
         public abstract int JoinChannel(string token, string info, uint uid, ChannelMediaOptions options);
         public abstract int JoinChannelWithUserAccount(string token, string userAccount, ChannelMediaOptions options);
         public abstract int LeaveChannel();
+
+        [Obsolete(ObsoleteMethodWarning.PublishWarning, false)]
         public abstract int Publish();
+
+        [Obsolete(ObsoleteMethodWarning.UnpublishWarning, false)]
         public abstract int Unpublish();
+
         public abstract string ChannelId();
         public abstract string GetCallId();
         public abstract int RenewToken(string token);
@@ -57,6 +62,8 @@ namespace agora_gaming_rtc
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int SetDefaultMuteAllRemoteVideoStreams(bool mute);
 
+        public abstract int MuteLocalAudioStream(bool mute);
+        public abstract int MuteLocalVideoStream(bool mute);
         public abstract int MuteAllRemoteAudioStreams(bool mute);
         public abstract int AdjustUserPlaybackSignalVolume(uint uid, int volume);
         public abstract int MuteRemoteAudioStream(uint userId, bool mute);

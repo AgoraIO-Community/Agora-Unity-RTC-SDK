@@ -133,25 +133,22 @@ public class BL_BuildPostProcess
         PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
         fileGuid = proj.AddFile(AgorafdkaacFrameworkPath, "Frameworks/" + AgorafdkaacFrameworkPath, PBXSourceTree.Sdk);
         PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
-        if (File.Exists(AgoraffmpegFrameworkPath))
-        {
-            fileGuid = proj.AddFile(AgoraffmpegFrameworkPath, "Frameworks/" + AgoraffmpegFrameworkPath, PBXSourceTree.Sdk);
-            PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
-        }
         fileGuid = proj.AddFile(AgoraSoundTouchFrameworkPath, "Frameworks/" + AgoraSoundTouchFrameworkPath, PBXSourceTree.Sdk);
         PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
         fileGuid = proj.AddFile(AgoraAIDenoiseExtensionFrameworkPath, "Frameworks/" + AgoraAIDenoiseExtensionFrameworkPath, PBXSourceTree.Sdk);
         PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
         fileGuid = proj.AddFile(AgoraCoreFrameworkPath, "Frameworks/" + AgoraCoreFrameworkPath, PBXSourceTree.Sdk);
         PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
-        if (File.Exists(AgoraDav1dExtensionFrameworkPath)){
-            fileGuid = proj.AddFile(AgoraDav1dExtensionFrameworkPath, "Frameworks/" + AgoraDav1dExtensionFrameworkPath, PBXSourceTree.Sdk);
-            PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
-        }
-        if (File.Exists(AgoraJNDExtensionFrameworkPath)){
-            fileGuid = proj.AddFile(AgoraJNDExtensionFrameworkPath, "Frameworks/" + AgoraJNDExtensionFrameworkPath, PBXSourceTree.Sdk);
-            PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
-        }
+
+        // Start Tag for video SDK only (If the framework is video only, please place it inside the scope)
+        fileGuid = proj.AddFile(AgoraffmpegFrameworkPath, "Frameworks/" + AgoraffmpegFrameworkPath, PBXSourceTree.Sdk);
+        PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
+        fileGuid = proj.AddFile(AgoraDav1dExtensionFrameworkPath, "Frameworks/" + AgoraDav1dExtensionFrameworkPath, PBXSourceTree.Sdk);
+        PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
+        fileGuid = proj.AddFile(AgoraJNDExtensionFrameworkPath, "Frameworks/" + AgoraJNDExtensionFrameworkPath, PBXSourceTree.Sdk);
+        PBXProjectExtensions.AddFileToEmbedFrameworks(proj, target, fileGuid);
+        // End Tag
+
         proj.SetBuildProperty(target, "LD_RUNPATH_SEARCH_PATHS", "$(inherited) @executable_path/Frameworks");
 
         // done, write to the project file

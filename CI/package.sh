@@ -65,8 +65,10 @@ echo "[Unity CI] copying scripts ..."
 mkdir "$PLUGIN_PATH"/Agora-Unity-RTC-SDK
 cp -r "$ROOT_DIR"/Editor "$PLUGIN_PATH"/Agora-Unity-RTC-SDK
 if [ "$SDK_TYPE" == "audio" ]; then
-    sed -i 's/var cameraPermission = "NSCameraUsageDescription";//g' "$PLUGIN_PATH"/Agora-Unity-RTC-SDK/Editor/BL_BuildPostProcess.cs
-    sed -i '' 's/rootDic.SetString(cameraPermission, "Video need to use camera");//' "$PLUGIN_PATH"/Agora-Unity-RTC-SDK/Editor/BL_BuildPostProcess.cs
+    POST_PROCESS_SCRIPT_PATH="$PLUGIN_PATH"/Agora-Unity-RTC-SDK/Editor/BL_BuildPostProcess.cs
+    sed -i '' 's/var cameraPermission = "NSCameraUsageDescription";//' "$POST_PROCESS_SCRIPT_PATH"
+    sed -i '' 's/rootDic.SetString(cameraPermission, "Video need to use camera");//' "$POST_PROCESS_SCRIPT_PATH"
+    perl -0777 -pi -e 's|Start Tag for video SDK only[\s\S]*End Tag||g' "$POST_PROCESS_SCRIPT_PATH"
 fi
 cp -r "$ROOT_DIR"/Scripts "$PLUGIN_PATH"/Agora-Unity-RTC-SDK
 cp -r "$ROOT_DIR"/AgoraTools "$PLUGIN_PATH"/Agora-Unity-RTC-SDK

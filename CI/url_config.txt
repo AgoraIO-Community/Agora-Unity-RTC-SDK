@@ -1,0 +1,13 @@
+>>>audio
+IOS=
+ANDROID=
+MAC=
+WIN=
+<<<end
+
+>>>video
+IOS=https://artifactory.agoralab.co/artifactory/CSDC_repo/IRIS/3.4.6/iris_3.4.6_RTC_iOS_20210723_0643.zip
+ANDROID=https://artifactory.agoralab.co/artifactory/CSDC_repo/IRIS/3.4.6/iris_3.4.6_RTC_Android_20210723_0638.zip
+MAC=https://artifactory.agoralab.co/artifactory/CSDC_repo/IRIS/3.4.6/iris_3.4.6_RTC_Mac_20210723_0622.zip
+WIN=https://artifactory.agoralab.co/artifactory/CSDC_repo/IRIS/3.4.6/iris_3.4.6_RTC_Windows_20210723_0625.zip
+<<<end

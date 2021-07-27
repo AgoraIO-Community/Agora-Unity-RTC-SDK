@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace LitJson
+namespace agora.rtc.LitJson
 {
     public enum JsonToken
     {

@@ -8,7 +8,7 @@
 
 using System;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     using uid_t = UInt32;
     using view_t = UInt64;
@@ -5788,7 +5788,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         /** The App ID issued to you by Agora. See [How to get the App ID](https://docs.agora.io/en/Agora%20Platform/token#getappid).
          * Only users in apps with the same App ID can join the same channel and communicate with each other. Use an 
          * App ID to initialize only one `IRtcEngine` instance. To change your App ID, call 
-         * {@link agora_gaming_rtc.IRtcEngine.Destroy Destroy} to destroy the current `IRtcEngine` instance and then 
+         * {@link agora.rtc.IRtcEngine.Destroy Destroy} to destroy the current `IRtcEngine` instance and then 
          * call this method to initialize an `IRtcEngine` instance with the new App ID.
          */
         public string appId { get; set; }
@@ -5800,7 +5800,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
          */
         public AREA_CODE areaCode { get; set; }
 
-        /** The configuration of the log files that the SDK outputs. See {@link agora_gaming_rtc.LogConfig LogConfig}.
+        /** The configuration of the log files that the SDK outputs. See {@link agora.rtc.LogConfig LogConfig}.
          * 
          * @since v3.3.1
          * 

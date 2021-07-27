@@ -10,10 +10,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
-using LitJson;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
+    using LitJson;
     using IrisRtcChannelPtr = IntPtr;
     using IrisEventHandlerHandleNative = IntPtr;
 

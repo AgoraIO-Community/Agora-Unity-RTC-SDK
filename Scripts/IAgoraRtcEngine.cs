@@ -8,7 +8,7 @@
 
 using System;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     using view_t = UInt64;
 

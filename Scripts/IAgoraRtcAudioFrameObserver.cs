@@ -6,7 +6,7 @@
 //  Copyright © 2021 Agora. All rights reserved.
 //
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     public abstract class IAgoraRtcAudioFrameObserver
     {

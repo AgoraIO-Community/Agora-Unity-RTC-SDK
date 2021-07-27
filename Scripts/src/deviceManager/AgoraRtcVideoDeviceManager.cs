@@ -7,11 +7,11 @@
 //
 
 using System;
-using System.Text;
-using LitJson;
 
-namespace agora_gaming_rtc
+
+namespace agora.rtc
 {
+    using LitJson;
     using view_t = IntPtr;
     using IrisRtcDeviceManagerPtr = IntPtr;
 
@@ -134,7 +134,7 @@ namespace agora_gaming_rtc
         {
             return (int) ERROR_CODE_TYPE.ERR_FAILED;
         }
-        
+
         internal void Dispose()
         {
             Dispose(true);
@@ -198,7 +198,7 @@ namespace agora_gaming_rtc
             return _agoraRtcVideoDeviceManager.CallIrisRtcVideoDeviceManagerApi(
                 ApiTypeVideoDeviceManager.kVDMGetDevice, JsonMapper.ToJson(param), out deviceId);
         }
-        
+
         ~VideoDeviceManager()
         {
             Dispose(false);

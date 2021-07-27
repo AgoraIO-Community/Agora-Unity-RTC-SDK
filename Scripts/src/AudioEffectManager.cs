@@ -8,7 +8,7 @@
 
 using System;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     [Obsolete(ObsoleteMethodWarning.IAudioEffectManagerWarning, false)]
     public abstract class IAudioEffectManager

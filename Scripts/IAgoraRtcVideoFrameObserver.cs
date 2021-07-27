@@ -7,7 +7,7 @@
 //
 
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     public class IAgoraRtcVideoFrameObserver
     {

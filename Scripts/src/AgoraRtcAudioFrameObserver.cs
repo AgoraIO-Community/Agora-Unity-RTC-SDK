@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     internal static class RtcAudioFrameObserverNative
     {

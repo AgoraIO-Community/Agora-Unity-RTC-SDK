@@ -9,7 +9,7 @@
 
 using UnityEngine;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     internal class AgoraLog
     {

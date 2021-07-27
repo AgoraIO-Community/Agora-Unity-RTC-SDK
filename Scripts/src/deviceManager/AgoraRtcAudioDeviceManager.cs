@@ -7,10 +7,10 @@
 //
 
 using System;
-using LitJson;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
+    using LitJson;
     using IrisRtcDeviceManagerPtr = IntPtr;
 
     public sealed class AgoraRtcAudioPlaybackDeviceManager : IAgoraRtcAudioPlaybackDeviceManager

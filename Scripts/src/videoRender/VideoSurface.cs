@@ -12,7 +12,7 @@ using UnityEngine.UI;
 using System.Runtime.InteropServices;
 
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
     public enum AgoraVideoSurfaceType
     {

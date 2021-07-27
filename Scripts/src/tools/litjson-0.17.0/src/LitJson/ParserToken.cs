@@ -9,7 +9,7 @@
 #endregion
 
 
-namespace LitJson
+namespace agora.rtc.LitJson
 {
     internal enum ParserToken
     {

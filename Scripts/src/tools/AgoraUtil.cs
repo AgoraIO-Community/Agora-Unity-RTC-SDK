@@ -8,10 +8,11 @@
 
 using System;
 using System.Runtime.InteropServices;
-using LitJson;
 
-namespace agora_gaming_rtc
+namespace agora.rtc
 {
+    using LitJson;
+
     public class AgoraJson
     {
         internal static object GetData<T>(string data, string key)
@@ -152,10 +153,7 @@ namespace agora_gaming_rtc
 
         public string Result
         {
-            get
-            {
-                return resultChar;
-            }
+            get { return resultChar; }
         }
     }
 }

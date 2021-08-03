@@ -9,13 +9,13 @@
 #
 #  $3 API Key
 #
-#  $4 macOS plugin URL (optional)
+#  $4 iris_url_mac (optional)
 #
-#  $5 Windows plugin URL (optional)
+#  $5 iris_url_windows (optional)
 #
-#  $6 iOS plugin URL (optional)
+#  $6 iris_url_ios (optional)
 #
-#  $7 Android plugin URL (optional)
+#  $7 iris_url_android (optional)
 #
 #============================================================================== 
 

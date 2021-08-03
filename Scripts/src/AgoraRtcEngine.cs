@@ -98,7 +98,8 @@ namespace agora.rtc
 
             if (disposing)
             {
-                AgoraRtcNative.Detach(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine), _irisVideoFrameBufferManagerPtr);
+                AgoraRtcNative.Detach(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine),
+                    _irisVideoFrameBufferManagerPtr);
                 // AgoraRtcNative.FreeIrisVideoFrameBufferManager(_irisVideoFrameBufferManagerPtr); // Currently, iris free this buffer when calling Detach function.
                 _irisVideoFrameBufferManagerPtr = IntPtr.Zero;
 
@@ -303,13 +304,15 @@ namespace agora.rtc
             _irisEngineEventHandlerHandleNative = IntPtr.Zero;
         }
 
-        public override void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver)
+        public override void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver,
+            bool needByteArray = true)
         {
             if (this == engineInstance[1])
                 throw new NotSupportedException(
                     "The `RegisterAudioFrameObserver` method is not supported by the sub-process engine.");
 
             SetIrisAudioFrameObserver();
+            RtcAudioFrameObserverNative.needByteArray = needByteArray;
             RtcAudioFrameObserverNative.AudioFrameObserver = audioFrameObserver;
         }
 
@@ -319,6 +322,7 @@ namespace agora.rtc
                 throw new NotSupportedException(
                     "The `UnRegisterAudioFrameObserver` method is not supported by the sub-process engine.");
 
+            RtcAudioFrameObserverNative.needByteArray = false;
             UnSetIrisAudioFrameObserver();
         }
 
@@ -374,13 +378,15 @@ namespace agora.rtc
             Marshal.FreeHGlobal(_irisRtcCAudioFrameObserverNative);
         }
 
-        public override void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver)
+        public override void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver,
+            bool needByteArray = true)
         {
             if (this == engineInstance[1])
                 throw new NotSupportedException(
                     "The `RegisterVideoFrameObserver` method is not supported by the sub-process engine.");
 
             SetIrisVideoFrameObserver();
+            RtcVideoFrameObserverNative.needByteArray = needByteArray;
             RtcVideoFrameObserverNative.VideoFrameObserver = videoFrameObserver;
         }
 
@@ -390,6 +396,7 @@ namespace agora.rtc
                 throw new NotSupportedException(
                     "The `UnRegisterVideoFrameObserver` method is not supported by the sub-process engine.");
 
+            RtcVideoFrameObserverNative.needByteArray = false;
             UnSetIrisVideoFrameObserver();
         }
 

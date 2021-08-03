@@ -16,6 +16,7 @@ namespace agora.rtc
     internal static class RtcVideoFrameObserverNative
     {
         internal static IAgoraRtcVideoFrameObserver VideoFrameObserver;
+        internal static bool needByteArray = false;
 
         private static class LocalVideoFrames
         {
@@ -29,7 +30,7 @@ namespace agora.rtc
         private static VideoFrame ProcessVideoFrameReceived(IntPtr videoFramePtr, string channelId, uint uid)
         {
             var videoFrame = (IrisRtcVideoFrame) (Marshal.PtrToStructure(videoFramePtr, typeof(IrisRtcVideoFrame)) ??
-                                                        new IrisRtcVideoFrame());
+                                                  new IrisRtcVideoFrame());
             var localVideoFrame = new VideoFrame();
 
             var ifConverted = VideoFrameObserver.GetVideoFormatPreference() != VIDEO_FRAME_TYPE.FRAME_TYPE_YUV420;
@@ -64,25 +65,29 @@ namespace agora.rtc
                 localVideoFrame = LocalVideoFrames.RenderVideoFrameEx[channelId][uid];
             }
 
-            if (localVideoFrame.height != videoFrameConverted.height ||
-                localVideoFrame.yStride != videoFrameConverted.y_stride ||
-                localVideoFrame.uStride != videoFrameConverted.u_stride ||
-                localVideoFrame.vStride != videoFrameConverted.v_stride)
+            if (needByteArray)
             {
-                localVideoFrame.yBuffer = new byte[videoFrameConverted.y_buffer_length];
-                localVideoFrame.uBuffer = new byte[videoFrameConverted.u_buffer_length];
-                localVideoFrame.vBuffer = new byte[videoFrameConverted.v_buffer_length];
+                if (localVideoFrame.height != videoFrameConverted.height ||
+                    localVideoFrame.yStride != videoFrameConverted.y_stride ||
+                    localVideoFrame.uStride != videoFrameConverted.u_stride ||
+                    localVideoFrame.vStride != videoFrameConverted.v_stride)
+                {
+                    localVideoFrame.yBuffer = new byte[videoFrameConverted.y_buffer_length];
+                    localVideoFrame.uBuffer = new byte[videoFrameConverted.u_buffer_length];
+                    localVideoFrame.vBuffer = new byte[videoFrameConverted.v_buffer_length];
+                }
+
+                if (videoFrameConverted.y_buffer != IntPtr.Zero)
+                    Marshal.Copy(videoFrameConverted.y_buffer, localVideoFrame.yBuffer, 0,
+                        (int) videoFrameConverted.y_buffer_length);
+                if (videoFrameConverted.u_buffer != IntPtr.Zero)
+                    Marshal.Copy(videoFrameConverted.u_buffer, localVideoFrame.uBuffer, 0,
+                        (int) videoFrameConverted.u_buffer_length);
+                if (videoFrameConverted.v_buffer != IntPtr.Zero)
+                    Marshal.Copy(videoFrameConverted.v_buffer, localVideoFrame.vBuffer, 0,
+                        (int) videoFrameConverted.v_buffer_length);
             }
 
-            if (videoFrameConverted.y_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.y_buffer, localVideoFrame.yBuffer, 0,
-                    (int) videoFrameConverted.y_buffer_length);
-            if (videoFrameConverted.u_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.u_buffer, localVideoFrame.uBuffer, 0,
-                    (int) videoFrameConverted.u_buffer_length);
-            if (videoFrameConverted.v_buffer != IntPtr.Zero)
-                Marshal.Copy(videoFrameConverted.v_buffer, localVideoFrame.vBuffer, 0,
-                    (int) videoFrameConverted.v_buffer_length);
             localVideoFrame.width = videoFrameConverted.width;
             localVideoFrame.height = videoFrameConverted.height;
             localVideoFrame.yBufferPtr = videoFrameConverted.y_buffer;

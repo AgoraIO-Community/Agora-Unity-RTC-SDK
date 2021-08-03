@@ -16,6 +16,7 @@ namespace agora.rtc
     internal static class RtcAudioFrameObserverNative
     {
         internal static IAgoraRtcAudioFrameObserver AudioFrameObserver;
+        internal static bool needByteArray = false;
 
         private static class LocalAudioFrames
         {
@@ -30,7 +31,7 @@ namespace agora.rtc
         private static AudioFrame ProcessAudioFrameReceived(IntPtr audioFramePtr, string channelId, uint uid)
         {
             var audioFrame = (IrisRtcAudioFrame) (Marshal.PtrToStructure(audioFramePtr, typeof(IrisRtcAudioFrame)) ??
-                                                        new IrisRtcAudioFrame());
+                                                  new IrisRtcAudioFrame());
             var localAudioFrame = new AudioFrame();
 
             if (channelId == "")
@@ -65,15 +66,19 @@ namespace agora.rtc
                 localAudioFrame = LocalAudioFrames.AudioFrameBeforeMixingEx[channelId][uid];
             }
 
-            if (localAudioFrame.channels != audioFrame.channels ||
-                localAudioFrame.samples != audioFrame.samples ||
-                localAudioFrame.bytesPerSample != audioFrame.bytes_per_sample)
+            if (needByteArray)
             {
-                localAudioFrame.buffer = new byte[audioFrame.buffer_length];
+                if (localAudioFrame.channels != audioFrame.channels ||
+                    localAudioFrame.samples != audioFrame.samples ||
+                    localAudioFrame.bytesPerSample != audioFrame.bytes_per_sample)
+                {
+                    localAudioFrame.buffer = new byte[audioFrame.buffer_length];
+                }
+
+                if (audioFrame.buffer != IntPtr.Zero)
+                    Marshal.Copy(audioFrame.buffer, localAudioFrame.buffer, 0, (int) audioFrame.buffer_length);
             }
 
-            if (audioFrame.buffer != IntPtr.Zero)
-                Marshal.Copy(audioFrame.buffer, localAudioFrame.buffer, 0, (int) audioFrame.buffer_length);
             localAudioFrame.type = audioFrame.type;
             localAudioFrame.samples = audioFrame.samples;
             localAudioFrame.bufferPtr = audioFrame.buffer;

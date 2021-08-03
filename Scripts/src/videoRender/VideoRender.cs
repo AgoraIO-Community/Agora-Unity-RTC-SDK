@@ -25,8 +25,8 @@ namespace agora.rtc
     internal class VideoStreamManager : IVideoStreamManager, IDisposable
     {
         private IAgoraRtcEngine _agoraRtcEngine;
-        private IrisRtcRendererCacheConfigHandle _irisRtcRendererCacheConfigHandle;
-        private IrisRtcCRendererCacheConfigNative _renderCacheConfig;
+        private IrisRtcRendererCacheConfigHandle _irisVideoFrameBufferDelegateHandle;
+        private IrisRtcCVideoFrameBufferNative _videoFrameBuffer;
         private bool _disposed;
 
         public VideoStreamManager(IAgoraRtcEngine agoraRtcEngine)
@@ -43,33 +43,37 @@ namespace agora.rtc
         {
             if (_agoraRtcEngine == null)
             {
-                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}", ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
-                return (int)ERROR_CODE_TYPE.ERR_NOT_INITIALIZED;
+                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}",
+                    ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
+                return (int) ERROR_CODE_TYPE.ERR_NOT_INITIALIZED;
             }
 
             IntPtr irisEngine = (_agoraRtcEngine as AgoraRtcEngine).GetNativeHandler();
 
             if (irisEngine != IntPtr.Zero)
             {
-                var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
-                var renderPtr = AgoraRtcNative.GetIrisRtcRenderer(rawDataPtr);
-                _renderCacheConfig = new IrisRtcCRendererCacheConfigNative {
-                    type = (int)VIDEO_FRAME_TYPE.FRAME_TYPE_RGBA,
+                var managerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetIrisRtcVideoFrameBufferManagerPtr();
+                _videoFrameBuffer = new IrisRtcCVideoFrameBufferNative
+                {
+                    type = (int) VIDEO_FRAME_TYPE.FRAME_TYPE_RGBA,
                     OnVideoFrameReceived = IntPtr.Zero,
                     resize_width = width,
                     resize_height = height
                 };
-                _irisRtcRendererCacheConfigHandle = AgoraRtcNative.EnableVideoFrameCache(renderPtr, ref _renderCacheConfig, uid, channel_id);
-                return (int)ERROR_CODE_TYPE.ERR_OK;
+                _irisVideoFrameBufferDelegateHandle =
+                    AgoraRtcNative.EnableVideoFrameBuffer(managerPtr, ref _videoFrameBuffer, uid, channel_id);
+                return (int) ERROR_CODE_TYPE.ERR_OK;
             }
-            return (int)ERROR_CODE_TYPE.ERR_NOT_INITIALIZED;
+
+            return (int) ERROR_CODE_TYPE.ERR_NOT_INITIALIZED;
         }
 
         internal override void DisableVideoFrameCache(uint uid = 0, string channel_id = "")
         {
             if (_agoraRtcEngine == null)
             {
-                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}", ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
+                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}",
+                    ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
                 return;
             }
 
@@ -77,10 +81,9 @@ namespace agora.rtc
 
             if (irisEngine != IntPtr.Zero)
             {
-                var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
-                var renderPtr = AgoraRtcNative.GetIrisRtcRenderer(rawDataPtr);
+                var managerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetIrisRtcVideoFrameBufferManagerPtr();
 
-                AgoraRtcNative.DisableVideoFrameCacheByUid(renderPtr, uid, channel_id);
+                AgoraRtcNative.DisableVideoFrameBufferByUid(managerPtr, uid, channel_id);
             }
         }
 
@@ -89,7 +92,8 @@ namespace agora.rtc
         {
             if (_agoraRtcEngine == null)
             {
-                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}", ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
+                AgoraLog.LogError(string.Format("EnableVideoFrameCache ret: ${0}",
+                    ERROR_CODE_TYPE.ERR_NOT_INITIALIZED));
                 return false;
             }
 
@@ -97,11 +101,11 @@ namespace agora.rtc
 
             if (irisEngine != IntPtr.Zero)
             {
-                var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
-                var renderPtr = AgoraRtcNative.GetIrisRtcRenderer(rawDataPtr);
+                var managerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetIrisRtcVideoFrameBufferManagerPtr();
 
-                return AgoraRtcNative.GetVideoFrame(renderPtr, ref video_frame, out is_new_frame, uid, channel_id);
+                return AgoraRtcNative.GetVideoFrame(managerPtr, ref video_frame, out is_new_frame, uid, channel_id);
             }
+
             return false;
         }
 
@@ -113,7 +117,7 @@ namespace agora.rtc
             {
                 _agoraRtcEngine = null;
                 _disposed = true;
-            } 
+            }
         }
 
         public void Dispose()

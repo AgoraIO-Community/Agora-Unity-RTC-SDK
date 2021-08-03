@@ -77,6 +77,7 @@ namespace agora.rtc
             localAudioFrame.type = audioFrame.type;
             localAudioFrame.samples = audioFrame.samples;
             localAudioFrame.bufferPtr = audioFrame.buffer;
+            localAudioFrame.bufferPtrLength = audioFrame.buffer_length;
             localAudioFrame.bytesPerSample = audioFrame.bytes_per_sample;
             localAudioFrame.channels = audioFrame.channels;
             localAudioFrame.samplesPerSec = audioFrame.samples_per_sec;

@@ -11,8 +11,12 @@ using System.Runtime.InteropServices;
 
 namespace agora.rtc
 {
+    using IrisAudioFrameMixingPtr = IntPtr;
+
     public static class AgoraRtcEngineExtension
     {
+        private static IrisAudioFrameMixingPtr _irisAudioFrameMixingPtr = IntPtr.Zero;
+
         public static AgoraDisplayInfo[] GetDisplayInfos(this IAgoraRtcEngine agoraRtcEngine)
         {
 #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
@@ -79,6 +83,52 @@ namespace agora.rtc
 #else
             throw new PlatformNotSupportedException();
 #endif
+        }
+
+        public static void CreateIrisAudioFrameMixing()
+        {
+            _irisAudioFrameMixingPtr = AgoraRtcNative.CreateIrisAudioFrameMixing();
+        }
+
+        public static void FreeIrisAudioFrameMixing(IrisAudioFrameMixingPtr mixing_ptr)
+        {
+            _irisAudioFrameMixingPtr = IntPtr.Zero;
+        }
+
+        public static void CacheAudioFrame(AUDIO_FRAME_TYPE type, int samples, int bytesPerSample, int channels,
+            int samplesPerSec, IntPtr bufferPtr, uint bufferPtrLength, long renderTimeMs, int avsync_type)
+        {
+            var audioFrame = new IrisRtcAudioFrame()
+            {
+                type = type,
+                samples = samples,
+                bytes_per_sample = bytesPerSample,
+                channels = channels,
+                samples_per_sec = samplesPerSec,
+                buffer = bufferPtr,
+                buffer_length = bufferPtrLength,
+                render_time_ms = renderTimeMs,
+                av_sync_type = avsync_type
+            };
+            AgoraRtcNative.PushAudioFrame(_irisAudioFrameMixingPtr, ref audioFrame);
+        }
+
+        public static void Mixing(AUDIO_FRAME_TYPE type, int samples, int bytesPerSample, int channels,
+            int samplesPerSec, IntPtr bufferPtr, uint bufferPtrLength, long renderTimeMs, int avsync_type)
+        {
+            var audioFrame = new IrisRtcAudioFrame()
+            {
+                type = type,
+                samples = samples,
+                bytes_per_sample = bytesPerSample,
+                channels = channels,
+                samples_per_sec = samplesPerSec,
+                buffer = bufferPtr,
+                buffer_length = bufferPtrLength,
+                render_time_ms = renderTimeMs,
+                av_sync_type = avsync_type
+            };
+            AgoraRtcNative.Mixing(_irisAudioFrameMixingPtr, ref audioFrame);
         }
     }
 

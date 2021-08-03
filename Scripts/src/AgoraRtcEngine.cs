@@ -24,6 +24,7 @@ namespace agora.rtc
     using IrisRtcAudioFrameObserverHandleNative = IntPtr;
     using IrisRtcRendererPtr = IntPtr;
     using IrisRtcCAudioFrameObserverNativeMarshal = IntPtr;
+    using IrisVideoFrameBufferManagerPtr = IntPtr;
 
     public sealed class AgoraRtcEngine : IAgoraRtcEngine
     {
@@ -59,6 +60,8 @@ namespace agora.rtc
         private IrisRtcCVideoFrameObserver _irisRtcCVideoFrameObserver;
         private IrisRtcVideoFrameObserverHandleNative _irisRtcVideoFrameObserverHandleNative;
 
+        private IrisVideoFrameBufferManagerPtr _irisVideoFrameBufferManagerPtr;
+
         private CharAssistant _result;
 
         private AgoraRtcEngine(EngineType type = EngineType.kEngineTypeNormal)
@@ -68,6 +71,9 @@ namespace agora.rtc
             _irisRtcEngine = type == EngineType.kEngineTypeNormal
                 ? AgoraRtcNative.CreateIrisRtcEngine()
                 : AgoraRtcNative.CreateIrisRtcEngine(EngineType.kEngineTypeSubProcess);
+
+            _irisVideoFrameBufferManagerPtr = AgoraRtcNative.CreateIrisVideoFrameBufferManager();
+            AgoraRtcNative.Attach(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine), _irisVideoFrameBufferManagerPtr);
 
             _irisRtcDeviceManager = AgoraRtcNative.GetIrisRtcDeviceManager(_irisRtcEngine);
 
@@ -92,6 +98,10 @@ namespace agora.rtc
 
             if (disposing)
             {
+                AgoraRtcNative.Detach(AgoraRtcNative.GetIrisRtcRawData(_irisRtcEngine), _irisVideoFrameBufferManagerPtr);
+                // AgoraRtcNative.FreeIrisVideoFrameBufferManager(_irisVideoFrameBufferManagerPtr); // Currently, iris free this buffer when calling Detach function.
+                _irisVideoFrameBufferManagerPtr = IntPtr.Zero;
+
                 ReleaseEventHandler();
                 // TODO: Unmanaged resources.
                 UnSetIrisAudioFrameObserver();
@@ -152,6 +162,11 @@ namespace agora.rtc
         internal IrisRtcEnginePtr GetNativeHandler()
         {
             return _irisRtcEngine;
+        }
+
+        internal IrisVideoFrameBufferManagerPtr GetIrisRtcVideoFrameBufferManagerPtr()
+        {
+            return _irisVideoFrameBufferManagerPtr;
         }
 
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN

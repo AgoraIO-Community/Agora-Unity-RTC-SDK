@@ -86,10 +86,13 @@ namespace agora.rtc
             localVideoFrame.width = videoFrameConverted.width;
             localVideoFrame.height = videoFrameConverted.height;
             localVideoFrame.yBufferPtr = videoFrameConverted.y_buffer;
+            localVideoFrame.yBufferPtrLength = videoFrameConverted.y_buffer_length;
             localVideoFrame.yStride = videoFrameConverted.y_stride;
             localVideoFrame.uBufferPtr = videoFrameConverted.u_buffer;
+            localVideoFrame.uBufferPtrLength = videoFrameConverted.u_buffer_length;
             localVideoFrame.uStride = videoFrameConverted.u_stride;
             localVideoFrame.vBufferPtr = videoFrameConverted.v_buffer;
+            localVideoFrame.vBufferPtrLength = videoFrameConverted.v_buffer_length;
             localVideoFrame.vStride = videoFrameConverted.v_stride;
             localVideoFrame.rotation = videoFrameConverted.rotation;
             localVideoFrame.renderTimeMs = videoFrameConverted.render_time_ms;

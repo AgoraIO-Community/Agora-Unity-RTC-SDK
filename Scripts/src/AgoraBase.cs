@@ -5382,6 +5382,7 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public byte[] buffer { set; get; } //data buffer
 
         public IntPtr bufferPtr { set; get; }
+        public uint bufferPtrLength { set; get; }
 
         /** The timestamp of the external audio frame. You can use this parameter for the following purposes:
 		 - Restore the order of the captured audio frame.
@@ -5550,18 +5551,21 @@ Sets the sample rate, bitrate, encoding mode, and the number of channels:*/
         public byte[] yBuffer; //Y data buffer
 
         public IntPtr yBufferPtr;
+        public uint yBufferPtrLength;
 
         /** Pointer to the U buffer pointer within the YUV data.
      */
         public byte[] uBuffer; //U data buffer
 
         public IntPtr uBufferPtr;
+        public uint uBufferPtrLength;
 
         /** Pointer to the V buffer pointer within the YUV data.
      */
         public byte[] vBuffer; //V data buffer
 
         public IntPtr vBufferPtr;
+        public uint vBufferPtrLength;
 
         /** Set the rotation of this frame before rendering the video. Supports 0, 90, 180, 270 degrees clockwise.
      */

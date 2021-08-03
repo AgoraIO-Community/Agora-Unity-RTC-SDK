@@ -103,7 +103,7 @@ namespace agora.rtc
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct IrisRtcCRendererCacheConfigNative
+    internal struct IrisRtcCVideoFrameBufferNative
     {
         internal int type;
         internal IntPtr OnVideoFrameReceived;
@@ -111,7 +111,7 @@ namespace agora.rtc
         internal int resize_height;
     }
     
-    internal struct IrisRtcCRendererCacheConfig
+    internal struct IrisRtcCVideoFrameBuffer
     {
         internal VIDEO_FRAME_TYPE type;
         internal Func_VideoFrame_Native OnVideoFrameNativeReceived;

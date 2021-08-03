@@ -20,9 +20,15 @@ namespace agora.rtc
     {
         public abstract int Initialize(RtcEngineContext context);
         public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
-        public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver);
+
+        public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver,
+            bool needByteArray = true);
+
         public abstract void UnRegisterAudioFrameObserver();
-        public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver);
+
+        public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver,
+            bool needByteArray = true);
+
         public abstract void UnRegisterVideoFrameObserver();
         public abstract void Dispose(bool sync = false);
 

@@ -91,10 +91,10 @@ namespace agora.rtc
         {
             var param = new { };
             return AgoraRtcNative.CallIrisRtcVideoDeviceManagerApi(_irisRtcDeviceManager,
-                ApiTypeVideoDeviceManager.kVDMGetDevice, JsonMapper.ToJson(param),
-                out _result) != 0
-                ? null
-                : _result.Result;
+                            ApiTypeVideoDeviceManager.kVDMGetDevice, JsonMapper.ToJson(param),
+                            out _result) != 0
+                            ? null
+                            : ((_result.Result.Length == 0) ? null : _result.Result);
         }
 
         internal int CallIrisRtcVideoDeviceManagerApi(ApiTypeVideoDeviceManager apiType, string paramJson,

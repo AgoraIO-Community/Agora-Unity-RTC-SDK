@@ -138,7 +138,7 @@ namespace agora.rtc
                 ApiTypeAudioDeviceManager.kADMGetPlaybackDevice,
                 JsonMapper.ToJson(param), out _result) != 0
                 ? null
-                : _result.Result;
+                : ((_result.Result.Length == 0) ? null : _result.Result);
         }
 
         public override DeviceInfo GetPlaybackDeviceInfo()
@@ -313,7 +313,7 @@ namespace agora.rtc
                 ApiTypeAudioDeviceManager.kADMGetRecordingDevice,
                 JsonMapper.ToJson(param), out _result) != 0
                 ? null
-                : _result.Result;
+                : ((_result.Result.Length == 0) ? null : _result.Result);
         }
 
         public override DeviceInfo GetRecordingDeviceInfo()

@@ -148,12 +148,21 @@ namespace agora.rtc
     [StructLayout(LayoutKind.Sequential)]
     internal struct CharAssistant
     {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 2048)]
-        private string resultChar;
+        internal CharAssistant(int param = 0) {
+            resultChar = new byte[2048];
+        }
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
+        private byte[] resultChar;
 
         public string Result
         {
-            get { return resultChar; }
+            get
+            {
+                var re = Encoding.UTF8.GetString(resultChar);
+                var index = re.IndexOf('\0');
+                return re.Substring(0, index);
+            }
         }
     }
 }

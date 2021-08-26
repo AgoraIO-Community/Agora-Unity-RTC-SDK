@@ -9,13 +9,15 @@
 #
 #  $3 API Key
 #
-#  $4 iris_url_mac (optional)
+#  $4 Unity Editor Version
 #
-#  $5 iris_url_windows (optional)
+#  $5 iris_url_mac (optional)
 #
-#  $6 iris_url_ios (optional)
+#  $6 iris_url_windows (optional)
 #
-#  $7 iris_url_android (optional)
+#  $7 iris_url_ios (optional)
+#
+#  $8 iris_url_android (optional)
 #
 #============================================================================== 
 
@@ -25,6 +27,7 @@ DEMO_BRANCH=$2
 PLUGIN_NAME="Agora_Plugin"
 ROOT_DIR=$(pwd)
 CI_DIR=$(pwd)/CI
+UNITY_DIR=/Applications/Unity/$4/Unity.app/Contents/MacOS
 
 #--------------------------------------
 # Prepare all the required resources
@@ -32,13 +35,13 @@ CI_DIR=$(pwd)/CI
 echo "[Unity CI] start preparing resources"
 cd "$CI_DIR" || exit 1
 mkdir temp
-./download_plugin.sh "$SDK_TYPE" "$API_KEY" "$4" "$5" "$6" "$7"
+./download_plugin.sh "$SDK_TYPE" "$API_KEY" "$5" "$6" "$7" "$8"
 ANDROID_SRC_PATH="$CI_DIR"/temp/android/iris_*
 IOS_SRC_PATH=$CI_DIR/temp/ios/iris_*
 MAC_SRC_PATH="$CI_DIR"/temp/mac/iris_*
 WIN_SRC_PATH="$CI_DIR"/temp/win/iris_*
 cd temp || exit 1
-git clone -b "$DEMO_BRANCH" https://github.com/AgoraIO/Agora-Unity-Quickstart.git
+git clone -b "$DEMO_BRANCH" https://github.i.agoralab.co/AgoraIO/Agora-Unity-Quickstart.git
 cd "$CI_DIR" || exit 1
 echo "[Unity CI] finish preparing resources"
 
@@ -46,7 +49,7 @@ echo "[Unity CI] finish preparing resources"
 # Create a Unity project
 #--------------------------------------
 echo "[Unity CI] start creating unity project"
-unity -quit -batchmode -nographics -createProject "project"
+$UNITY_DIR/Unity -quit -batchmode -nographics -createProject "project"
 echo "[Unity CI] finish creating unity project"
 
 #--------------------------------------
@@ -138,7 +141,7 @@ echo "[Unity CI] finish copying files"
 #--------------------------------------
 # Export Package
 #--------------------------------------
-unity -quit -batchmode -nographics -openProjects  "$CI_DIR/project" -exportPackage "Assets/$PLUGIN_NAME" "$PLUGIN_NAME.unitypackage"
+$UNITY_DIR/Unity -quit -batchmode -nographics -openProjects  "$CI_DIR/project" -exportPackage "Assets/$PLUGIN_NAME" "$PLUGIN_NAME.unitypackage"
 
 #--------------------------------------
 # Copy to $CI_DIR/output

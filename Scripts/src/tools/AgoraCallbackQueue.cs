@@ -5,6 +5,8 @@
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+#define __UNITY__
+#if __UNITY__
 
 using UnityEngine;
 using System;
@@ -62,3 +64,4 @@ namespace agora.rtc {
             }
         }
 }
+#endif

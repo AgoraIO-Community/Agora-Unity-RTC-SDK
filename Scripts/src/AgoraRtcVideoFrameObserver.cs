@@ -5,11 +5,14 @@
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+#define __UNITY__
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+#if __UNITY__
 using AOT;
+#endif
 
 namespace agora.rtc
 {
@@ -100,27 +103,35 @@ namespace agora.rtc
             return localVideoFrame;
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_VideoFrameLocal_Native))]
+#endif
         internal static bool OnCaptureVideoFrame(IntPtr videoFramePtr)
         {
             return VideoFrameObserver == null ||
                    VideoFrameObserver.OnCaptureVideoFrame(ProcessVideoFrameReceived(videoFramePtr, "", 0));
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_VideoFrameLocal_Native))]
+#endif
         internal static bool OnPreEncodeVideoFrame(IntPtr videoFramePtr)
         {
             return VideoFrameObserver == null ||
                    VideoFrameObserver.OnPreEncodeVideoFrame(ProcessVideoFrameReceived(videoFramePtr, "", 1));
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_VideoFrameRemote_Native))]
+#endif
         internal static bool OnRenderVideoFrame(uint uid, IntPtr videoFramePtr)
         {
             return true;
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_Uint32_t_Native))]
+#endif
         internal static uint GetObservedFramePosition()
         {
             if (VideoFrameObserver == null)
@@ -130,13 +141,17 @@ namespace agora.rtc
             return (uint) VideoFrameObserver.GetObservedFramePosition();
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_Bool_Natvie))]
+#endif
         internal static bool IsMultipleChannelFrameWanted()
         {
             return VideoFrameObserver == null || VideoFrameObserver.IsMultipleChannelFrameWanted();
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_VideoFrameEx_Native))]
+#endif
         internal static bool OnRenderVideoFrameEx(string channelId, uint uid, IntPtr videoFramePtr)
         {
             if (VideoFrameObserver == null) return true;

@@ -121,7 +121,7 @@ namespace agora.rtc
         public abstract int MuteRemoteVideoStream(uint userId, bool mute);
         public abstract int SetRemoteVideoStreamType(uint userId, REMOTE_VIDEO_STREAM_TYPE streamType);
         public abstract int SetRemoteDefaultVideoStreamType(REMOTE_VIDEO_STREAM_TYPE streamType);
-        public abstract int EnableAudioVolumeIndication(int interval, int smooth, bool reportVad = false);
+        public abstract int EnableAudioVolumeIndication(int interval, int smooth, bool reportVad);
 
         [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public abstract int StartAudioRecording(string filePath, AUDIO_RECORDING_QUALITY_TYPE quality);
@@ -367,6 +367,7 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnConnectionInterrupted()
         {
         }
@@ -375,6 +376,7 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnConnectionBanned()
         {
         }
@@ -529,10 +531,12 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnAudioEffectFinished(int soundId)
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnFirstRemoteAudioDecoded(uint uid, int elapsed)
         {
         }
@@ -601,6 +605,7 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnFirstRemoteAudioFrame(uint uid, int elapsed)
         {
         }
@@ -614,10 +619,12 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnStreamPublished(string url, int error)
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnStreamUnpublished(string url)
         {
         }
@@ -642,14 +649,17 @@ namespace agora.rtc
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnRemoteAudioTransportStats(uint uid, ushort delay, ushort lost, ushort rxKBitRate)
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnRemoteVideoTransportStats(uint uid, ushort delay, ushort lost, ushort rxKBitRate)
         {
         }
 
+        [Obsolete(ObsoleteMethodWarning.GeneralWarning, false)]
         public virtual void OnMicrophoneEnabled(bool enabled)
         {
         }

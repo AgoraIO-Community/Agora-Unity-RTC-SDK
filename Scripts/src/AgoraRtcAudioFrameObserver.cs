@@ -5,11 +5,14 @@
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+#define __UNITY__
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+#if __UNITY__
 using AOT;
+#endif
 
 namespace agora.rtc
 {
@@ -86,40 +89,52 @@ namespace agora.rtc
             return localAudioFrame;
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_AudioFrameLocal_Native))]
+#endif
         internal static bool OnRecordAudioFrame(IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null ||
                    AudioFrameObserver.OnRecordAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 0));
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_AudioFrameLocal_Native))]
+#endif
         internal static bool OnPlaybackAudioFrame(IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null ||
                    AudioFrameObserver.OnPlaybackAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 1));
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_AudioFrameLocal_Native))]
+#endif
         internal static bool OnMixedAudioFrame(IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null ||
                    AudioFrameObserver.OnMixedAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 2));
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_AudioFrameRemote_Native))]
+#endif
         internal static bool OnPlaybackAudioFrameBeforeMixing(uint uid, IntPtr audioFramePtr)
         {
             return true;
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_Bool_Natvie))]
+#endif
         internal static bool IsMultipleChannelFrameWanted()
         {
             return AudioFrameObserver == null || AudioFrameObserver.IsMultipleChannelFrameWanted();
         }
 
+#if __UNITY__
         [MonoPInvokeCallback(typeof(Func_AudioFrameEx_Native))]
+#endif
         internal static bool OnPlaybackAudioFrameBeforeMixingEx(string channelId, uint uid, IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null || AudioFrameObserver.OnPlaybackAudioFrameBeforeMixingEx(channelId, uid,

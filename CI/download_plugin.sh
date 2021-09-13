@@ -84,10 +84,10 @@ echo "MAC URL: $MAC_URL"
 echo "WIN URL: $WIN_URL"
 HEADER="X-JFrog-Art-Api: $API_KEY"
 mkdir "$CUR_DIR"/temp/ios "$CUR_DIR"/temp/android "$CUR_DIR"/temp/mac "$CUR_DIR"/temp/win || exit 1
-wget --header="$HEADER" "$IOS_URL" -P "$CUR_DIR"/temp/ios || exit 1
-wget --header="$HEADER" "$ANDROID_URL" -P "$CUR_DIR"/temp/android || exit 1
-wget --header="$HEADER" "$MAC_URL" -P "$CUR_DIR"/temp/mac || exit 1
-wget --header="$HEADER" "$WIN_URL" -P "$CUR_DIR"/temp/win || exit 1
+wget -q --header="$HEADER" "$IOS_URL" -P "$CUR_DIR"/temp/ios || exit 1
+wget -q --header="$HEADER" "$ANDROID_URL" -P "$CUR_DIR"/temp/android || exit 1
+wget -q --header="$HEADER" "$MAC_URL" -P "$CUR_DIR"/temp/mac || exit 1
+wget -q --header="$HEADER" "$WIN_URL" -P "$CUR_DIR"/temp/win || exit 1
 
 
 #--------------------------------------

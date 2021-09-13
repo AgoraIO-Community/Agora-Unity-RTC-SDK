@@ -27,7 +27,7 @@ DEMO_BRANCH=$2
 PLUGIN_NAME="Agora_Plugin"
 ROOT_DIR=$(pwd)
 CI_DIR=$(pwd)/CI
-UNITY_DIR=/Applications/Unity/$4/Unity.app/Contents/MacOS
+UNITY_DIR=/Applications/Unity/Hub/Editor/$4/Unity.app/Contents/MacOS
 
 #--------------------------------------
 # Prepare all the required resources
@@ -41,7 +41,7 @@ IOS_SRC_PATH=$CI_DIR/temp/ios/iris_*
 MAC_SRC_PATH="$CI_DIR"/temp/mac/iris_*
 WIN_SRC_PATH="$CI_DIR"/temp/win/iris_*
 cd temp || exit 1
-git clone -b "$DEMO_BRANCH" https://github.i.agoralab.co/AgoraIO/Agora-Unity-Quickstart.git
+git clone -b "$DEMO_BRANCH" https://github.com/AgoraIO/Agora-Unity-Quickstart.git
 cd "$CI_DIR" || exit 1
 echo "[Unity CI] finish preparing resources"
 

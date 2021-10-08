@@ -30,7 +30,7 @@ namespace agora.rtc
 
     public sealed class AgoraRtcEngine : IAgoraRtcEngine
     {
-        private bool _disposed;
+        private bool _disposed = false;
 
         private static readonly AgoraRtcEngine[] engineInstance = {null, null};
 
@@ -109,20 +109,26 @@ namespace agora.rtc
                 }
 
                 if (AgoraRtcChannel.IrisChannelEventHandlerHandleNative != IntPtr.Zero)
-                    AgoraRtcChannel.UnsetChannelEventHandler(_irisRtcEngine);
+                {
+                    var channel_ptr = AgoraRtcNative.GetIrisRtcChannel(_irisRtcEngine);
+                    AgoraRtcChannel.UnsetChannelEventHandler(channel_ptr);
+                }
 
-                _deprecatedVideoDeviceManagerInstance.Dispose();
-                _deprecatedVideoDeviceManagerInstance = null;
                 _videoDeviceManagerInstance.Dispose();
                 _videoDeviceManagerInstance = null;
 
+                _deprecatedVideoDeviceManagerInstance.Dispose();
+                _deprecatedVideoDeviceManagerInstance = null;
+
                 _deprecatedAudioPlaybackDeviceManagerInstance.Dispose();
                 _deprecatedAudioPlaybackDeviceManagerInstance = null;
+
                 _audioPlaybackDeviceManagerInstance.Dispose();
                 _audioPlaybackDeviceManagerInstance = null;
 
                 _deprecatedAudioRecordingDeviceManagerInstance.Dispose();
                 _deprecatedAudioRecordingDeviceManagerInstance = null;
+
                 _audioRecordingDeviceManagerInstance.Dispose();
                 _audioRecordingDeviceManagerInstance = null;
 

@@ -1,12 +1,12 @@
 //  AgoraCallbackObject.cs
 //
-//  Created by Tao Zhang.
-//  Modified by Yiqing Huang on June 5, 2021.
+//  Created by YuGuo Chen on October 3, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
-//
+
 #define __UNITY__
 #if __UNITY__
+
 using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -55,4 +55,5 @@ namespace agora.rtc
         }
     }
 }
+
 #endif

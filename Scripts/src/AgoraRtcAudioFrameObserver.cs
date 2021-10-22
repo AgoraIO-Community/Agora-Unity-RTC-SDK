@@ -1,10 +1,10 @@
 //  AgoraRtcAudioFrameObserver.cs
 //
-//  Created by Yiqing Huang on June 9, 2021.
-//  Modified by Yiqing Huang on July 21, 2021.
+//  Created by YuGuo Chen on October 7, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+
 #define __UNITY__
 
 using System;
@@ -16,31 +16,29 @@ using AOT;
 
 namespace agora.rtc
 {
-    internal static class RtcAudioFrameObserverNative
+    internal static class AgoraRtcAudioFrameObserverNative
     {
         internal static IAgoraRtcAudioFrameObserver AudioFrameObserver;
-
         private static class LocalAudioFrames
         {
             internal static readonly AudioFrame RecordAudioFrame = new AudioFrame();
             internal static readonly AudioFrame PlaybackAudioFrame = new AudioFrame();
             internal static readonly AudioFrame MixedAudioFrame = new AudioFrame();
-
-            internal static readonly Dictionary<string, Dictionary<uint, AudioFrame>> AudioFrameBeforeMixingEx =
+            internal static readonly Dictionary<string, Dictionary<uint, AudioFrame>> AudioFrameBeforeMixingEx = 
                 new Dictionary<string, Dictionary<uint, AudioFrame>>();
         }
 
         private static AudioFrame ProcessAudioFrameReceived(IntPtr audioFramePtr, string channelId, uint uid)
         {
-            var audioFrame = (IrisRtcAudioFrame) (Marshal.PtrToStructure(audioFramePtr, typeof(IrisRtcAudioFrame)) ??
-                                                        new IrisRtcAudioFrame());
+            var audioFrame = (IrisAudioFrame) (Marshal.PtrToStructure(audioFramePtr, typeof(IrisAudioFrame)) ??
+                                                    new IrisAudioFrame());
             var localAudioFrame = new AudioFrame();
 
             if (channelId == "")
             {
-                // Local Audio Frame
                 switch (uid)
                 {
+                    //Local Audio Frame
                     case 0:
                         localAudioFrame = LocalAudioFrames.RecordAudioFrame;
                         break;
@@ -54,7 +52,7 @@ namespace agora.rtc
             }
             else
             {
-                // Remote Audio Frame
+                //Remote Audio Frame
                 if (!LocalAudioFrames.AudioFrameBeforeMixingEx.ContainsKey(channelId))
                 {
                     LocalAudioFrames.AudioFrameBeforeMixingEx[channelId] = new Dictionary<uint, AudioFrame>();
@@ -69,7 +67,7 @@ namespace agora.rtc
             }
 
             if (localAudioFrame.channels != audioFrame.channels ||
-                localAudioFrame.samples != audioFrame.samples ||
+                localAudioFrame.samplesPerChannel != audioFrame.samples ||
                 localAudioFrame.bytesPerSample != audioFrame.bytes_per_sample)
             {
                 localAudioFrame.buffer = new byte[audioFrame.buffer_length];
@@ -78,7 +76,7 @@ namespace agora.rtc
             if (audioFrame.buffer != IntPtr.Zero)
                 Marshal.Copy(audioFrame.buffer, localAudioFrame.buffer, 0, (int) audioFrame.buffer_length);
             localAudioFrame.type = audioFrame.type;
-            localAudioFrame.samples = audioFrame.samples;
+            localAudioFrame.samplesPerChannel = audioFrame.samples;
             localAudioFrame.bufferPtr = audioFrame.buffer;
             localAudioFrame.bytesPerSample = audioFrame.bytes_per_sample;
             localAudioFrame.channels = audioFrame.channels;
@@ -94,8 +92,8 @@ namespace agora.rtc
 #endif
         internal static bool OnRecordAudioFrame(IntPtr audioFramePtr)
         {
-            return AudioFrameObserver == null ||
-                   AudioFrameObserver.OnRecordAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 0));
+            return AudioFrameObserver == null || 
+                AudioFrameObserver.OnRecordAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 0));
         }
 
 #if __UNITY__
@@ -104,7 +102,7 @@ namespace agora.rtc
         internal static bool OnPlaybackAudioFrame(IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null ||
-                   AudioFrameObserver.OnPlaybackAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 1));
+                AudioFrameObserver.OnPlaybackAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 1));
         }
 
 #if __UNITY__
@@ -113,7 +111,7 @@ namespace agora.rtc
         internal static bool OnMixedAudioFrame(IntPtr audioFramePtr)
         {
             return AudioFrameObserver == null ||
-                   AudioFrameObserver.OnMixedAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 2));
+                AudioFrameObserver.OnMixedAudioFrame(ProcessAudioFrameReceived(audioFramePtr, "", 2));
         }
 
 #if __UNITY__
@@ -128,8 +126,9 @@ namespace agora.rtc
         [MonoPInvokeCallback(typeof(Func_Bool_Natvie))]
 #endif
         internal static bool IsMultipleChannelFrameWanted()
-        {
-            return AudioFrameObserver == null || AudioFrameObserver.IsMultipleChannelFrameWanted();
+        { 
+            return AudioFrameObserver == null ||
+                AudioFrameObserver.IsMultipleChannelFrameWanted();
         }
 
 #if __UNITY__

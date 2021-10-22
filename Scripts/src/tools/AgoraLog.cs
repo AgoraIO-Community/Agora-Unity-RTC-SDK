@@ -1,10 +1,10 @@
 //  AgoraLog.cs
 //
-//  Created by Yiqing Huang on June 2, 2021.
-//  Modified by Yiqing Huang on June 24, 2021.
+//  Created by YuGuo Chen on October 6, 2021.
 //
 //  Copyright © 2021 Agora. All rights reserved.
 //
+
 #define __UNITY__
 
 #if __UNITY__

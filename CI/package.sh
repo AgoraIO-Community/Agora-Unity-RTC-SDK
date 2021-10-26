@@ -24,7 +24,7 @@
 SDK_TYPE=$1
 API_KEY=$3
 DEMO_BRANCH=$2
-PLUGIN_NAME="Agora_Plugin"
+PLUGIN_NAME="Agora-Plugin"
 ROOT_DIR=$(pwd)
 CI_DIR=$(pwd)/CI
 UNITY_DIR=/Applications/Unity/Hub/Editor/$4/Unity.app/Contents/MacOS

@@ -14,7 +14,6 @@ namespace agora.rtc
     {
         kEngineRelease,
         kEngineInitialize,
-        // kEngineQueryInterface,
         kEngineGetVersion,
         kEngineGetErrorDescription,
         kEngineJoinChannel,
@@ -54,8 +53,6 @@ namespace agora.rtc
         kEngineStartAudioRecording,
         kEngineRegisterAudioEncodedFrameObserver,
         kEngineStopAudioRecording,
-        //kEngineCreateMediaPlayer,
-        //kEngineDestroyMediaPlayer,
         kEngineStartAudioMixing,
         kEngineStopAudioMixing,
         kEnginePauseAudioMixing,
@@ -85,6 +82,7 @@ namespace agora.rtc
         kEngineUnloadAllEffects,
         kEngineEnableSoundPositionIndication,
         kEngineSetRemoteVoicePosition,
+        kEngineSetRemoteVoice3DPosition,
         kEngineSetVoiceBeautifierPreset,
         kEngineSetAudioEffectPreset,
         kEngineSetVoiceConversionPreset,
@@ -129,6 +127,7 @@ namespace agora.rtc
         kEngineEnableInEarMonitoring,
         kEngineSetInEarMonitoringVolume,
         kEngineLoadExtensionProvider,
+        kEngineSetExtensionProviderProperty,
         kEngineEnableExtension,
         kEngineSetExtensionProperty,
         kEngineGetExtensionProperty,
@@ -157,7 +156,6 @@ namespace agora.rtc
         kEngineStartScreenCapture,
         kEngineStartScreenCaptureByWindowId,
         kEngineSetScreenCaptureContentHint,
-        kEngineSetScreenCaptureOrientation,
         kEngineUpdateScreenCaptureRegion,
         kEngineUpdateScreenCaptureParameters,
         kEngineStopScreenCapture,
@@ -175,6 +173,7 @@ namespace agora.rtc
         kEngineStopPrimaryCameraCapture,
         kEngineStopSecondaryCameraCapture,
         kEngineSetCameraDeviceOrientation,
+        kEngineSetScreenCaptureOrientation,
         kEngineStartPrimaryScreenCapture,
         kEngineStartSecondaryScreenCapture,
         kEngineStopPrimaryScreenCapture,
@@ -225,14 +224,17 @@ namespace agora.rtc
         kEngineMuteRemoteAudioStreamEx,
         kEngineMuteRemoteVideoStreamEx,
         kEngineSetRemoteVoicePositionEx,
+        kEngineSetRemoteVoice3DPositionEx,
         kEngineSetRemoteRenderModeEx,
         kEngineEnableLoopBackRecordingEx,
         kEngineGetConnectionStateEx,
+        kEngineEnableEncryptionEx,
         kEngineCreateDataStreamEx,
         kEngineSendStreamMessageEx,
         kEngineAddVideoWaterMarkEx,
         kEngineClearVideoWatermarkEx,
-        kEngineSendCustomReportMessageEx
+        kEngineSendCustomReportMessageEx,
+        kEngineSetAppType
     }
 
     internal enum ApiTypeAudioDeviceManager

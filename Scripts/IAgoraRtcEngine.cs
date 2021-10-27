@@ -18,15 +18,18 @@ namespace agora.rtc
     }
     public abstract class IRtcEngine
     {
-        //public abstract void Release(bool sync = false);
         public abstract int Initialize(RtcEngineContext context);
 
         public abstract void Dispose(bool sync = false);
 
         public abstract void InitEventHandler(IAgoraRtcEngineEventHandler engineEventHandler);
+
         public abstract void RegisterAudioFrameObserver(IAgoraRtcAudioFrameObserver audioFrameObserver);
+
         public abstract void UnRegisterAudioFrameObserver();
+
         public abstract void RegisterVideoFrameObserver(IAgoraRtcVideoFrameObserver videoFrameObserver);
+
         public abstract void UnRegisterVideoFrameObserver();
 
         public abstract IAgoraRtcAudioRecordingDeviceManager GetAgoraRtcAudioRecordingDeviceManager();
@@ -35,7 +38,6 @@ namespace agora.rtc
 
         public abstract IAgoraRtcVideoDeviceManager GetAgoraRtcVideoDeviceManager();
 
-        //public abstract int QueryInterface(INTERFACE_ID_TYPE iid, void** inter); 
         public abstract string GetVersion();
 
         public abstract string GetErrorDescription(int code);
@@ -193,6 +195,8 @@ namespace agora.rtc
 
         public abstract int SetRemoteVoicePosition(uint uid, double pan, double gain);
 
+        public abstract int SetRemoteVoice3DPosition(uint uid, double azimuth, double elevation, double distance);
+
         public abstract int SetVoiceBeautifierPreset(VOICE_BEAUTIFIER_PRESET preset);
 
         public abstract int SetAudioEffectPreset(AUDIO_EFFECT_PRESET preset);
@@ -294,20 +298,22 @@ namespace agora.rtc
 
         public abstract int SetInEarMonitoringVolume(int volume);
     
-        public abstract int loadExtensionProvider(string extension_lib_path);
+        public abstract int LoadExtensionProvider(string extension_lib_path);
 
-        public abstract int enableExtension(
+        public abstract int SetExtensionProviderProperty(string provider_name, string key, string json_value);
+
+        public abstract int EnableExtension(
           string provider_name, string extension_name, bool enable=true);
 
-        public abstract int setExtensionProperty(
+        public abstract int SetExtensionProperty(
           string provider_name, string extension_name,
           string key, string json_value);
 
-        public abstract int getExtensionProperty(
+        public abstract int GetExtensionProperty(
           string provider_name, string extension_name,
           string key, string json_value, int buf_len);
 
-        public abstract int setCameraCapturerConfiguration(CameraCapturerConfiguration config);
+        public abstract int SetCameraCapturerConfiguration(CameraCapturerConfiguration config);
 
         public abstract int SwitchCamera();
 
@@ -404,6 +410,7 @@ namespace agora.rtc
       
         // public abstract bool RegisterEventHandler(IRtcEngineEventHandler eventHandler);
         // public abstract bool UnregisterEventHandler(IRtcEngineEventHandler eventHandler);
+        
         public abstract int SetRemoteUserPriority(uint uid, PRIORITY_TYPE userPriority);
 
         //public abstract int RegisterPacketObserver(IPacketObserver observer);
@@ -501,12 +508,16 @@ namespace agora.rtc
 
         public abstract int SetRemoteVoicePositionEx(uint remoteUid, double pan, double gain, RtcConnection connection);
 
+        public abstract int SetRemoteVoice3DPositionEx(uint remoteUid, double azimuth, double elevation, double distance, RtcConnection connection);
+
         public abstract int SetRemoteRenderModeEx(uint remoteUid, RENDER_MODE_TYPE renderMode,
                                           VIDEO_MIRROR_MODE_TYPE mirrorMode, RtcConnection connection);
 
         public abstract int EnableLoopbackRecordingEx(bool enabled, RtcConnection connection);
 
         public abstract CONNECTION_STATE_TYPE GetConnectionStateEx(RtcConnection connection);
+
+        public abstract int EnableEncryptionEx(RtcConnection connection, bool enabled, EncryptionConfig config);
 
         public abstract int CreateDataStreamEx(int[] streamId, bool reliable, bool ordered, RtcConnection connection);
 

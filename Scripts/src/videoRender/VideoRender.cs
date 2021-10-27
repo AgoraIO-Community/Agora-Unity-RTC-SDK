@@ -37,12 +37,10 @@ namespace agora.rtc
         public VideoStreamManager(IAgoraRtcEngine agoraRtcEngine)
         {
             _agoraRtcEngine = agoraRtcEngine;
-            videoFrameBufferManagerPtr = AgoraRtcNative.CreateIrisVideoFrameBufferManager();
         }
 
         ~VideoStreamManager()
         {
-            AgoraRtcNative.FreeIrisVideoFrameBufferManager(videoFrameBufferManagerPtr);
             Dispose();
         }
 
@@ -55,7 +53,7 @@ namespace agora.rtc
             }
 
             IntPtr irisEngine = (_agoraRtcEngine as AgoraRtcEngine).GetNativeHandler();
-            //IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).Getppppp();
+            IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetVideoFrameBufferManager();
 
             if (irisEngine != IntPtr.Zero)
             {
@@ -84,14 +82,14 @@ namespace agora.rtc
             }
 
             IntPtr irisEngine = (_agoraRtcEngine as AgoraRtcEngine).GetNativeHandler();
-            //IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).Getppppp();
+            IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetVideoFrameBufferManager();
 
             if (irisEngine != IntPtr.Zero)
             {
                 var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
                 //var videoFrameBufferManagerPtr = AgoraRtcNative.CreateIrisVideoFrameBufferManager();
                 AgoraRtcNative.DisableVideoFrameBufferByUid(videoFrameBufferManagerPtr, uid, channel_id);
-                AgoraRtcNative.Detach(rawDataPtr, videoFrameBufferManagerPtr);
+                //AgoraRtcNative.Detach(rawDataPtr, videoFrameBufferManagerPtr);
                 //AgoraRtcNative.FreeIrisVideoFrameBufferManager(videoFrameBufferManagerPtr);
             }
         }
@@ -105,15 +103,11 @@ namespace agora.rtc
             }
 
             IntPtr irisEngine = (_agoraRtcEngine as AgoraRtcEngine).GetNativeHandler();
-            //IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).Getppppp();
+            IntPtr videoFrameBufferManagerPtr = (_agoraRtcEngine as AgoraRtcEngine).GetVideoFrameBufferManager();
 
             if (irisEngine != IntPtr.Zero)
             {
-                //var rawDataPtr = AgoraRtcNative.GetIrisRtcRawData(irisEngine);
-                //var videoFrameBufferManagerPtr = AgoraRtcNative.CreateIrisVideoFrameBufferManager();
-                //AgoraRtcNative.Attach(rawDataPtr, videoFrameBufferManagerPtr);
                 return AgoraRtcNative.GetVideoFrame(videoFrameBufferManagerPtr, ref video_frame, out is_new_frame, uid, channel_id);
-                //AgoraRtcNative.FreeIrisVideoFrameBufferManager(videoFrameBufferManagerPtr);
             }
             return false;
         }

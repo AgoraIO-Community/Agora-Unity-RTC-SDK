@@ -129,13 +129,13 @@ namespace agora.rtc
 
         public abstract int StartAudioRecording(AudioFileRecordingConfig config);
     
-        //public abstract int RegisterAudioEncodedFrameObserver(AudioEncodedFrameObserverConfig config,  IAudioEncodedFrameObserver observer);
+        public abstract int RegisterAudioEncodedFrameObserver(AudioEncodedFrameObserverConfig config,  IAgoraRtcAudioEncodedFrameObserver observer); //TODO
 
         public abstract int StopAudioRecording();
 
-        //public abstract agora_refptr<IMediaPlayer> CreateMediaPlayer();
+        //CreateMediaPlayer
 
-        //public abstract int DestroyMediaPlayer(agora_refptr<IMediaPlayer> media_player);
+        //DestroyMediaPlayer
 
         public abstract int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle);
 
@@ -362,8 +362,8 @@ namespace agora.rtc
                                                  Rectangle regionRect,
                                                  ScreenCaptureParameters captureParams);
 
-        // public abstract int StartScreenCapture(byte[] mediaProjectionPermissionResultData,
-        //                              ScreenCaptureParameters captureParams);
+        public abstract int StartScreenCapture(byte[] mediaProjectionPermissionResultData,
+                                     ScreenCaptureParameters captureParams);
 
         public abstract int StartScreenCaptureByWindowId(view_t windowId, Rectangle regionRect,
                                                ScreenCaptureParameters captureParams);
@@ -376,10 +376,9 @@ namespace agora.rtc
 
         public abstract int StopScreenCapture();
 
-        //public abstract int GetCallId(AString callId);
+        public abstract int GetCallId(string callId); //Astring
 
-        public abstract int Rate(string callId, int rating,
-                        string description);  // 0~10
+        public abstract int Rate(string callId, int rating, string description);  // Astring
 
         public abstract int Complain(string callId, string description);
 
@@ -390,26 +389,36 @@ namespace agora.rtc
         public abstract int SetLiveTranscoding(LiveTranscoding transcoding);
       
         public abstract int StartLocalVideoTranscoder(LocalTranscoderConfiguration config);
+
         public abstract int UpdateLocalTranscoderConfiguration(LocalTranscoderConfiguration config);
+
         public abstract int StopLocalVideoTranscoder();
       
         public abstract int StartPrimaryCameraCapture(CameraCapturerConfiguration config);
+
         public abstract int StartSecondaryCameraCapture(CameraCapturerConfiguration config);
+
         public abstract int StopPrimaryCameraCapture();
+
         public abstract int StopSecondaryCameraCapture();
       
         public abstract int SetCameraDeviceOrientation(VIDEO_SOURCE_TYPE type, VIDEO_ORIENTATION orientation);
+
         public abstract int SetScreenCaptureOrientation(VIDEO_SOURCE_TYPE type, VIDEO_ORIENTATION orientation);
       
         public abstract int StartPrimaryScreenCapture(ScreenCaptureConfiguration config);
+
         public abstract int StartSecondaryScreenCapture(ScreenCaptureConfiguration config);
+
         public abstract int StopPrimaryScreenCapture();
+
         public abstract int StopSecondaryScreenCapture();
       
         public abstract CONNECTION_STATE_TYPE GetConnectionState();
       
-        // public abstract bool RegisterEventHandler(IRtcEngineEventHandler eventHandler);
-        // public abstract bool UnregisterEventHandler(IRtcEngineEventHandler eventHandler);
+        public abstract bool RegisterEventHandler(IAgoraRtcEngineEventHandler eventHandler);
+
+        public abstract bool UnregisterEventHandler(IAgoraRtcEngineEventHandler eventHandler);
         
         public abstract int SetRemoteUserPriority(uint uid, PRIORITY_TYPE userPriority);
 
@@ -445,7 +454,7 @@ namespace agora.rtc
 
         public abstract int EnableWebSdkInteroperability(bool enabled);
 
-        //public abstract int SendCustomReportMessage(string id, string category, string event, string label, int value);
+        public abstract int SendCustomReportMessage(string id, string category, string @event, string label, int value);
 
         // public abstract int RegisterMediaMetadataObserver(IMetadataObserver observer, IMetadataObserver::METADATA_TYPE type);
 
@@ -529,7 +538,7 @@ namespace agora.rtc
 
         public abstract int ClearVideoWatermarkEx(RtcConnection connection);
 
-        //public abstract int SendCustomReportMessageEx(string id, string category, string event, string label, int value, RtcConnection connection);
+        public abstract int SendCustomReportMessageEx(string id, string category, string @event, string label, int value, RtcConnection connection);
     };
 
     public abstract class IAgoraRtcEngineEventHandler

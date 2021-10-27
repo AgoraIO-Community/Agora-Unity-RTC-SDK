@@ -128,11 +128,6 @@ namespace agora.rtc
             return engineInstance;
         }
 
-        // private int SetAppType(AppType appType)
-        // {
-
-        // }
-
         public override int Initialize(RtcEngineContext context)
         {
             var param = new
@@ -142,6 +137,13 @@ namespace agora.rtc
             var ret = AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, 
             ApiTypeEngine.kEngineInitialize,
             JsonMapper.ToJson(param), out _result);
+
+#if __UNITY__
+            if (ret == 0) SetAppType(AppType.APP_TYPE_UNITY);
+#elif __C_SHARP__
+            if (ret == 0) SetAppType(AppType.APP_TYPE_C_SHARP);
+#endif
+
             return ret;
         }
 
@@ -807,7 +809,17 @@ namespace agora.rtc
             JsonMapper.ToJson(param), out _result);
         }
     
-        //public override int RegisterAudioEncodedFrameObserver(AudioEncodedFrameObserverConfig config,  IAudioEncodedFrameObserver observer);
+        public override int RegisterAudioEncodedFrameObserver(AudioEncodedFrameObserverConfig config,  IAgoraRtcAudioEncodedFrameObserver observer)
+        {
+            var param = new
+            {
+                config,
+                observer
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, 
+            ApiTypeEngine.kEngineRegisterAudioEncodedFrameObserver,
+            JsonMapper.ToJson(param), out _result);
+        }
 
         public override int StopAudioRecording()
         {
@@ -816,12 +828,10 @@ namespace agora.rtc
             ApiTypeEngine.kEngineStopAudioRecording,
             JsonMapper.ToJson(param), out _result);
         }
-      ///@cond
 
-        //public override agora_refptr<IMediaPlayer> CreateMediaPlayer();
+        //CreateMediaPlayer
 
-      ///@endcond
-        //public override int DestroyMediaPlayer(agora_refptr<IMediaPlayer> media_player);
+        //DestroyMediaPlayer
 
         public override int StartAudioMixing(string filePath, bool loopback, bool replace, int cycle)
         {
@@ -2017,10 +2027,19 @@ namespace agora.rtc
                 out _result);
         }
 
-        //public override int StartScreenCapture(void* mediaProjectionPermissionResultData,
-        //                             ScreenCaptureParameters captureParams)
-        //{
-        //}
+        public override int StartScreenCapture(byte[] mediaProjectionPermissionResultData,
+                                    ScreenCaptureParameters captureParams)
+        {
+            var param = new
+            {
+                mediaProjectionPermissionResultData,
+                captureParams
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineStartScreenCapture,
+                JsonMapper.ToJson(param),
+                out _result);
+        }
 
         public override int StartScreenCaptureByWindowId(view_t windowId, Rectangle regionRect,
                                                ScreenCaptureParameters captureParams)
@@ -2081,18 +2100,18 @@ namespace agora.rtc
                 JsonMapper.ToJson(param),
                 out _result);
         }
-//////////////////
-        // public override int GetCallId(AString callId)
-        // {
-        //     var param = new
-        //     {
-        //         callId
-        //     };
-        //     return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
-        //         ApiTypeEngine.kEngineGetCallId,
-        //         JsonMapper.ToJson(param),
-        //         out _result);
-        // }
+
+        public override int GetCallId(string callId)
+        {
+            var param = new
+            {
+                callId
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineGetCallId,
+                JsonMapper.ToJson(param),
+                out _result);
+        }
 
         public override int Rate(string callId, int rating,
                         string description)
@@ -2311,29 +2330,31 @@ namespace agora.rtc
                 out _result);
         }
       
-        // public override bool RegisterEventHandler(IRtcEngineEventHandler eventHandler)
-        // {
-        //     var param = new
-        //     {
-        //         eventHandler
-        //     };
-        //     return (bool) AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
-        //         ApiTypeEngine.kEngineRegisterEventHandler,
-        //         JsonMapper.ToJson(param),
-        //         out _result);
-        // }
+        public override bool RegisterEventHandler(IAgoraRtcEngineEventHandler eventHandler)
+        {
+            var param = new
+            {
+                eventHandler
+            };
+            var ret = AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineRegisterEventHandler,
+                JsonMapper.ToJson(param),
+                out _result);
+            return ret == 0 ? true : false;
+        }
 
-        // public override bool UnregisterEventHandler(IRtcEngineEventHandler eventHandler)
-        // {
-        //     var param = new
-        //     {
-        //         eventHandler
-        //     };
-        //     return (bool) AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
-        //         ApiTypeEngine.kEngineUnregisterEventHandler,
-        //         JsonMapper.ToJson(param),
-        //         out _result);
-        // }
+        public override bool UnregisterEventHandler(IAgoraRtcEngineEventHandler eventHandler)
+        {
+            var param = new
+            {
+                eventHandler
+            };
+            var ret = AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineUnregisterEventHandler,
+                JsonMapper.ToJson(param),
+                out _result);
+            return ret == 0 ? true : false;
+        }
 
         public override int SetRemoteUserPriority(uint uid, PRIORITY_TYPE userPriority)
         {
@@ -2536,7 +2557,21 @@ namespace agora.rtc
                 out _result);
         }
 
-        //public override int SendCustomReportMessage(string id, string category, string event, string label, int value);
+        public override int SendCustomReportMessage(string id, string category, string @event, string label, int value)
+        {
+            var param = new
+            {
+                id,
+                category,
+                @event,
+                label,
+                value
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine,
+                ApiTypeEngine.kEngineEnableWebSdkInteroperability,
+                JsonMapper.ToJson(param),
+                out _result);
+        }
 
         // public override int RegisterMediaMetadataObserver(IMetadataObserver observer, IMetadataObserver::METADATA_TYPE type)
         // {
@@ -3010,7 +3045,30 @@ namespace agora.rtc
                 JsonMapper.ToJson(param), out _result);
         }
 
-        //public override int SendCustomReportMessageEx(string id, string category, string event, string label, int value, RtcConnection connection);
+        public override int SendCustomReportMessageEx(string id, string category, string @event, string label, int value, RtcConnection connection)
+        {
+            var param = new
+            {
+                id,
+                category,
+                @event,
+                label,
+                value,
+                connection
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineSendCustomReportMessageEx,
+                JsonMapper.ToJson(param), out _result);
+        }
+
+        private int SetAppType(AppType appType)
+        {
+            var param = new
+            {
+                appType
+            };
+            return AgoraRtcNative.CallIrisRtcEngineApi(_irisRtcEngine, ApiTypeEngine.kEngineSetAppType,
+                JsonMapper.ToJson(param), out _result);
+        }
 
         ~AgoraRtcEngine()
         {

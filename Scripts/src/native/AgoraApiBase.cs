@@ -234,6 +234,7 @@ namespace agora.rtc
         kEngineAddVideoWaterMarkEx,
         kEngineClearVideoWatermarkEx,
         kEngineSendCustomReportMessageEx,
+        
         kEngineSetAppType
     }
 
